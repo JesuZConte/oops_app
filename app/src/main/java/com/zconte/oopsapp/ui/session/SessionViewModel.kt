@@ -8,6 +8,7 @@ import com.zconte.oopsapp.domain.usecase.GetTodaySessionUseCase
 import com.zconte.oopsapp.domain.usecase.SubmitAnswerUseCase
 import com.zconte.oopsapp.domain.usecase.UpdateStreakUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,6 +24,7 @@ data class SessionUiState(
     val selectedAnswer: String? = null,
     val isAnswered: Boolean = false,
     val isCorrect: Boolean = false,
+    val isCompleting: Boolean = false,
     val isSessionComplete: Boolean = false
 )
 
@@ -36,6 +38,8 @@ class SessionViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(SessionUiState())
     val uiState: StateFlow<SessionUiState> = _uiState.asStateFlow()
+
+    private var pendingAnswerJob: Job? = null
 
     init {
         viewModelScope.launch {
@@ -51,23 +55,27 @@ class SessionViewModel @Inject constructor(
 
     fun submitAnswer(userAnswer: String) {
         val current = _uiState.value
+        if (current.isAnswered) return
         val exercise = current.currentExercise ?: return
         val exerciseId = current.queue.first().id
         val correct = userAnswer.trim().equals(exercise.answer.trim(), ignoreCase = true)
 
         _uiState.update { it.copy(isAnswered = true, isCorrect = correct, selectedAnswer = userAnswer) }
 
-        viewModelScope.launch {
+        pendingAnswerJob = viewModelScope.launch {
             submitAnswerUseCase(exerciseId, quality = if (correct) 5 else 2, today = LocalDate.now())
         }
     }
 
     fun nextExercise() {
+        if (_uiState.value.isCompleting) return
         val remaining = _uiState.value.queue.drop(1)
         if (remaining.isEmpty()) {
+            _uiState.update { it.copy(isCompleting = true) }
             viewModelScope.launch {
-                // Await the streak write before flipping isSessionComplete, so navigating away
-                // (and clearing this ViewModel's scope) can't cancel the write mid-flight.
+                // Wait for the last exercise's answer write before completing, so navigating
+                // away (and clearing this ViewModel's scope) can't cancel it mid-flight.
+                pendingAnswerJob?.join()
                 updateStreakUseCase(LocalDate.now())
                 _uiState.update { it.copy(isSessionComplete = true) }
             }
