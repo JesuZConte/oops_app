@@ -2070,6 +2070,7 @@ package com.zconte.oopsapp.ui.session
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -2085,6 +2086,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+
+private const val MCQ_TYPE = "mcq"
 
 @Composable
 fun SessionScreen(
@@ -2105,6 +2108,9 @@ fun SessionScreen(
     }
 
     var answer by remember(exercise.id) { mutableStateOf("") }
+    val mcqOptions = remember(exercise.id) {
+        if (exercise.type == MCQ_TYPE) (exercise.distractors + exercise.answer).shuffled() else emptyList()
+    }
 
     Column(modifier = modifier.padding(16.dp)) {
         Text(exercise.prompt)
@@ -2115,9 +2121,19 @@ fun SessionScreen(
         Spacer(Modifier.height(16.dp))
 
         if (!uiState.isAnswered) {
-            OutlinedTextField(value = answer, onValueChange = { answer = it })
-            Spacer(Modifier.height(8.dp))
-            Button(onClick = { viewModel.submitAnswer(answer) }) { Text("Responder") }
+            if (exercise.type == MCQ_TYPE) {
+                mcqOptions.forEach { option ->
+                    Button(
+                        onClick = { viewModel.submitAnswer(option) },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text(option) }
+                    Spacer(Modifier.height(8.dp))
+                }
+            } else {
+                OutlinedTextField(value = answer, onValueChange = { answer = it })
+                Spacer(Modifier.height(8.dp))
+                Button(onClick = { viewModel.submitAnswer(answer) }) { Text("Responder") }
+            }
         } else {
             Text(if (uiState.isCorrect) "Correcto!" else "Incorrecto. Respuesta: ${exercise.answer}")
             Spacer(Modifier.height(4.dp))
@@ -2128,6 +2144,8 @@ fun SessionScreen(
     }
 }
 ```
+
+> **Correction (post-ship, found during manual testing):** the original code above rendered every exercise — including `type == "mcq"` ones — with a free-text field, ignoring `distractors` entirely. Fixed by branching on `exercise.type`: `mcq` exercises now render `answer` + `distractors` shuffled as tappable buttons (each `onClick` submits that option directly); everything else keeps the text field. The code above already reflects this fix.
 
 - [ ] **Step 3: Build**
 
