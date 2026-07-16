@@ -579,7 +579,8 @@ class SchedulerSm2Test {
         assertEquals(0, result.repetitions)
         assertEquals(1, result.intervalDays)
         assertEquals(today.plusDays(1), result.dueDate)
-        assertEquals(2.6, result.easeFactor, 0.0001)
+        // Canonical SM-2: ease factor is recalculated on failure too (2.6 -> 2.28).
+        assertEquals(2.28, result.easeFactor, 0.0001)
     }
 
     @Test
@@ -593,8 +594,9 @@ class SchedulerSm2Test {
 
         assertEquals(3, result.repetitions)
         assertEquals(2.6, result.easeFactor, 0.0001)
-        assertEquals(16, result.intervalDays)
-        assertEquals(today.plusDays(16), result.dueDate)
+        // Interval uses the PRE-update ease factor (2.5), not the new one (2.6): round(6 * 2.5) = 15.
+        assertEquals(15, result.intervalDays)
+        assertEquals(today.plusDays(15), result.dueDate)
     }
 
     @Test
@@ -628,22 +630,26 @@ import java.time.LocalDate
 
 object SchedulerSm2 {
     fun review(state: ReviewState, quality: Int, today: LocalDate): ReviewState {
+        // Ease factor is recalculated on every review, pass or fail (canonical SM-2).
+        val newEase = (
+            state.easeFactor +
+                (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02))
+            ).coerceAtLeast(1.3)
+
         if (quality < 3) {
             return state.copy(
+                easeFactor = newEase,
                 repetitions = 0,
                 intervalDays = 1,
                 dueDate = today.plusDays(1)
             )
         }
-        val newEase = (
-            state.easeFactor +
-                (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02))
-            ).coerceAtLeast(1.3)
         val reps = state.repetitions + 1
         val interval = when (reps) {
             1 -> 1
             2 -> 6
-            else -> Math.round(state.intervalDays * newEase).toInt()
+            // Uses the PRE-update ease factor for this review, not newEase.
+            else -> Math.round(state.intervalDays * state.easeFactor).toInt()
         }
         return state.copy(
             easeFactor = newEase,
@@ -654,6 +660,8 @@ object SchedulerSm2 {
     }
 }
 ```
+
+> **Correction (post Task-2 review, applied before Task 3 began):** the version above fixes two deviations from canonical SM-2 found in the original spec's algorithm — ease factor was previously left unchanged on a failing review, and the interval for repetitions ≥3 used the post-update ease factor instead of the pre-update one. User decision: fix to canonical SM-2 (see `SchedulerSm2Test.kt` below for the corrected expected values in the two affected tests).
 
 - [ ] **Step 5: Run the tests to verify they pass**
 
@@ -773,9 +781,11 @@ data class UserStatsEntity(
     @PrimaryKey val id: Int = 0,
     val streak: Int,
     val xp: Int,
-    val lastStudyDate: Long
+    val lastStudyDate: Long?
 )
 ```
+
+> **Correction (post Task-3 review):** `lastStudyDate` is nullable here to match the domain `UserStats.lastStudyDate: LocalDate?` exactly — a non-nullable `Long` silently turned an explicit `null` into epoch-day `0` (1970-01-01) on round-trip. User decision: fix now (see `ProgressRepositoryImpl` below).
 
 - [ ] **Step 2: Create the DAOs**
 
@@ -1503,7 +1513,7 @@ class ProgressRepositoryImpl @Inject constructor(
             UserStatsEntity(
                 streak = stats.streak,
                 xp = stats.xp,
-                lastStudyDate = stats.lastStudyDate?.toEpochDay() ?: 0L
+                lastStudyDate = stats.lastStudyDate?.toEpochDay()
             )
         )
     }
@@ -1962,6 +1972,7 @@ import com.zconte.oopsapp.domain.usecase.GetTodaySessionUseCase
 import com.zconte.oopsapp.domain.usecase.SubmitAnswerUseCase
 import com.zconte.oopsapp.domain.usecase.UpdateStreakUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -1977,6 +1988,7 @@ data class SessionUiState(
     val selectedAnswer: String? = null,
     val isAnswered: Boolean = false,
     val isCorrect: Boolean = false,
+    val isCompleting: Boolean = false,
     val isSessionComplete: Boolean = false
 )
 
@@ -1991,33 +2003,46 @@ class SessionViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(SessionUiState())
     val uiState: StateFlow<SessionUiState> = _uiState.asStateFlow()
 
+    private var pendingAnswerJob: Job? = null
+
     init {
         viewModelScope.launch {
             val queue = getTodaySessionUseCase(LocalDate.now())
-            _uiState.update {
-                it.copy(queue = queue, currentExercise = queue.firstOrNull()?.let(::decode))
+            if (queue.isEmpty()) {
+                // Nothing due and nothing new: nothing to show, so the session is trivially complete.
+                _uiState.update { it.copy(isSessionComplete = true) }
+            } else {
+                _uiState.update { it.copy(queue = queue, currentExercise = decode(queue.first())) }
             }
         }
     }
 
     fun submitAnswer(userAnswer: String) {
         val current = _uiState.value
+        if (current.isAnswered) return
         val exercise = current.currentExercise ?: return
         val exerciseId = current.queue.first().id
         val correct = userAnswer.trim().equals(exercise.answer.trim(), ignoreCase = true)
 
         _uiState.update { it.copy(isAnswered = true, isCorrect = correct, selectedAnswer = userAnswer) }
 
-        viewModelScope.launch {
+        pendingAnswerJob = viewModelScope.launch {
             submitAnswerUseCase(exerciseId, quality = if (correct) 5 else 2, today = LocalDate.now())
         }
     }
 
     fun nextExercise() {
+        if (_uiState.value.isCompleting) return
         val remaining = _uiState.value.queue.drop(1)
         if (remaining.isEmpty()) {
-            viewModelScope.launch { updateStreakUseCase(LocalDate.now()) }
-            _uiState.update { it.copy(isSessionComplete = true) }
+            _uiState.update { it.copy(isCompleting = true) }
+            viewModelScope.launch {
+                // Wait for the last exercise's answer write before completing, so navigating
+                // away (and clearing this ViewModel's scope) can't cancel it mid-flight.
+                pendingAnswerJob?.join()
+                updateStreakUseCase(LocalDate.now())
+                _uiState.update { it.copy(isSessionComplete = true) }
+            }
         } else {
             _uiState.update {
                 it.copy(
@@ -2112,6 +2137,10 @@ Expected: `BUILD SUCCESSFUL`.
 - [ ] **Step 4: Manual verification**
 
 Install and run the app. From Home, tap "Estudiar hoy". Confirm: the first Streams exercise appears with its prompt/code; typing an answer and tapping "Responder" shows correct/incorrect feedback plus the explanation; "Siguiente" advances through the queue; after the last exercise, the screen navigates back to Home (via `onSessionComplete` → `popBackStack()`).
+
+> **Corrections (post Task-5 review, applied in two rounds):**
+> 1. *Task-level review:* an empty session queue now completes the session immediately instead of leaving the screen stuck on "Cargando sesion..." forever, and `updateStreakUseCase` is awaited before `isSessionComplete` flips, so navigating away can't cancel the streak write mid-flight.
+> 2. *Whole-branch review:* the same race existed for the last exercise's `submitAnswerUseCase` write (unawaited), and rapid double-tapping "Siguiente" could invoke `updateStreakUseCase` twice, double-counting XP (it isn't idempotent on XP, only on same-day streak). Fixed by tracking the in-flight answer write in `pendingAnswerJob` and joining it before completing, plus an `isCompleting`/`isAnswered` re-entry guard. The `SessionViewModel` code above already reflects both rounds of fixes.
 
 - [ ] **Step 5: Commit**
 
