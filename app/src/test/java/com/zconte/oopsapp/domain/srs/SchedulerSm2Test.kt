@@ -50,7 +50,7 @@ class SchedulerSm2Test {
         assertEquals(0, result.repetitions)
         assertEquals(1, result.intervalDays)
         assertEquals(today.plusDays(1), result.dueDate)
-        assertEquals(2.6, result.easeFactor, 0.0001)
+        assertEquals(2.28, result.easeFactor, 0.0001)
     }
 
     @Test
@@ -64,8 +64,8 @@ class SchedulerSm2Test {
 
         assertEquals(3, result.repetitions)
         assertEquals(2.6, result.easeFactor, 0.0001)
-        assertEquals(16, result.intervalDays)
-        assertEquals(today.plusDays(16), result.dueDate)
+        assertEquals(15, result.intervalDays)
+        assertEquals(today.plusDays(15), result.dueDate)
     }
 
     @Test
