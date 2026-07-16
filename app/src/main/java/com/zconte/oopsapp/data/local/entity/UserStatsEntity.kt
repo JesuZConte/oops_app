@@ -8,5 +8,5 @@ data class UserStatsEntity(
     @PrimaryKey val id: Int = 0,
     val streak: Int,
     val xp: Int,
-    val lastStudyDate: Long
+    val lastStudyDate: Long?
 )

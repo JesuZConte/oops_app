@@ -29,7 +29,7 @@ class ProgressRepositoryImpl @Inject constructor(
             UserStatsEntity(
                 streak = stats.streak,
                 xp = stats.xp,
-                lastStudyDate = stats.lastStudyDate?.toEpochDay() ?: 0L
+                lastStudyDate = stats.lastStudyDate?.toEpochDay()
             )
         )
     }
