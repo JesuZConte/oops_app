@@ -40,8 +40,11 @@ class SessionViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             val queue = getTodaySessionUseCase(LocalDate.now())
-            _uiState.update {
-                it.copy(queue = queue, currentExercise = queue.firstOrNull()?.let(::decode))
+            if (queue.isEmpty()) {
+                // Nothing due and nothing new: nothing to show, so the session is trivially complete.
+                _uiState.update { it.copy(isSessionComplete = true) }
+            } else {
+                _uiState.update { it.copy(queue = queue, currentExercise = decode(queue.first())) }
             }
         }
     }
@@ -62,8 +65,12 @@ class SessionViewModel @Inject constructor(
     fun nextExercise() {
         val remaining = _uiState.value.queue.drop(1)
         if (remaining.isEmpty()) {
-            viewModelScope.launch { updateStreakUseCase(LocalDate.now()) }
-            _uiState.update { it.copy(isSessionComplete = true) }
+            viewModelScope.launch {
+                // Await the streak write before flipping isSessionComplete, so navigating away
+                // (and clearing this ViewModel's scope) can't cancel the write mid-flight.
+                updateStreakUseCase(LocalDate.now())
+                _uiState.update { it.copy(isSessionComplete = true) }
+            }
         } else {
             _uiState.update {
                 it.copy(
