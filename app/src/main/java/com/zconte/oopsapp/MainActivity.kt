@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -51,7 +52,13 @@ class MainActivity : ComponentActivity() {
                 ) { innerPadding ->
                     OopsNavHost(
                         navController = navController,
-                        modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding())
+                        modifier = Modifier.padding(
+                            bottom = if (currentRoute == OopsDestinations.SESSION) {
+                                0.dp
+                            } else {
+                                innerPadding.calculateBottomPadding()
+                            }
+                        )
                     )
                 }
             }
