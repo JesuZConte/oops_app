@@ -25,7 +25,8 @@ data class SessionUiState(
     val isAnswered: Boolean = false,
     val isCorrect: Boolean = false,
     val isCompleting: Boolean = false,
-    val isSessionComplete: Boolean = false
+    val isSessionComplete: Boolean = false,
+    val totalExercises: Int = 0
 )
 
 @HiltViewModel
@@ -48,7 +49,9 @@ class SessionViewModel @Inject constructor(
                 // Nothing due and nothing new: nothing to show, so the session is trivially complete.
                 _uiState.update { it.copy(isSessionComplete = true) }
             } else {
-                _uiState.update { it.copy(queue = queue, currentExercise = decode(queue.first())) }
+                _uiState.update {
+                    it.copy(queue = queue, totalExercises = queue.size, currentExercise = decode(queue.first()))
+                }
             }
         }
     }
