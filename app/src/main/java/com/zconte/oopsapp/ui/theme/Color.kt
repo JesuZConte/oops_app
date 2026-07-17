@@ -38,3 +38,7 @@ val CodeBlockType = Color(0xFF7DD3FC)
 
 // Ruta top bar: always dark, in both themes
 val RouteHeaderBackground = Color(0xFF1A1730)
+
+// Functional cup: Java coffee-mug palette, same in both themes
+val JavaCupOutline = Color(0xFFD2691E)
+val JavaCupFill = Color(0xFF6F4518)

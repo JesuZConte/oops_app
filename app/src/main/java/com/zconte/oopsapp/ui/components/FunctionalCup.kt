@@ -19,6 +19,8 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.unit.dp
+import com.zconte.oopsapp.ui.theme.JavaCupFill
+import com.zconte.oopsapp.ui.theme.JavaCupOutline
 
 @Composable
 fun FunctionalCup(
@@ -26,10 +28,8 @@ fun FunctionalCup(
     streakDays: Int,
     modifier: Modifier = Modifier
 ) {
-    val fillColor = MaterialTheme.colorScheme.tertiary
-    val outlineColor = MaterialTheme.colorScheme.outline.let {
-        if (it == androidx.compose.ui.graphics.Color.Unspecified) MaterialTheme.colorScheme.onSurface else it
-    }
+    val fillColor = JavaCupFill
+    val outlineColor = JavaCupOutline
     val steamColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f)
     val animatedFill by animateFloatAsState(targetValue = xpLevelFraction.coerceIn(0f, 1f), label = "cupFill")
     val wisps = when {
