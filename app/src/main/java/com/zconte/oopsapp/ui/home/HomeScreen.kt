@@ -74,6 +74,11 @@ fun HomeScreen(
                 FunctionalCup(xpLevelFraction = levelFraction, streakDays = uiState.streak)
                 Column {
                     Text(
+                        text = "STREAK",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
                         text = uiState.streak.toString().padStart(2, '0'),
                         style = MaterialTheme.typography.headlineSmall.copy(fontFamily = PressStart2P, fontSize = 20.sp),
                         color = MaterialTheme.colorScheme.tertiary
