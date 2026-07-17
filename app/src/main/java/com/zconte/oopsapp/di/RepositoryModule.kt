@@ -2,8 +2,10 @@ package com.zconte.oopsapp.di
 
 import com.zconte.oopsapp.data.repository.ExerciseRepositoryImpl
 import com.zconte.oopsapp.data.repository.ProgressRepositoryImpl
+import com.zconte.oopsapp.data.repository.SettingsRepositoryImpl
 import com.zconte.oopsapp.domain.repository.ExerciseRepository
 import com.zconte.oopsapp.domain.repository.ProgressRepository
+import com.zconte.oopsapp.domain.repository.SettingsRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -17,4 +19,7 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindProgressRepository(impl: ProgressRepositoryImpl): ProgressRepository
+
+    @Binds
+    abstract fun bindSettingsRepository(impl: SettingsRepositoryImpl): SettingsRepository
 }
