@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
@@ -19,7 +20,12 @@ fun LanguageEmblem(modifier: Modifier = Modifier) {
     Canvas(
         modifier = modifier
             .size(32.dp)
-            .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(8.dp))
+            .background(
+                brush = Brush.linearGradient(
+                    listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)
+                ),
+                shape = RoundedCornerShape(8.dp)
+            )
     ) {
         val cupWidth = size.width * 0.5f
         val cupHeight = size.height * 0.4f
