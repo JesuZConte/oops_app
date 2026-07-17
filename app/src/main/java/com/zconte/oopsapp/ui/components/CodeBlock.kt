@@ -80,7 +80,7 @@ fun CodeBlock(code: String, modifier: Modifier = Modifier) {
 
 private fun highlightCode(code: String, extended: com.zconte.oopsapp.ui.theme.OopsExtendedColors): AnnotatedString =
     buildAnnotatedString {
-        val blankRegex = Regex("_+")
+        val blankRegex = Regex("_{5,}")
         val tokenRegex = Regex("[A-Za-z]+")
         var index = 0
         while (index < code.length) {
