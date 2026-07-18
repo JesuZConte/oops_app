@@ -25,6 +25,10 @@ Decisiones documentadas en `docs/adrs/2026-07-17-navigation-and-home-restructure
 - **Home**: se agregó una tarjeta "TU RUTA" con el progreso real de Streams (mismo dato que muestra Ruta), manteniendo racha y XP como estaban. Título cambiado de "Oops!" a "OOPs!".
 - Durante la implementación se encontró y corrigió un bug real de Material3: `Scaffold` no resuelve `innerPadding` a `0.dp` cuando `bottomBar` está vacío (cae al inset del sistema igual), lo que duplicaba el padding inferior en Session — corregido con un condicional por ruta.
 
+### Bug encontrado en prueba real (post-navegación)
+
+- **La pestaña "Home" no hacía nada si se llegaba a Ruta por "Ver ruta" o la tarjeta "TU RUTA"**: esos dos navegaban con un `navController.navigate()` simple, distinto del patrón `popUpTo`/`launchSingleTop`/`restoreState` que usa la barra de navegación inferior — mezclar ambos estilos hacia el mismo destino de nivel superior dejaba el back stack inconsistente. Corregido alineando ambos callbacks al mismo patrón de navegación.
+
 ### Estado del repo
 
 Todo mergeado a `main` y pusheado a `https://github.com/JesuZConte/oops_app`. Sin cambios de schema de Room. Tests unitarios existentes (SM-2, casos de uso) más los nuevos (`SettingsRepositoryImplTest`, `ThemeResolverTest`) — todos pasando.
