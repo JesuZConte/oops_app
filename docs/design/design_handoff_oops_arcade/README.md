@@ -1,14 +1,16 @@
-# Handoff: Oops! — Arcade Neón-Pixel (Fase 2)
+# Handoff: OOPs! — Arcade Neón-Pixel (Fase 2)
+
+> **Nombre de marca: `OOPs!`** — "OOP" en mayúsculas (Object Oriented Programming) + "s!". Usar exactamente así en todo wordmark y copy. (Reemplaza al anterior "Oops!".)
 
 ## Overview
-**Oops!** es una app Android de estudio diario para la certificación **Oracle Certified Professional: Java SE 21 Developer (1Z0-830)**. Formato "Duolingo de Java": sesiones cortas diarias con repetición espaciada (SM-2) que entrenan el recuerdo activo de la API de Java (Streams, Collections, JDBC…) sin IDE.
+**OOPs!** es una app Android de estudio diario para la certificación **Oracle Certified Professional: Java SE 21 Developer (1Z0-830)**. Formato "Duolingo de Java": sesiones cortas diarias con repetición espaciada (SM-2) que entrenan el recuerdo activo de la API de Java (Streams, Collections, JDBC…) sin IDE.
 
 Este handoff cubre el **sistema visual de Fase 2**: una dirección de arte "Arcade" con dos modos —**oscuro Neón-Pixel** (primario) y **claro Papercraft**— aplicada a las pantallas existentes (Home, Session, Progress→**Ruta**), más un sistema de mascota por lenguaje.
 
 ## About the Design Files
 Los archivos de este bundle son **referencias de diseño hechas en HTML** — prototipos que muestran el look y el comportamiento buscados, **no código de producción para copiar tal cual**. La tarea es **recrear estos diseños en el entorno del proyecto**: Android nativo con **Jetpack Compose + Material3**, expresando el sistema como un `ColorScheme` + `Typography` + `Shapes` (tokens), **no** como assets estáticos sueltos. Debe soportar **modo claro y oscuro**.
 
-El archivo HTML (`Oops Design Directions.dc.html`) es un documento de exploración con varias direcciones descartadas. **Solo importan las selecciones finales** documentadas abajo (secciones/ids `4a`, `5a`, `2c`, `6d`, `6c`). El resto del archivo es historial y puede ignorarse.
+El archivo HTML (`Oops Design Directions.dc.html`) es un documento de exploración con varias direcciones descartadas. **Solo importan las selecciones finales** documentadas abajo (secciones/ids `7b`, `7a`, `4a`, `5a`, `2c`, `6d`, `6c`). **La revisión vigente es la combinación de `7a` + `7b`**: de `7a` toma las correcciones de pantallas (nombre OOPs!, taza funcional, tarjeta TU RUTA, sombras de color, Ajustes); de `7b` toma la **navegación ABAJO** (bottom nav arcade) — que **reemplaza** la nav superior mostrada en 7a. El resto del archivo es historial y puede ignorarse.
 
 ## Fidelity
 **Alta fidelidad (hifi).** Colores, tipografía, radios y estados están definidos con valores exactos. Recrear la UI pixel-perfect con los componentes de Material3. Las únicas piezas pendientes de arte son las **ilustraciones de mascota** (ver Assets) — todo lo demás es implementable directo.
@@ -24,6 +26,20 @@ El archivo HTML (`Oops Design Directions.dc.html`) es un documento de exploraci�
 | Pantalla de progreso | **Ruta línea de metro** (dominios = líneas) | 2c |
 | Indicador Home | **Taza funcional** (vapor=racha, llenado=XP) | 6d |
 | Mascota | **Sprite pixel-art** en la línea arcade, por lenguaje | 6c |
+| **Navegación** | **Bottom nav arcade** (Home · Ruta · Ajustes) | **7b** |
+| **Revisión de build** | Correcciones + nav + Ajustes | 7a + 7b |
+
+---
+
+## Navegación (bottom nav arcade) — 7b (DEFINITIVA)
+**La navegación va ABAJO** (convención Android + alcance del pulgar), rehecha en lenguaje arcade. Presente en las 3 pantallas raíz. **Ignorar 7a (versión con nav arriba): fue descartada.**
+- **3 pestañas:** Home · Ruta · Ajustes (icono + label). Labels en **Press Start 2P** (~6–7px, MAYÚSCULAS). Iconos lineales ~18px: **Home = la taza-mascota**, Ruta = nodos de metro, Ajustes = engranaje.
+- **Arriba de cada pantalla NO hay tab bar:** solo el contenido/título (en Home, el wordmark **OOPs!** + emblema de lenguaje).
+- **Pestaña activa:** pill de color relleno — cada tab su color (Home=magenta secondary, Ruta=azul primary, Ajustes=ámbar tertiary), texto/icono en contraste.
+  - **Claro:** contenedor `surface` con borde 2px ink + **sombra dura** `4px 4px 0 ink` y `border-top:3px ink`; pill activa con borde 2px ink + sombra `2px 2px 0 ink`.
+  - **Oscuro:** contenedor `surface` con `border-top:1px outline`; pill activa con **glow** del color (`0 0 12px rgba(color,.6)`).
+- **Inactiva:** transparente, icono ink/onSurface, label muted.
+- En Compose: `NavigationBar` de Material3 **con estilo custom** (o un Row propio) que reproduzca pill + sombra/glow; el contenido de cada pantalla va encima.
 
 ---
 
@@ -110,9 +126,13 @@ Nota: el sistema debe soportar **N dominios crecientes**; asignar color por índ
 4. **Tarjeta XP:** label "XP" + valor + barra de progreso al siguiente nivel (relleno primary).
 5. Spacer (flex:1).
 6. **Botón primario "ESTUDIAR HOY"** (secondary/magenta, full-width). *Deshabilitado brevemente en el primer arranque mientras se siembra contenido.*
-7. **Botón secundario "Ver ruta"** (outline).
+7. **Botón secundario "Ver ruta"** (outline con **texto tinta/onSurface**, NO estilo link azul).
 
-**Copy exacto:** "Oops!", "STREAK", "días seguidos · récord 12", "XP", "ESTUDIAR HOY", "Ver ruta".
+> **Correcciones vs. build (ver 7a):** el wordmark es **OOPs!** ("!" en secondary); bajo él va la **franja-espectro** de acento 5px (solo claro); la **taza** es funcional (relleno=XP, vapor=racha), no un contorno; el subtítulo incluye **"récord 12"**; la **barra XP** se rellena en **azul primary** (no lavanda); las **sombras en claro son de color por tarjeta** (racha=magenta, XP=amarillo, TU RUTA=azul).
+
+**Nueva tarjeta — TU RUTA (Home):** entre XP y los botones. Tarjeta `surface` (sombra azul en claro / glow azul en oscuro) con label "TU RUTA" (Press Start 2P), nombre del dominio actual + "68% ▶" y una mini-barra de progreso del dominio. Toca → abre la pantalla Ruta en el dominio actual.
+
+**Copy exacto:** "OOPs!", "STREAK", "días seguidos · récord 12", "XP", "TU RUTA", "ESTUDIAR HOY", "Ver ruta".
 
 ### 2) Session — variante `fill_blank`
 **Propósito:** un ejercicio de completar un hueco en código.

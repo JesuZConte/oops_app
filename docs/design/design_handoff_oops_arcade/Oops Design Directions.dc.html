@@ -24,10 +24,373 @@
 </helmet>
 <div style="min-height:100vh; background:#E9E7E2; padding:64px 56px 120px; font-family:'Space Grotesk',system-ui,sans-serif; color:#1a1a1a;">
   <div style="max-width:1240px; margin:0 auto 56px;">
-    <div style="font-family:'JetBrains Mono',monospace; font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:#8a8a82;">Oops! · Java SE 21 · Fase 2</div>
+    <div style="font-family:'JetBrains Mono',monospace; font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:#8a8a82;">OOPs! · Java SE 21 · Fase 2</div>
     <h1 style="font-size:52px; line-height:1.05; margin:14px 0 16px; font-weight:700; letter-spacing:-.02em;">Tres direcciones de diseño</h1>
     <p style="font-size:18px; line-height:1.5; max-width:720px; color:#4a4a44; margin:0;">Cada dirección es un sistema completo: <strong>Material3 ColorScheme + Typography + Shapes</strong>, en claro y oscuro, con los componentes clave (tarjeta de ejercicio, botón MCQ con estados, racha/XP, barra de dominio, feedback). Escribe <strong>1a</strong>, <strong>1b</strong> o <strong>1c</strong> en el chat para iterar sobre una.</p>
   </div>
+
+  <!-- ============ TURN 8 · NAV ARCADE ABAJO (comparación) ============ -->
+  <section style="margin-bottom:80px; padding-bottom:72px; border-bottom:2px dashed #cfccc4;">
+    <div style="margin-bottom:28px;">
+      <div style="font-family:'JetBrains Mono',monospace; font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:#8a8a82;">Turno 8 · nav abajo, estilo arcade</div>
+      <h2 style="font-size:40px; line-height:1.05; margin:10px 0 12px; font-weight:700; letter-spacing:-.02em;">Bottom nav arcade (7b)</h2>
+      <p style="font-size:17px; line-height:1.5; max-width:720px; color:#4a4a44; margin:0;">Nav de vuelta <strong>abajo</strong> (convención Android + alcance del pulgar) pero rediseñado en lenguaje arcade: pill chunky en la activa, sombra dura (claro) / glow (oscuro), labels Press Start 2P, y la <strong>mascota-taza como icono de Home</strong>. Arriba queda solo el wordmark <strong>OOPs!</strong> + emblema. Compará <a href="#7a" style="color:#E5427E; font-weight:700;">7a</a> (arriba) vs <strong>7b</strong> (abajo).</p>
+    </div>
+
+    <div id="7b" style="scroll-margin-top:40px;">
+
+      <!-- NAV DETAIL bottom -->
+      <div style="margin-bottom:30px;">
+        <div style="font-family:'JetBrains Mono',monospace; font-size:13px; color:#7a7a72; margin-bottom:12px;">// bottom nav arcade — detalle (claro / oscuro)</div>
+        <div style="display:flex; gap:20px; flex-wrap:wrap;">
+          <!-- light -->
+          <div style="width:300px; display:flex; gap:8px; padding:10px 12px 12px; background:#fff; border:2px solid #2A2632; border-radius:16px; box-shadow:4px 4px 0 #2A2632;">
+            <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:5px; padding:9px 2px; background:#E5427E; border:2px solid #2A2632; border-radius:12px; box-shadow:2px 2px 0 #2A2632; color:#fff;"><svg width="20" height="18" viewBox="0 0 26 22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6h9a3 3 0 0 1 0 6h-1"/><path d="M6 6v8a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V6z"/></svg><span style="font-family:'Press Start 2P',monospace; font-size:7px;">HOME</span></div>
+            <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:5px; padding:9px 2px; color:#2A2632;"><svg width="20" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="5" r="2"/><circle cx="18" cy="19" r="2"/><path d="M6 7v3a4 4 0 0 0 4 4h4a4 4 0 0 1 4 4"/></svg><span style="font-family:'Press Start 2P',monospace; font-size:7px; color:#8A8296;">RUTA</span></div>
+            <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:5px; padding:9px 2px; color:#2A2632;"><svg width="20" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5 5l2.1 2.1M16.9 16.9L19 19M19 5l-2.1 2.1M7.1 16.9L5 19"/></svg><span style="font-family:'Press Start 2P',monospace; font-size:7px; color:#8A8296;">AJUSTES</span></div>
+          </div>
+          <!-- dark -->
+          <div style="width:300px; display:flex; gap:8px; padding:10px 12px 12px; background:#16141F; border:1px solid #2C2838; border-radius:16px;">
+            <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:5px; padding:9px 2px; background:#FF2E7A; border-radius:12px; box-shadow:0 0 14px rgba(255,46,122,.6); color:#fff;"><svg width="20" height="18" viewBox="0 0 26 22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6h9a3 3 0 0 1 0 6h-1"/><path d="M6 6v8a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V6z"/></svg><span style="font-family:'Press Start 2P',monospace; font-size:7px;">HOME</span></div>
+            <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:5px; padding:9px 2px; color:#EDEAF5;"><svg width="20" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="5" r="2"/><circle cx="18" cy="19" r="2"/><path d="M6 7v3a4 4 0 0 0 4 4h4a4 4 0 0 1 4 4"/></svg><span style="font-family:'Press Start 2P',monospace; font-size:7px; color:#8B86A3;">RUTA</span></div>
+            <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:5px; padding:9px 2px; color:#EDEAF5;"><svg width="20" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5 5l2.1 2.1M16.9 16.9L19 19M19 5l-2.1 2.1M7.1 16.9L5 19"/></svg><span style="font-family:'Press Start 2P',monospace; font-size:7px; color:#8B86A3;">AJUSTES</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:26px; flex-wrap:wrap; align-items:flex-start;">
+
+        <!-- HOME light · bottom nav -->
+        <div>
+          <div style="width:258px; height:544px; background:#2A2632; border-radius:35px; padding:8px; box-shadow:0 22px 46px rgba(42,38,50,.24);">
+            <div style="width:100%; height:100%; background:#FAF5EC; border-radius:28px; overflow:hidden; display:flex; flex-direction:column; font-family:'Nunito',sans-serif;">
+              <div style="height:26px; display:flex; align-items:center; justify-content:space-between; padding:0 16px; font-size:10px; font-weight:700; color:#2A2632;"><span>10:36</span><span>100%</span></div>
+              <div style="flex:1; padding:14px; display:flex; flex-direction:column; gap:9px; overflow:hidden;">
+                <div style="display:flex; justify-content:space-between; align-items:center;"><div style="font-weight:900; font-size:23px; color:#2A2632;">OOPs<span style="color:#E5427E;">!</span></div><div style="width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#F59410,#E5427E,#3A72D6);"></div></div>
+                <div style="height:5px; border-radius:4px; background:linear-gradient(90deg,#F5533D,#F59410,#F7C331,#4FB03A,#2AA5B0,#3A72D6,#E5427E);"></div>
+                <div style="background:#fff; border:2px solid #2A2632; border-radius:16px; padding:13px 15px; box-shadow:4px 4px 0 #E5427E; display:flex; align-items:center; gap:14px;">
+                  <div style="position:relative; width:52px; height:50px; display:flex; align-items:flex-end; flex:0 0 auto;">
+                    <div style="position:absolute; top:-2px; left:9px; display:flex; gap:4px;"><span style="width:4px;height:11px;background:#c9c1b0;border-radius:3px;display:block;opacity:.9;"></span><span style="width:4px;height:15px;background:#c9c1b0;border-radius:3px;display:block;opacity:.7;margin-top:-3px;"></span><span style="width:4px;height:11px;background:#c9c1b0;border-radius:3px;display:block;opacity:.5;"></span></div>
+                    <div style="position:relative; width:38px; height:32px; background:#F4ECDD; border:3px solid #2A2632; border-radius:5px 5px 12px 12px; overflow:hidden;"><div style="position:absolute; bottom:0; left:0; right:0; height:64%; background:#F59410;"></div></div>
+                    <div style="position:absolute; right:0; bottom:7px; width:13px; height:17px; border:3px solid #2A2632; border-left:none; border-radius:0 9px 9px 0;"></div>
+                  </div>
+                  <div><div style="font-family:'Press Start 2P',monospace; font-size:8px; color:#E5427E;">STREAK</div><div style="display:flex; align-items:center; gap:7px; margin-top:5px;"><span style="font-size:18px;">🔥</span><span style="font-family:'Press Start 2P',monospace; font-size:22px; color:#2A2632;">07</span></div><div style="font-size:11px; font-weight:700; color:#8A8296; margin-top:5px;">días seguidos · récord 12</div></div>
+                </div>
+                <div style="background:#fff; border:2px solid #2A2632; border-radius:16px; padding:12px 15px; box-shadow:4px 4px 0 #F7C331;">
+                  <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-family:'Press Start 2P',monospace; font-size:8px; color:#3A72D6;">XP</span><span style="font-family:'Press Start 2P',monospace; font-size:13px; color:#2A2632;">340</span></div>
+                  <div style="height:11px; background:#efe7d8; border:2px solid #2A2632; border-radius:7px; margin-top:8px; overflow:hidden;"><div style="width:64%; height:100%; background:#3A72D6;"></div></div>
+                </div>
+                <div style="background:#fff; border:2px solid #2A2632; border-radius:16px; padding:12px 15px; box-shadow:4px 4px 0 #3A72D6;">
+                  <div style="font-family:'Press Start 2P',monospace; font-size:8px; color:#3A72D6;">TU RUTA</div>
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-top:7px;"><span style="font-weight:800; font-size:13px; color:#2A2632;">Streams &amp; lambdas</span><span style="font-weight:800; font-size:12px; color:#3A72D6;">68% ▶</span></div>
+                  <div style="height:8px; background:#efe7d8; border:2px solid #2A2632; border-radius:5px; margin-top:7px; overflow:hidden;"><div style="width:68%; height:100%; background:#3A72D6;"></div></div>
+                </div>
+                <div style="flex:1;"></div>
+                <button style="border:2px solid #2A2632; background:#E5427E; color:#fff; font-family:'Nunito',sans-serif; font-weight:900; font-size:16px; padding:13px; border-radius:15px; box-shadow:4px 4px 0 #2A2632; cursor:pointer;">ESTUDIAR HOY</button>
+              </div>
+              <!-- BOTTOM NAV -->
+              <div style="flex:0 0 auto; display:flex; gap:6px; padding:9px 10px 11px; background:#fff; border-top:3px solid #2A2632;">
+                <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:7px 2px; background:#E5427E; border:2px solid #2A2632; border-radius:11px; box-shadow:2px 2px 0 #2A2632; color:#fff;"><svg width="18" height="16" viewBox="0 0 26 22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6h9a3 3 0 0 1 0 6h-1"/><path d="M6 6v8a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V6z"/></svg><span style="font-family:'Press Start 2P',monospace; font-size:6px;">HOME</span></div>
+                <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:7px 2px; color:#2A2632;"><svg width="18" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="5" r="2"/><circle cx="18" cy="19" r="2"/><path d="M6 7v3a4 4 0 0 0 4 4h4a4 4 0 0 1 4 4"/></svg><span style="font-family:'Press Start 2P',monospace; font-size:6px; color:#8A8296;">RUTA</span></div>
+                <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:7px 2px; color:#2A2632;"><svg width="18" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5 5l2.1 2.1M16.9 16.9L19 19M19 5l-2.1 2.1M7.1 16.9L5 19"/></svg><span style="font-family:'Press Start 2P',monospace; font-size:6px; color:#8A8296;">AJUSTES</span></div>
+              </div>
+            </div>
+          </div>
+          <div style="text-align:center; margin-top:12px; font-family:'JetBrains Mono',monospace; font-size:12px; color:#7a7a72;">Home · claro · nav abajo</div>
+        </div>
+
+        <!-- HOME dark · bottom nav -->
+        <div>
+          <div style="width:258px; height:544px; background:#000; border-radius:35px; padding:8px; box-shadow:0 22px 46px rgba(0,0,0,.4);">
+            <div style="width:100%; height:100%; background:#0A0910; border-radius:28px; overflow:hidden; display:flex; flex-direction:column; font-family:'Nunito',sans-serif;">
+              <div style="height:26px; display:flex; align-items:center; justify-content:space-between; padding:0 16px; font-size:10px; font-weight:700; color:#c8c3da;"><span>22:17</span><span>100%</span></div>
+              <div style="flex:1; padding:14px; display:flex; flex-direction:column; gap:9px; overflow:hidden;">
+                <div style="display:flex; justify-content:space-between; align-items:center;"><div style="font-weight:900; font-size:23px; color:#fff;">OOPs<span style="color:#FF2E7A;">!</span></div><div style="width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#FF8A2E,#FF2E7A,#3D6BFF);"></div></div>
+                <div style="height:5px; border-radius:4px; background:linear-gradient(90deg,#FF5747,#FF8A2E,#F7C331,#38D06B,#2AA5B0,#3D6BFF,#FF2E7A);"></div>
+                <div style="background:#16141F; border:1px solid #2C2838; border-radius:16px; padding:13px 15px; box-shadow:0 0 18px rgba(255,138,46,.25); display:flex; align-items:center; gap:14px;">
+                  <div style="position:relative; width:52px; height:50px; display:flex; align-items:flex-end; flex:0 0 auto;">
+                    <div style="position:absolute; top:-2px; left:9px; display:flex; gap:4px;"><span style="width:4px;height:11px;background:#6b6480;border-radius:3px;display:block;opacity:.9;"></span><span style="width:4px;height:15px;background:#6b6480;border-radius:3px;display:block;opacity:.7;margin-top:-3px;"></span><span style="width:4px;height:11px;background:#6b6480;border-radius:3px;display:block;opacity:.5;"></span></div>
+                    <div style="position:relative; width:38px; height:32px; background:#211E2E; border:3px solid #FF8A2E; border-radius:5px 5px 12px 12px; overflow:hidden;"><div style="position:absolute; bottom:0; left:0; right:0; height:64%; background:#FF8A2E;"></div></div>
+                    <div style="position:absolute; right:0; bottom:7px; width:13px; height:17px; border:3px solid #FF8A2E; border-left:none; border-radius:0 9px 9px 0;"></div>
+                  </div>
+                  <div><div style="font-family:'Press Start 2P',monospace; font-size:8px; color:#FF8A2E;">STREAK</div><div style="display:flex; align-items:center; gap:7px; margin-top:5px;"><span style="font-size:18px;">🔥</span><span style="font-family:'Press Start 2P',monospace; font-size:22px; color:#fff;">07</span></div><div style="font-size:11px; font-weight:700; color:#8B86A3; margin-top:5px;">días seguidos · récord 12</div></div>
+                </div>
+                <div style="background:#16141F; border:1px solid #2C2838; border-radius:16px; padding:12px 15px; box-shadow:0 0 16px rgba(61,107,255,.2);">
+                  <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-family:'Press Start 2P',monospace; font-size:8px; color:#3D6BFF;">XP</span><span style="font-family:'Press Start 2P',monospace; font-size:13px; color:#fff;">340</span></div>
+                  <div style="height:11px; background:#211E2E; border-radius:7px; margin-top:8px; overflow:hidden;"><div style="width:64%; height:100%; background:#3D6BFF; box-shadow:0 0 10px rgba(61,107,255,.7);"></div></div>
+                </div>
+                <div style="background:#16141F; border:1px solid #2C2838; border-radius:16px; padding:12px 15px; box-shadow:0 0 16px rgba(61,107,255,.2);">
+                  <div style="font-family:'Press Start 2P',monospace; font-size:8px; color:#3D6BFF;">TU RUTA</div>
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-top:7px;"><span style="font-weight:800; font-size:13px; color:#EDEAF5;">Streams &amp; lambdas</span><span style="font-weight:800; font-size:12px; color:#3D6BFF;">68% ▶</span></div>
+                  <div style="height:8px; background:#211E2E; border-radius:5px; margin-top:7px; overflow:hidden;"><div style="width:68%; height:100%; background:#3D6BFF; box-shadow:0 0 10px rgba(61,107,255,.7);"></div></div>
+                </div>
+                <div style="flex:1;"></div>
+                <button style="border:none; background:#FF2E7A; color:#fff; font-family:'Nunito',sans-serif; font-weight:900; font-size:16px; padding:13px; border-radius:15px; box-shadow:0 0 22px rgba(255,46,122,.55); cursor:pointer;">ESTUDIAR HOY</button>
+              </div>
+              <div style="flex:0 0 auto; display:flex; gap:6px; padding:9px 10px 11px; background:#16141F; border-top:1px solid #2C2838;">
+                <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:7px 2px; background:#FF2E7A; border-radius:11px; box-shadow:0 0 12px rgba(255,46,122,.6); color:#fff;"><svg width="18" height="16" viewBox="0 0 26 22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6h9a3 3 0 0 1 0 6h-1"/><path d="M6 6v8a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V6z"/></svg><span style="font-family:'Press Start 2P',monospace; font-size:6px;">HOME</span></div>
+                <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:7px 2px; color:#EDEAF5;"><svg width="18" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="5" r="2"/><circle cx="18" cy="19" r="2"/><path d="M6 7v3a4 4 0 0 0 4 4h4a4 4 0 0 1 4 4"/></svg><span style="font-family:'Press Start 2P',monospace; font-size:6px; color:#8B86A3;">RUTA</span></div>
+                <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:7px 2px; color:#EDEAF5;"><svg width="18" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5 5l2.1 2.1M16.9 16.9L19 19M19 5l-2.1 2.1M7.1 16.9L5 19"/></svg><span style="font-family:'Press Start 2P',monospace; font-size:6px; color:#8B86A3;">AJUSTES</span></div>
+              </div>
+            </div>
+          </div>
+          <div style="text-align:center; margin-top:12px; font-family:'JetBrains Mono',monospace; font-size:12px; color:#7a7a72;">Home · oscuro · nav abajo</div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TURN 7 · NAV ARRIBA + CORRECCIONES ============ -->
+  <section style="margin-bottom:80px; padding-bottom:72px; border-bottom:2px dashed #cfccc4;">
+    <div style="margin-bottom:28px;">
+      <div style="font-family:'JetBrains Mono',monospace; font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:#8a8a82;">Turno 7 · revisión build · nav arcade arriba</div>
+      <h2 style="font-size:40px; line-height:1.05; margin:10px 0 12px; font-weight:700; letter-spacing:-.02em;">Nav arriba + ajustes al build</h2>
+      <p style="font-size:17px; line-height:1.5; max-width:720px; color:#4a4a44; margin:0;">Nav rediseñado estilo arcade y movido arriba (Home · Ruta · Ajustes), nombre <strong>OOPs!</strong>, y la tarjeta <strong>TU RUTA</strong> en el Home. Abajo, las diferencias detectadas vs. el build actual y las 3 pantallas corregidas en claro y oscuro. Escribe <strong>7a</strong>.</p>
+    </div>
+
+    <!-- diferencias -->
+    <div style="background:#2A2632; border-radius:18px; padding:22px 24px; max-width:760px; margin-bottom:34px;">
+      <div style="font-family:'Press Start 2P',monospace; font-size:10px; color:#F7C331; margin-bottom:14px;">DIFERENCIAS VS. BUILD</div>
+      <ul style="margin:0; padding-left:18px; font-family:'Nunito',sans-serif; font-weight:600; font-size:13.5px; line-height:1.7; color:#e6e2f0;">
+        <li><strong>Nav:</strong> era Material genérico abajo → arcade chunky <strong>arriba</strong>, pestaña activa con pill de color + sombra dura (claro) / glow (oscuro).</li>
+        <li><strong>Taza:</strong> era un contorno naranja simple → <strong>taza funcional</strong>: vapor = racha, relleno = XP.</li>
+        <li><strong>Racha:</strong> falta el subtítulo "días seguidos · <strong>récord 12</strong>".</li>
+        <li><strong>Barra XP:</strong> relleno lavanda fuera de paleta → <strong>azul primary</strong> y debe rellenarse con el %.</li>
+        <li><strong>Sombras (claro):</strong> todas negras → <strong>sombra de color por tarjeta</strong> (racha=magenta, XP=amarillo, ruta=azul).</li>
+        <li><strong>"Ver ruta":</strong> estilo link azul → <strong>botón outline</strong> con texto tinta.</li>
+        <li><strong>Franja-espectro</strong> del Home (claro) ausente → reincorporada bajo el wordmark.</li>
+        <li><strong>Ruta:</strong> mostrar el chip del paso actual "<strong>collect() — ahora ▶</strong>", no solo "0% dominado".</li>
+        <li><strong>Ajustes:</strong> radios chunky (borde tinta + punto de acento) y sombra de color en tarjetas.</li>
+        <li><strong>Nombre:</strong> <strong>OOPs!</strong> (OOP en mayúsculas → Object Oriented Programming).</li>
+      </ul>
+    </div>
+
+    <div id="7a" style="scroll-margin-top:40px;">
+
+      <!-- ===== NAV DETAIL ===== -->
+      <div style="margin-bottom:30px;">
+        <div style="font-family:'JetBrains Mono',monospace; font-size:13px; color:#7a7a72; margin-bottom:12px;">// nav arcade — detalle (claro / oscuro), pestaña activa = pill de color</div>
+        <div style="display:flex; gap:20px; flex-wrap:wrap;">
+          <!-- light nav -->
+          <div style="width:300px; display:flex; gap:6px; padding:10px 11px; background:#fff; border:2px solid #2A2632; border-radius:14px; box-shadow:4px 4px 0 #2A2632;">
+            <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:8px 2px; background:#E5427E; border:2px solid #2A2632; border-radius:11px; box-shadow:2px 2px 0 #2A2632; color:#fff;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-7 8 7"/><path d="M6 10v9h12v-9"/></svg><span style="font-family:'Press Start 2P',monospace; font-size:7px;">HOME</span></div>
+            <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:8px 2px; color:#2A2632;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="5" r="2"/><circle cx="18" cy="19" r="2"/><path d="M6 7v3a4 4 0 0 0 4 4h4a4 4 0 0 1 4 4"/></svg><span style="font-family:'Press Start 2P',monospace; font-size:7px; color:#8A8296;">RUTA</span></div>
+            <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:8px 2px; color:#2A2632;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5 5l2.1 2.1M16.9 16.9L19 19M19 5l-2.1 2.1M7.1 16.9L5 19"/></svg><span style="font-family:'Press Start 2P',monospace; font-size:7px; color:#8A8296;">AJUSTES</span></div>
+          </div>
+          <!-- dark nav -->
+          <div style="width:300px; display:flex; gap:6px; padding:10px 11px; background:#16141F; border:1px solid #2C2838; border-radius:14px;">
+            <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:8px 2px; background:#FF2E7A; border-radius:11px; box-shadow:0 0 14px rgba(255,46,122,.6); color:#fff;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-7 8 7"/><path d="M6 10v9h12v-9"/></svg><span style="font-family:'Press Start 2P',monospace; font-size:7px;">HOME</span></div>
+            <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:8px 2px; color:#EDEAF5;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="5" r="2"/><circle cx="18" cy="19" r="2"/><path d="M6 7v3a4 4 0 0 0 4 4h4a4 4 0 0 1 4 4"/></svg><span style="font-family:'Press Start 2P',monospace; font-size:7px; color:#8B86A3;">RUTA</span></div>
+            <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:8px 2px; color:#EDEAF5;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5 5l2.1 2.1M16.9 16.9L19 19M19 5l-2.1 2.1M7.1 16.9L5 19"/></svg><span style="font-family:'Press Start 2P',monospace; font-size:7px; color:#8B86A3;">AJUSTES</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== LIGHT TRIO ===== -->
+      <div style="font-family:'JetBrains Mono',monospace; font-size:13px; color:#7a7a72; margin-bottom:14px;">// modo claro (Papercraft)</div>
+      <div style="display:flex; gap:26px; flex-wrap:wrap; align-items:flex-start; margin-bottom:36px;">
+
+        <!-- HOME light -->
+        <div>
+          <div style="width:258px; height:544px; background:#2A2632; border-radius:35px; padding:8px; box-shadow:0 22px 46px rgba(42,38,50,.24);">
+            <div style="width:100%; height:100%; background:#FAF5EC; border-radius:28px; overflow:hidden; display:flex; flex-direction:column; font-family:'Nunito',sans-serif;">
+              <div style="height:26px; display:flex; align-items:center; justify-content:space-between; padding:0 16px; font-size:10px; font-weight:700; color:#2A2632;"><span>10:36</span><span>100%</span></div>
+              <!-- TOP NAV -->
+              <div style="flex:0 0 auto; display:flex; gap:5px; padding:8px 10px; background:#fff; border-bottom:3px solid #2A2632;">
+                <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 2px; background:#E5427E; border:2px solid #2A2632; border-radius:10px; box-shadow:2px 2px 0 #2A2632; color:#fff;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-7 8 7"/><path d="M6 10v9h12v-9"/></svg><span style="font-family:'Press Start 2P',monospace; font-size:6px;">HOME</span></div>
+                <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 2px; color:#2A2632;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="5" r="2"/><circle cx="18" cy="19" r="2"/><path d="M6 7v3a4 4 0 0 0 4 4h4a4 4 0 0 1 4 4"/></svg><span style="font-family:'Press Start 2P',monospace; font-size:6px; color:#8A8296;">RUTA</span></div>
+                <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 2px; color:#2A2632;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5 5l2.1 2.1M16.9 16.9L19 19M19 5l-2.1 2.1M7.1 16.9L5 19"/></svg><span style="font-family:'Press Start 2P',monospace; font-size:6px; color:#8A8296;">AJUSTES</span></div>
+              </div>
+              <div style="flex:1; padding:14px; display:flex; flex-direction:column; gap:8px; overflow:hidden;">
+                <div style="display:flex; justify-content:space-between; align-items:center;"><div style="font-weight:900; font-size:22px; color:#2A2632;">OOPs<span style="color:#E5427E;">!</span></div><div style="width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#F59410,#E5427E,#3A72D6);"></div></div>
+                <div style="height:5px; border-radius:4px; background:linear-gradient(90deg,#F5533D,#F59410,#F7C331,#4FB03A,#2AA5B0,#3A72D6,#E5427E);"></div>
+                <!-- streak · functional cup -->
+                <div style="background:#fff; border:2px solid #2A2632; border-radius:16px; padding:13px 15px; box-shadow:4px 4px 0 #E5427E; display:flex; align-items:center; gap:14px;">
+                  <div style="position:relative; width:52px; height:50px; display:flex; align-items:flex-end; flex:0 0 auto;">
+                    <div style="position:absolute; top:-2px; left:9px; display:flex; gap:4px;"><span style="width:4px;height:11px;background:#c9c1b0;border-radius:3px;display:block;opacity:.9;"></span><span style="width:4px;height:15px;background:#c9c1b0;border-radius:3px;display:block;opacity:.7;margin-top:-3px;"></span><span style="width:4px;height:11px;background:#c9c1b0;border-radius:3px;display:block;opacity:.5;"></span></div>
+                    <div style="position:relative; width:38px; height:32px; background:#F4ECDD; border:3px solid #2A2632; border-radius:5px 5px 12px 12px; overflow:hidden;"><div style="position:absolute; bottom:0; left:0; right:0; height:64%; background:#F59410;"></div></div>
+                    <div style="position:absolute; right:0; bottom:7px; width:13px; height:17px; border:3px solid #2A2632; border-left:none; border-radius:0 9px 9px 0;"></div>
+                  </div>
+                  <div><div style="font-family:'Press Start 2P',monospace; font-size:8px; color:#E5427E;">STREAK</div><div style="display:flex; align-items:center; gap:7px; margin-top:5px;"><span style="font-size:18px;">🔥</span><span style="font-family:'Press Start 2P',monospace; font-size:22px; color:#2A2632;">07</span></div><div style="font-size:11px; font-weight:700; color:#8A8296; margin-top:5px;">días seguidos · récord 12</div></div>
+                </div>
+                <!-- XP -->
+                <div style="background:#fff; border:2px solid #2A2632; border-radius:16px; padding:12px 15px; box-shadow:4px 4px 0 #F7C331;">
+                  <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-family:'Press Start 2P',monospace; font-size:8px; color:#3A72D6;">XP</span><span style="font-family:'Press Start 2P',monospace; font-size:13px; color:#2A2632;">340</span></div>
+                  <div style="height:11px; background:#efe7d8; border:2px solid #2A2632; border-radius:7px; margin-top:8px; overflow:hidden;"><div style="width:64%; height:100%; background:#3A72D6;"></div></div>
+                </div>
+                <!-- TU RUTA -->
+                <div style="background:#fff; border:2px solid #2A2632; border-radius:16px; padding:12px 15px; box-shadow:4px 4px 0 #3A72D6;">
+                  <div style="font-family:'Press Start 2P',monospace; font-size:8px; color:#3A72D6;">TU RUTA</div>
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-top:7px;"><span style="font-weight:800; font-size:13px; color:#2A2632;">Streams &amp; lambdas</span><span style="font-weight:800; font-size:12px; color:#3A72D6;">68% ▶</span></div>
+                  <div style="height:8px; background:#efe7d8; border:2px solid #2A2632; border-radius:5px; margin-top:7px; overflow:hidden;"><div style="width:68%; height:100%; background:#3A72D6;"></div></div>
+                </div>
+                <div style="flex:1;"></div>
+                <button style="border:2px solid #2A2632; background:#E5427E; color:#fff; font-family:'Nunito',sans-serif; font-weight:900; font-size:16px; padding:14px; border-radius:15px; box-shadow:4px 4px 0 #2A2632; cursor:pointer;">ESTUDIAR HOY</button>
+                <button style="border:2px solid #2A2632; background:#fff; color:#2A2632; font-family:'Nunito',sans-serif; font-weight:800; font-size:14px; padding:11px; border-radius:14px; cursor:pointer;">Ver ruta</button>
+              </div>
+            </div>
+          </div>
+          <div style="text-align:center; margin-top:12px; font-family:'JetBrains Mono',monospace; font-size:12px; color:#7a7a72;">Home · claro</div>
+        </div>
+
+        <!-- RUTA light -->
+        <div>
+          <div style="width:258px; height:544px; background:#2A2632; border-radius:35px; padding:8px; box-shadow:0 22px 46px rgba(42,38,50,.24);">
+            <div style="width:100%; height:100%; background:#FAF5EC; border-radius:28px; overflow:hidden; display:flex; flex-direction:column; font-family:'Nunito',sans-serif;">
+              <div style="height:26px; display:flex; align-items:center; justify-content:space-between; padding:0 16px; font-size:10px; font-weight:700; color:#2A2632;"><span>10:37</span><span>100%</span></div>
+              <div style="flex:0 0 auto; display:flex; gap:5px; padding:8px 10px; background:#fff; border-bottom:3px solid #2A2632;">
+                <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 2px; color:#2A2632;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-7 8 7"/><path d="M6 10v9h12v-9"/></svg><span style="font-family:'Press Start 2P',monospace; font-size:6px; color:#8A8296;">HOME</span></div>
+                <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 2px; background:#3A72D6; border:2px solid #2A2632; border-radius:10px; box-shadow:2px 2px 0 #2A2632; color:#fff;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="5" r="2"/><circle cx="18" cy="19" r="2"/><path d="M6 7v3a4 4 0 0 0 4 4h4a4 4 0 0 1 4 4"/></svg><span style="font-family:'Press Start 2P',monospace; font-size:6px;">RUTA</span></div>
+                <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 2px; color:#2A2632;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5 5l2.1 2.1M16.9 16.9L19 19M19 5l-2.1 2.1M7.1 16.9L5 19"/></svg><span style="font-family:'Press Start 2P',monospace; font-size:6px; color:#8A8296;">AJUSTES</span></div>
+              </div>
+              <div style="height:46px; flex:0 0 auto; background:#2A2632; display:flex; align-items:center; justify-content:space-between; padding:0 16px; color:#fff;"><div style="font-weight:900; font-size:15px;">Ruta 1Z0-830</div><div style="font-family:'Press Start 2P',monospace; font-size:10px; color:#4FB03A;">42%</div></div>
+              <div style="flex:1; overflow:hidden; padding:16px; display:flex; flex-direction:column; gap:18px;">
+                <div style="display:flex; gap:11px;">
+                  <div style="display:flex; flex-direction:column; align-items:center; padding-top:4px;"><div style="width:15px;height:15px;border-radius:50%;background:#3A72D6;border:3px solid #2A2632;"></div><div style="width:4px;flex:1;background:#3A72D6;"></div><div style="width:15px;height:15px;border-radius:50%;background:#3A72D6;border:3px solid #2A2632;"></div><div style="width:4px;flex:1;background:#c3d3f0;"></div><div style="width:17px;height:17px;border-radius:50%;background:#fff;border:3px solid #3A72D6;"></div></div>
+                  <div style="flex:1; display:flex; flex-direction:column; gap:8px;"><div style="font-family:'Press Start 2P',monospace; font-size:8px; color:#3A72D6;">STREAMS · L1</div><div style="font-weight:800; font-size:13px; color:#2A2632;">stream() &amp; filter ✓</div><div style="font-weight:800; font-size:12px; color:#2A2632; background:#E4EDFB; border:2px solid #3A72D6; border-radius:10px; padding:6px 10px;">collect() — ahora ▶</div></div>
+                </div>
+                <div style="display:flex; gap:11px;">
+                  <div style="display:flex; flex-direction:column; align-items:center; padding-top:4px;"><div style="width:15px;height:15px;border-radius:50%;background:#E5427E;border:3px solid #2A2632;"></div><div style="width:4px;flex:1;background:#f2bcd2;"></div><div style="width:15px;height:15px;border-radius:50%;background:#e2dccb;border:3px solid #b7ad97;"></div></div>
+                  <div style="flex:1; display:flex; flex-direction:column; gap:6px;"><div style="font-family:'Press Start 2P',monospace; font-size:8px; color:#E5427E;">COLLECTIONS · L2</div><div style="font-weight:800; font-size:13px; color:#2A2632;">Colecciones y Map/Set</div><div style="font-weight:700; font-size:11.5px; color:#9a8f79;">🔒 Se abre al 60% de Streams</div></div>
+                </div>
+                <div style="display:flex; gap:11px;"><div style="display:flex; flex-direction:column; align-items:center; padding-top:4px;"><div style="width:15px;height:15px;border-radius:50%;background:#e2dccb;border:3px solid #b7ad97;"></div></div><div style="flex:1; display:flex; flex-direction:column; gap:6px;"><div style="font-family:'Press Start 2P',monospace; font-size:8px; color:#c07a0e;">SQL/JDBC · L3</div><div style="font-weight:800; font-size:13px; color:#2A2632;">JDBC y NIO.2</div><div style="font-weight:700; font-size:11.5px; color:#9a8f79;">🔒 Próximamente</div></div></div>
+              </div>
+            </div>
+          </div>
+          <div style="text-align:center; margin-top:12px; font-family:'JetBrains Mono',monospace; font-size:12px; color:#7a7a72;">Ruta · claro</div>
+        </div>
+
+        <!-- AJUSTES light -->
+        <div>
+          <div style="width:258px; height:544px; background:#2A2632; border-radius:35px; padding:8px; box-shadow:0 22px 46px rgba(42,38,50,.24);">
+            <div style="width:100%; height:100%; background:#FAF5EC; border-radius:28px; overflow:hidden; display:flex; flex-direction:column; font-family:'Nunito',sans-serif;">
+              <div style="height:26px; display:flex; align-items:center; justify-content:space-between; padding:0 16px; font-size:10px; font-weight:700; color:#2A2632;"><span>10:37</span><span>100%</span></div>
+              <div style="flex:0 0 auto; display:flex; gap:5px; padding:8px 10px; background:#fff; border-bottom:3px solid #2A2632;">
+                <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 2px; color:#2A2632;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-7 8 7"/><path d="M6 10v9h12v-9"/></svg><span style="font-family:'Press Start 2P',monospace; font-size:6px; color:#8A8296;">HOME</span></div>
+                <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 2px; color:#2A2632;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="5" r="2"/><circle cx="18" cy="19" r="2"/><path d="M6 7v3a4 4 0 0 0 4 4h4a4 4 0 0 1 4 4"/></svg><span style="font-family:'Press Start 2P',monospace; font-size:6px; color:#8A8296;">RUTA</span></div>
+                <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 2px; background:#F59410; border:2px solid #2A2632; border-radius:10px; box-shadow:2px 2px 0 #2A2632; color:#2A2632;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5 5l2.1 2.1M16.9 16.9L19 19M19 5l-2.1 2.1M7.1 16.9L5 19"/></svg><span style="font-family:'Press Start 2P',monospace; font-size:6px;">AJUSTES</span></div>
+              </div>
+              <div style="flex:1; padding:16px; display:flex; flex-direction:column; gap:14px;">
+                <div style="font-weight:900; font-size:24px; color:#2A2632;">Ajustes</div>
+                <div style="background:#fff; border:2px solid #2A2632; border-radius:16px; padding:15px; box-shadow:4px 4px 0 #E5427E;">
+                  <div style="font-family:'Press Start 2P',monospace; font-size:8px; color:#8A8296; margin-bottom:14px;">TEMA</div>
+                  <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;"><span style="width:20px;height:20px;border-radius:50%;border:2px solid #2A2632;display:flex;align-items:center;justify-content:center;"><span style="width:9px;height:9px;border-radius:50%;background:#E5427E;display:block;"></span></span><span style="font-weight:700; font-size:15px; color:#2A2632;">Sistema</span></div>
+                  <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;"><span style="width:20px;height:20px;border-radius:50%;border:2px solid #b7ad97;display:block;"></span><span style="font-weight:700; font-size:15px; color:#2A2632;">Claro</span></div>
+                  <div style="display:flex; align-items:center; gap:12px;"><span style="width:20px;height:20px;border-radius:50%;border:2px solid #b7ad97;display:block;"></span><span style="font-weight:700; font-size:15px; color:#2A2632;">Oscuro</span></div>
+                </div>
+                <div style="background:#fff; border:2px solid #2A2632; border-radius:16px; padding:15px; box-shadow:4px 4px 0 #F7C331;">
+                  <div style="font-family:'Press Start 2P',monospace; font-size:8px; color:#8A8296;">VERSIÓN</div>
+                  <div style="font-weight:800; font-size:16px; color:#2A2632; margin-top:6px;">1.0</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="text-align:center; margin-top:12px; font-family:'JetBrains Mono',monospace; font-size:12px; color:#7a7a72;">Ajustes · claro</div>
+        </div>
+
+      </div>
+
+      <!-- ===== DARK TRIO ===== -->
+      <div style="font-family:'JetBrains Mono',monospace; font-size:13px; color:#7a7a72; margin-bottom:14px;">// modo oscuro (Neón-Pixel)</div>
+      <div style="display:flex; gap:26px; flex-wrap:wrap; align-items:flex-start;">
+
+        <!-- HOME dark -->
+        <div>
+          <div style="width:258px; height:544px; background:#000; border-radius:35px; padding:8px; box-shadow:0 22px 46px rgba(0,0,0,.4);">
+            <div style="width:100%; height:100%; background:#0A0910; border-radius:28px; overflow:hidden; display:flex; flex-direction:column; font-family:'Nunito',sans-serif;">
+              <div style="height:26px; display:flex; align-items:center; justify-content:space-between; padding:0 16px; font-size:10px; font-weight:700; color:#c8c3da;"><span>22:17</span><span>100%</span></div>
+              <div style="flex:0 0 auto; display:flex; gap:5px; padding:8px 10px; background:#16141F; border-bottom:1px solid #2C2838;">
+                <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 2px; background:#FF2E7A; border-radius:10px; box-shadow:0 0 12px rgba(255,46,122,.6); color:#fff;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-7 8 7"/><path d="M6 10v9h12v-9"/></svg><span style="font-family:'Press Start 2P',monospace; font-size:6px;">HOME</span></div>
+                <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 2px; color:#EDEAF5;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="5" r="2"/><circle cx="18" cy="19" r="2"/><path d="M6 7v3a4 4 0 0 0 4 4h4a4 4 0 0 1 4 4"/></svg><span style="font-family:'Press Start 2P',monospace; font-size:6px; color:#8B86A3;">RUTA</span></div>
+                <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 2px; color:#EDEAF5;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5 5l2.1 2.1M16.9 16.9L19 19M19 5l-2.1 2.1M7.1 16.9L5 19"/></svg><span style="font-family:'Press Start 2P',monospace; font-size:6px; color:#8B86A3;">AJUSTES</span></div>
+              </div>
+              <div style="flex:1; padding:14px; display:flex; flex-direction:column; gap:11px; overflow:hidden;">
+                <div style="display:flex; justify-content:space-between; align-items:center;"><div style="font-weight:900; font-size:22px; color:#fff;">OOPs<span style="color:#FF2E7A;">!</span></div><div style="width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#FF8A2E,#FF2E7A,#3D6BFF);"></div></div>
+                <div style="background:#16141F; border:1px solid #2C2838; border-radius:16px; padding:13px 15px; box-shadow:0 0 18px rgba(255,138,46,.25); display:flex; align-items:center; gap:14px;">
+                  <div style="position:relative; width:52px; height:50px; display:flex; align-items:flex-end; flex:0 0 auto;">
+                    <div style="position:absolute; top:-2px; left:9px; display:flex; gap:4px;"><span style="width:4px;height:11px;background:#6b6480;border-radius:3px;display:block;opacity:.9;"></span><span style="width:4px;height:15px;background:#6b6480;border-radius:3px;display:block;opacity:.7;margin-top:-3px;"></span><span style="width:4px;height:11px;background:#6b6480;border-radius:3px;display:block;opacity:.5;"></span></div>
+                    <div style="position:relative; width:38px; height:32px; background:#211E2E; border:3px solid #FF8A2E; border-radius:5px 5px 12px 12px; overflow:hidden;"><div style="position:absolute; bottom:0; left:0; right:0; height:64%; background:#FF8A2E;"></div></div>
+                    <div style="position:absolute; right:0; bottom:7px; width:13px; height:17px; border:3px solid #FF8A2E; border-left:none; border-radius:0 9px 9px 0;"></div>
+                  </div>
+                  <div><div style="font-family:'Press Start 2P',monospace; font-size:8px; color:#FF8A2E;">STREAK</div><div style="display:flex; align-items:center; gap:7px; margin-top:5px;"><span style="font-size:18px;">🔥</span><span style="font-family:'Press Start 2P',monospace; font-size:22px; color:#fff;">07</span></div><div style="font-size:11px; font-weight:700; color:#8B86A3; margin-top:5px;">días seguidos · récord 12</div></div>
+                </div>
+                <div style="background:#16141F; border:1px solid #2C2838; border-radius:16px; padding:12px 15px; box-shadow:0 0 16px rgba(61,107,255,.2);">
+                  <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-family:'Press Start 2P',monospace; font-size:8px; color:#3D6BFF;">XP</span><span style="font-family:'Press Start 2P',monospace; font-size:13px; color:#fff;">340</span></div>
+                  <div style="height:11px; background:#211E2E; border-radius:7px; margin-top:8px; overflow:hidden;"><div style="width:64%; height:100%; background:#3D6BFF; box-shadow:0 0 10px rgba(61,107,255,.7);"></div></div>
+                </div>
+                <div style="background:#16141F; border:1px solid #2C2838; border-radius:16px; padding:12px 15px; box-shadow:0 0 16px rgba(61,107,255,.2);">
+                  <div style="font-family:'Press Start 2P',monospace; font-size:8px; color:#3D6BFF;">TU RUTA</div>
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-top:7px;"><span style="font-weight:800; font-size:13px; color:#EDEAF5;">Streams &amp; lambdas</span><span style="font-weight:800; font-size:12px; color:#3D6BFF;">68% ▶</span></div>
+                  <div style="height:8px; background:#211E2E; border-radius:5px; margin-top:7px; overflow:hidden;"><div style="width:68%; height:100%; background:#3D6BFF; box-shadow:0 0 10px rgba(61,107,255,.7);"></div></div>
+                </div>
+                <div style="flex:1;"></div>
+                <button style="border:none; background:#FF2E7A; color:#fff; font-family:'Nunito',sans-serif; font-weight:900; font-size:16px; padding:14px; border-radius:15px; box-shadow:0 0 22px rgba(255,46,122,.55); cursor:pointer;">ESTUDIAR HOY</button>
+                <button style="border:1px solid #2C2838; background:transparent; color:#c8c3da; font-family:'Nunito',sans-serif; font-weight:800; font-size:14px; padding:11px; border-radius:14px; cursor:pointer;">Ver ruta</button>
+              </div>
+            </div>
+          </div>
+          <div style="text-align:center; margin-top:12px; font-family:'JetBrains Mono',monospace; font-size:12px; color:#7a7a72;">Home · oscuro</div>
+        </div>
+
+        <!-- RUTA dark -->
+        <div>
+          <div style="width:258px; height:544px; background:#000; border-radius:35px; padding:8px; box-shadow:0 22px 46px rgba(0,0,0,.4);">
+            <div style="width:100%; height:100%; background:#0A0910; border-radius:28px; overflow:hidden; display:flex; flex-direction:column; font-family:'Nunito',sans-serif;">
+              <div style="height:26px; display:flex; align-items:center; justify-content:space-between; padding:0 16px; font-size:10px; font-weight:700; color:#c8c3da;"><span>22:17</span><span>100%</span></div>
+              <div style="flex:0 0 auto; display:flex; gap:5px; padding:8px 10px; background:#16141F; border-bottom:1px solid #2C2838;">
+                <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 2px; color:#EDEAF5;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-7 8 7"/><path d="M6 10v9h12v-9"/></svg><span style="font-family:'Press Start 2P',monospace; font-size:6px; color:#8B86A3;">HOME</span></div>
+                <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 2px; background:#3D6BFF; border-radius:10px; box-shadow:0 0 12px rgba(61,107,255,.6); color:#fff;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="5" r="2"/><circle cx="18" cy="19" r="2"/><path d="M6 7v3a4 4 0 0 0 4 4h4a4 4 0 0 1 4 4"/></svg><span style="font-family:'Press Start 2P',monospace; font-size:6px;">RUTA</span></div>
+                <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 2px; color:#EDEAF5;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5 5l2.1 2.1M16.9 16.9L19 19M19 5l-2.1 2.1M7.1 16.9L5 19"/></svg><span style="font-family:'Press Start 2P',monospace; font-size:6px; color:#8B86A3;">AJUSTES</span></div>
+              </div>
+              <div style="height:46px; flex:0 0 auto; background:#16141F; display:flex; align-items:center; justify-content:space-between; padding:0 16px; color:#fff; border-bottom:1px solid #2C2838;"><div style="font-weight:900; font-size:15px;">Ruta 1Z0-830</div><div style="font-family:'Press Start 2P',monospace; font-size:10px; color:#38D06B;">42%</div></div>
+              <div style="flex:1; overflow:hidden; padding:16px; display:flex; flex-direction:column; gap:18px;">
+                <div style="display:flex; gap:11px;">
+                  <div style="display:flex; flex-direction:column; align-items:center; padding-top:4px;"><div style="width:15px;height:15px;border-radius:50%;background:#3D6BFF;box-shadow:0 0 8px rgba(61,107,255,.8);"></div><div style="width:4px;flex:1;background:#3D6BFF;"></div><div style="width:15px;height:15px;border-radius:50%;background:#3D6BFF;box-shadow:0 0 8px rgba(61,107,255,.8);"></div><div style="width:4px;flex:1;background:#26325c;"></div><div style="width:17px;height:17px;border-radius:50%;background:#0A0910;border:3px solid #3D6BFF;box-shadow:0 0 10px rgba(61,107,255,.8);"></div></div>
+                  <div style="flex:1; display:flex; flex-direction:column; gap:8px;"><div style="font-family:'Press Start 2P',monospace; font-size:8px; color:#3D6BFF;">STREAMS · L1</div><div style="font-weight:800; font-size:13px; color:#EDEAF5;">stream() &amp; filter ✓</div><div style="font-weight:800; font-size:12px; color:#EDEAF5; background:rgba(61,107,255,.14); border:1px solid #3D6BFF; border-radius:10px; padding:6px 10px;">collect() — ahora ▶</div></div>
+                </div>
+                <div style="display:flex; gap:11px;">
+                  <div style="display:flex; flex-direction:column; align-items:center; padding-top:4px;"><div style="width:15px;height:15px;border-radius:50%;background:#FF2E7A;"></div><div style="width:4px;flex:1;background:#5a2740;"></div><div style="width:15px;height:15px;border-radius:50%;background:#2c2838;border:2px solid #46414f;"></div></div>
+                  <div style="flex:1; display:flex; flex-direction:column; gap:6px;"><div style="font-family:'Press Start 2P',monospace; font-size:8px; color:#FF2E7A;">COLLECTIONS · L2</div><div style="font-weight:800; font-size:13px; color:#c8c3da;">Colecciones y Map/Set</div><div style="font-weight:700; font-size:11.5px; color:#8B86A3;">🔒 Se abre al 60% de Streams</div></div>
+                </div>
+                <div style="display:flex; gap:11px;"><div style="display:flex; flex-direction:column; align-items:center; padding-top:4px;"><div style="width:15px;height:15px;border-radius:50%;background:#2c2838;border:2px solid #46414f;"></div></div><div style="flex:1; display:flex; flex-direction:column; gap:6px;"><div style="font-family:'Press Start 2P',monospace; font-size:8px; color:#FF8A2E;">SQL/JDBC · L3</div><div style="font-weight:800; font-size:13px; color:#c8c3da;">JDBC y NIO.2</div><div style="font-weight:700; font-size:11.5px; color:#8B86A3;">🔒 Próximamente</div></div></div>
+              </div>
+            </div>
+          </div>
+          <div style="text-align:center; margin-top:12px; font-family:'JetBrains Mono',monospace; font-size:12px; color:#7a7a72;">Ruta · oscuro</div>
+        </div>
+
+        <!-- AJUSTES dark -->
+        <div>
+          <div style="width:258px; height:544px; background:#000; border-radius:35px; padding:8px; box-shadow:0 22px 46px rgba(0,0,0,.4);">
+            <div style="width:100%; height:100%; background:#0A0910; border-radius:28px; overflow:hidden; display:flex; flex-direction:column; font-family:'Nunito',sans-serif;">
+              <div style="height:26px; display:flex; align-items:center; justify-content:space-between; padding:0 16px; font-size:10px; font-weight:700; color:#c8c3da;"><span>22:17</span><span>100%</span></div>
+              <div style="flex:0 0 auto; display:flex; gap:5px; padding:8px 10px; background:#16141F; border-bottom:1px solid #2C2838;">
+                <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 2px; color:#EDEAF5;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-7 8 7"/><path d="M6 10v9h12v-9"/></svg><span style="font-family:'Press Start 2P',monospace; font-size:6px; color:#8B86A3;">HOME</span></div>
+                <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 2px; color:#EDEAF5;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="5" r="2"/><circle cx="18" cy="19" r="2"/><path d="M6 7v3a4 4 0 0 0 4 4h4a4 4 0 0 1 4 4"/></svg><span style="font-family:'Press Start 2P',monospace; font-size:6px; color:#8B86A3;">RUTA</span></div>
+                <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 2px; background:#FF8A2E; border-radius:10px; box-shadow:0 0 12px rgba(255,138,46,.55); color:#0A0910;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5 5l2.1 2.1M16.9 16.9L19 19M19 5l-2.1 2.1M7.1 16.9L5 19"/></svg><span style="font-family:'Press Start 2P',monospace; font-size:6px;">AJUSTES</span></div>
+              </div>
+              <div style="flex:1; padding:16px; display:flex; flex-direction:column; gap:14px;">
+                <div style="font-weight:900; font-size:24px; color:#fff;">Ajustes</div>
+                <div style="background:#16141F; border:1px solid #2C2838; border-radius:16px; padding:15px; box-shadow:0 0 16px rgba(255,46,122,.18);">
+                  <div style="font-family:'Press Start 2P',monospace; font-size:8px; color:#8B86A3; margin-bottom:14px;">TEMA</div>
+                  <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;"><span style="width:20px;height:20px;border-radius:50%;border:2px solid #46414f;display:block;"></span><span style="font-weight:700; font-size:15px; color:#EDEAF5;">Sistema</span></div>
+                  <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;"><span style="width:20px;height:20px;border-radius:50%;border:2px solid #46414f;display:block;"></span><span style="font-weight:700; font-size:15px; color:#EDEAF5;">Claro</span></div>
+                  <div style="display:flex; align-items:center; gap:12px;"><span style="width:20px;height:20px;border-radius:50%;border:2px solid #FF2E7A;display:flex;align-items:center;justify-content:center;box-shadow:0 0 8px rgba(255,46,122,.6);"><span style="width:9px;height:9px;border-radius:50%;background:#FF2E7A;display:block;"></span></span><span style="font-weight:700; font-size:15px; color:#EDEAF5;">Oscuro</span></div>
+                </div>
+                <div style="background:#16141F; border:1px solid #2C2838; border-radius:16px; padding:15px; box-shadow:0 0 16px rgba(255,138,46,.15);">
+                  <div style="font-family:'Press Start 2P',monospace; font-size:8px; color:#8B86A3;">VERSIÓN</div>
+                  <div style="font-weight:800; font-size:16px; color:#EDEAF5; margin-top:6px;">1.0</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="text-align:center; margin-top:12px; font-family:'JetBrains Mono',monospace; font-size:12px; color:#7a7a72;">Ajustes · oscuro</div>
+        </div>
+
+      </div>
+    </div>
+  </section>
 
   <!-- ============ TURN 6 · MASCOTA / ICONOGRAFÍA (ideas) ============ -->
   <section style="margin-bottom:80px; padding-bottom:72px; border-bottom:2px dashed #cfccc4;">
@@ -133,7 +496,7 @@
             <div style="width:100%; height:100%; background:#FAF5EC; border-radius:28px; overflow:hidden; display:flex; flex-direction:column; font-family:'Nunito',sans-serif;">
               <div style="height:30px; display:flex; align-items:center; justify-content:space-between; padding:0 18px; font-size:11px; font-weight:700; color:#2A2632;"><span>9:41</span><span>100%</span></div>
               <div style="flex:1; padding:16px; display:flex; flex-direction:column; gap:13px;">
-                <div style="display:flex; justify-content:space-between; align-items:center;"><div style="font-weight:900; font-size:23px; color:#2A2632;">Oops<span style="color:#E5427E;">!</span></div><div style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#F59410,#E5427E,#3A72D6);"></div></div>
+                <div style="display:flex; justify-content:space-between; align-items:center;"><div style="font-weight:900; font-size:23px; color:#2A2632;">OOPs<span style="color:#E5427E;">!</span></div><div style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#F59410,#E5427E,#3A72D6);"></div></div>
                 <div style="height:6px; border-radius:4px; background:linear-gradient(90deg,#F5533D,#F59410,#F7C331,#4FB03A,#2AA5B0,#3A72D6,#E5427E);"></div>
                 <div style="background:#fff; border:2px solid #2A2632; border-radius:16px; padding:15px; box-shadow:4px 4px 0 #E5427E;">
                   <div style="font-family:'Press Start 2P',monospace; font-size:8px; color:#E5427E;">STREAK</div>
@@ -224,7 +587,7 @@
             <div style="width:100%; height:100%; background:#0A0910; border-radius:28px; overflow:hidden; display:flex; flex-direction:column; font-family:'Nunito',sans-serif;">
               <div style="height:30px; display:flex; align-items:center; justify-content:space-between; padding:0 18px; font-size:11px; font-weight:700; color:#8b86a3;"><span>9:41</span><span>100%</span></div>
               <div style="flex:1; padding:16px; display:flex; flex-direction:column; gap:13px;">
-                <div style="display:flex; justify-content:space-between; align-items:center;"><div style="font-family:'Nunito',sans-serif; font-weight:900; font-size:23px; color:#fff;">Oops<span style="color:#3D6BFF;">!</span></div><div style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#3D6BFF,#FF2E7A);box-shadow:0 0 12px rgba(61,107,255,.5);"></div></div>
+                <div style="display:flex; justify-content:space-between; align-items:center;"><div style="font-family:'Nunito',sans-serif; font-weight:900; font-size:23px; color:#fff;">OOPs<span style="color:#3D6BFF;">!</span></div><div style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#3D6BFF,#FF2E7A);box-shadow:0 0 12px rgba(61,107,255,.5);"></div></div>
                 <div style="background:#16141F; border:1px solid #2c2838; border-radius:16px; padding:15px; box-shadow:0 0 20px rgba(255,46,122,.12);">
                   <div style="font-family:'Press Start 2P',monospace; font-size:8px; color:#FF2E7A;">STREAK</div>
                   <div style="display:flex; align-items:center; gap:10px; margin-top:8px;"><span style="font-size:24px; filter:drop-shadow(0 0 6px rgba(255,138,46,.7));">🔥</span><span style="font-family:'Press Start 2P',monospace; font-size:28px; color:#fff; text-shadow:0 0 14px rgba(255,46,122,.6);">07</span></div>
@@ -723,7 +1086,7 @@
               <div style="width:100%; height:100%; background:#FCF8F0; border-radius:28px; overflow:hidden; display:flex; flex-direction:column; font-family:'Nunito',sans-serif;">
                 <div style="height:30px; display:flex; align-items:center; justify-content:space-between; padding:0 18px; font-size:11px; font-weight:700; color:#1a1730;"><span>9:41</span><span>100%</span></div>
                 <div style="flex:1; padding:16px; display:flex; flex-direction:column; gap:14px;">
-                  <div style="display:flex; justify-content:space-between; align-items:center;"><div style="font-weight:900; font-size:24px; color:#5B4BFF;">Oops!</div><div style="width:34px; height:34px; border-radius:10px; background:#FFC531; border:2px solid #1a1730;"></div></div>
+                  <div style="display:flex; justify-content:space-between; align-items:center;"><div style="font-weight:900; font-size:24px; color:#5B4BFF;">OOPs!</div><div style="width:34px; height:34px; border-radius:10px; background:#FFC531; border:2px solid #1a1730;"></div></div>
                   <div style="background:#5B4BFF; border:2px solid #1a1730; border-radius:18px; padding:16px; box-shadow:4px 4px 0 #1a1730; color:#fff;">
                     <div style="font-family:'Press Start 2P',monospace; font-size:8px; color:#c7c0ff;">STREAK</div>
                     <div style="display:flex; align-items:center; gap:10px; margin-top:8px;"><span style="font-size:26px;">🔥</span><span style="font-family:'Press Start 2P',monospace; font-size:30px; line-height:1;">07</span></div>
@@ -841,7 +1204,7 @@
               <div style="width:100%; height:100%; background:#F4EDE1; border-radius:28px; overflow:hidden; display:flex; flex-direction:column; font-family:'Karla',sans-serif;">
                 <div style="height:30px; display:flex; align-items:center; justify-content:space-between; padding:0 18px; font-size:11px; font-weight:600; color:#4a3325;"><span>9:41</span><span>100%</span></div>
                 <div style="flex:1; padding:18px; display:flex; flex-direction:column; gap:14px;">
-                  <div style="font-family:'Zilla Slab',serif; font-weight:700; font-size:26px; color:#C15F32;">Oops!</div>
+                  <div style="font-family:'Zilla Slab',serif; font-weight:700; font-size:26px; color:#C15F32;">OOPs!</div>
                   <div style="background:#FBF6EC; border:1px solid #e3d8c6; border-radius:20px; padding:18px; box-shadow:0 6px 16px rgba(74,51,37,.08);">
                     <div style="font-size:12px; font-weight:600; color:#a08a72; letter-spacing:.04em;">RACHA</div>
                     <div style="display:flex; align-items:baseline; gap:8px; margin-top:4px;"><span style="font-family:'Zilla Slab',serif; font-size:48px; font-weight:700; color:#C15F32; line-height:1;">7</span><span style="color:#5c4a3a; font-size:15px;">días al hilo</span></div>
