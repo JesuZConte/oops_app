@@ -2,6 +2,7 @@ package com.zconte.oopsapp.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -20,7 +21,13 @@ fun OopsNavHost(
         composable(OopsDestinations.HOME) {
             HomeScreen(
                 onStudyClick = { navController.navigate(OopsDestinations.SESSION) },
-                onProgressClick = { navController.navigate(OopsDestinations.PROGRESS) }
+                onProgressClick = {
+                    navController.navigate(OopsDestinations.PROGRESS) {
+                        popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
             )
         }
         composable(OopsDestinations.SESSION) {
