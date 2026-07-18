@@ -15,7 +15,8 @@ import javax.inject.Inject
 data class HomeUiState(
     val streak: Int = 0,
     val xp: Int = 0,
-    val isReady: Boolean = false
+    val isReady: Boolean = false,
+    val streamsReadiness: Float = 0f
 )
 
 @HiltViewModel
@@ -41,6 +42,13 @@ class HomeViewModel @Inject constructor(
 
     private suspend fun refreshStats() {
         val stats = progressRepository.getUserStats()
-        _uiState.update { it.copy(streak = stats.streak, xp = stats.xp) }
+        val readiness = progressRepository.getReadinessByObjective()
+        _uiState.update {
+            it.copy(
+                streak = stats.streak,
+                xp = stats.xp,
+                streamsReadiness = readiness["streams-lambdas"] ?: 0f
+            )
+        }
     }
 }

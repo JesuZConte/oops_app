@@ -1,5 +1,6 @@
 package com.zconte.oopsapp.ui.home
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -61,7 +62,7 @@ fun HomeScreen(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                text = "Oops!",
+                text = "OOPs!",
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.onBackground
             )
@@ -104,6 +105,24 @@ fun HomeScreen(
                     progress = { levelFraction },
                     modifier = Modifier.fillMaxWidth().height(8.dp),
                     color = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
+
+        ThemedCard(
+            modifier = Modifier.clickable(onClick = onProgressClick),
+            accentColor = MaterialTheme.colorScheme.primary
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(
+                    text = "TU RUTA",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = "Streams · ${(uiState.streamsReadiness * 100).toInt()}% · Continuar",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
         }
