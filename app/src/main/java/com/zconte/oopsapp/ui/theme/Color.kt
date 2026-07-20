@@ -31,6 +31,17 @@ val PaperLockedBorder = Color(0xFFB7AD97)
 // Light-only accent used for XP/VERSIÓN card shadows (no dark equivalent — those cards use primary/tertiary in dark)
 val PaperAccentAmber = Color(0xFFF7C331)
 
+// Spectrum stripe under the Home wordmark, light-only
+val SpectrumStripeColors = listOf(
+    Color(0xFFF5533D),
+    Color(0xFFF59410),
+    Color(0xFFF7C331),
+    Color(0xFF4FB03A),
+    Color(0xFF2AA5B0),
+    Color(0xFF3A72D6),
+    Color(0xFFE5427E)
+)
+
 // Code block: same look in both themes except background
 val CodeBlockBackgroundDark = Color(0xFF16141F)
 val CodeBlockBackgroundLight = Color(0xFF2A2632)

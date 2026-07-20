@@ -1,7 +1,9 @@
 package com.zconte.oopsapp.ui.home
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.LinearProgressIndicator
@@ -21,6 +24,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -31,7 +35,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.zconte.oopsapp.ui.components.FunctionalCup
 import com.zconte.oopsapp.ui.components.LanguageEmblem
 import com.zconte.oopsapp.ui.components.ThemedCard
+import com.zconte.oopsapp.ui.theme.OopsTheme
+import com.zconte.oopsapp.ui.theme.PaperAccentAmber
 import com.zconte.oopsapp.ui.theme.PressStart2P
+import com.zconte.oopsapp.ui.theme.SpectrumStripeColors
 
 @Composable
 fun HomeScreen(
@@ -60,17 +67,40 @@ fun HomeScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(13.dp)
     ) {
+        val isDark = OopsTheme.extendedColors.isDark
+
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = "OOPs!",
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onBackground
-            )
+            Row {
+                Text(
+                    text = "OOPs",
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                Text(
+                    text = "!",
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            }
             Spacer(Modifier.weight(1f))
             LanguageEmblem()
         }
 
-        ThemedCard(accentColor = MaterialTheme.colorScheme.tertiary) {
+        if (!isDark) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(5.dp)
+                    .background(
+                        brush = Brush.horizontalGradient(SpectrumStripeColors),
+                        shape = RoundedCornerShape(4.dp)
+                    )
+            )
+        }
+
+        ThemedCard(
+            accentColor = if (isDark) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.secondary
+        ) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 FunctionalCup(xpLevelFraction = levelFraction, streakDays = uiState.streak)
                 Column {
@@ -85,7 +115,7 @@ fun HomeScreen(
                         color = MaterialTheme.colorScheme.tertiary
                     )
                     Text(
-                        text = "días seguidos",
+                        text = "días seguidos · récord 12",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface
                     )
@@ -93,7 +123,9 @@ fun HomeScreen(
             }
         }
 
-        ThemedCard(accentColor = MaterialTheme.colorScheme.primary) {
+        ThemedCard(
+            accentColor = if (isDark) MaterialTheme.colorScheme.primary else PaperAccentAmber
+        ) {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(text = "XP", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurface)
                 Text(
@@ -113,16 +145,31 @@ fun HomeScreen(
             modifier = Modifier.clickable(onClick = onProgressClick),
             accentColor = MaterialTheme.colorScheme.primary
         ) {
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
                     text = "TU RUTA",
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                Text(
-                    text = "Streams · ${(uiState.streamsReadiness * 100).toInt()}% · Continuar",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "Streams",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = "${(uiState.streamsReadiness * 100).toInt()}% ▶",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+                LinearProgressIndicator(
+                    progress = { uiState.streamsReadiness },
+                    modifier = Modifier.fillMaxWidth().height(6.dp),
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         }
@@ -140,7 +187,8 @@ fun HomeScreen(
 
         OutlinedButton(
             onClick = onProgressClick,
-            modifier = Modifier.fillMaxWidth().height(48.dp)
+            modifier = Modifier.fillMaxWidth().height(48.dp),
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.onSurface)
         ) {
             Text("Ver ruta", style = MaterialTheme.typography.bodyMedium)
         }
