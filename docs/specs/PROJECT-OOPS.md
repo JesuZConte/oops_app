@@ -11,6 +11,60 @@
 
 ---
 
+## 0. Estado actual (actualizado 2026-07-20)
+
+**La Fase 1 (MVP diario, sección 9) está completa**: las 7 tareas del plan de
+construcción están implementadas — SM-2, capa de datos, use cases, sesión,
+Home y Progreso, con Streams y lambdas como primer dominio.
+
+Sobre esa base ya se hicieron dos rondas más de trabajo que **no están
+reflejadas en las secciones numeradas de abajo** (esas describen el plan
+original de Fase 1, no el estado actual del código):
+
+1. **Tema visual "Arcade Neón-Pixel" + navegación persistente + Ajustes**
+   (`docs/superpowers/plans/2026-07-16-fase2-arcade-theme.md` y
+   `2026-07-17-navigation-settings-home.md`). Nota de nomenclatura: esta
+   ronda se llamó internamente "Fase 2" en los planes y el changelog, pero
+   es un trabajo distinto de la "Fase 2" del roadmap de la sección 11 (que
+   se refiere a expandir *contenido*, no visual). No confundir ambas.
+2. **Correcciones de diseño sobre ese tema** (handoff 7a/7b,
+   `docs/superpowers/plans/2026-07-18-design-corrections-arcade-7b.md`):
+   bottom nav arcade con iconos propios, sombras de tarjeta por color,
+   wordmark, tarjeta STREAK como hero, chip de paso actual en Ruta, radios
+   "chunky" en Ajustes.
+
+Detalle completo de ambas rondas (archivo por archivo, bugs encontrados y
+corregidos, decisiones de alcance) en `docs/CHANGELOG.md`. Todo mergeado a
+`main` y pusheado a GitHub; build de release (`assembleRelease`) verificado.
+
+### Pendiente conocido (diferido, no bloqueante)
+
+- **Récord histórico de racha, XP del día (relleno de la taza) y "paso
+  actual" por dominio en Ruta son datos reales que no existen todavía** —
+  hoy se muestran con copy/proxy estático. Implementarlos requiere cambios
+  de modelo de datos (nuevos campos/tablas en Room + migración), diferido
+  deliberadamente en dos rondas de brainstorming distintas.
+- **Sprite pixel-art real de la mascota** — el handoff de diseño lo deja
+  pendiente de producción; hoy es un dibujo vectorial placeholder
+  (`FunctionalCup.kt`, `NavIcons.kt`).
+- **Pase de accesibilidad**: la bottom nav y los radios "chunky" son
+  composables a medida que perdieron la semántica (`Role.Tab`,
+  `Role.RadioButton`, anuncios de TalkBack) que daban gratis
+  `NavigationBarItem`/`RadioButton` de Material3.
+- Limpieza menor: `LocalLifecycleOwner` deprecado en `HomeScreen.kt`,
+  advertencia de `room.schemaLocation` no configurado, consolidar la lógica
+  "Session es pantalla completa" (hoy repetida en `MainActivity`).
+
+### Próximo paso natural
+
+Según el roadmap (sección 11), lo que sigue es la **Fase 2 de contenido**:
+SQL/JDBC como segundo dominio, más tipos de ejercicio (Parsons,
+predict_output), estadísticas de áreas débiles, notificación diaria — el
+UI/tema ya está listo para recibirlo (Ruta ya tiene el segundo/tercer
+dominio como líneas bloqueadas esperando contenido).
+
+---
+
 ## 1. Visión
 
 Una app estilo "Duolingo de Java": sesiones cortas y diarias basadas en
