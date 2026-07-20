@@ -57,11 +57,26 @@ corregidos, decisiones de alcance) en `docs/CHANGELOG.md`. Todo mergeado a
 
 ### Próximo paso natural
 
-Según el roadmap (sección 11), lo que sigue es la **Fase 2 de contenido**:
-SQL/JDBC como segundo dominio, más tipos de ejercicio (Parsons,
-predict_output), estadísticas de áreas débiles, notificación diaria — el
-UI/tema ya está listo para recibirlo (Ruta ya tiene el segundo/tercer
-dominio como líneas bloqueadas esperando contenido).
+La sección 11 (Roadmap) describe la Fase 2 de contenido en una sola línea
+("SQL/JDBC como segundo dominio…") — ese texto quedó obsoleto y fue
+reemplazado por un ciclo de diseño completo:
+
+1. **ADR** `docs/adrs/2026-07-20-content-structure-sections-checkpoints.md` —
+   decisión de adoptar una jerarquía **Sección → Unidad → Checkpoint**
+   (estilo Duolingo) en vez del modelo plano de dominio único actual, usando
+   como referencia de alcance el índice del *OCP Complete Study Guide* más
+   las features de Java 21 (examen) y Java 22-25 LTS (extra moderno).
+2. **Roadmap** `docs/specs/2026-07-20-fase2-content-roadmap.md` — descompone
+   el trabajo en Fases 2.1 (fundación + rebanada vertical) → 2.2 (tipos de
+   ejercicio) → 2.3 (escalado de contenido) → 2.4 (pulido, la única que
+   coincide con el roadmap original de la sección 11).
+3. **Spec de Fase 2.1** `docs/specs/2026-07-20-fase2-1-foundation-spec.md` —
+   diseño técnico detallado (modelo de datos v2, estrategia de migración
+   preservando el SM-2 existente, mecánica de checkpoint) listo para pasar a
+   plan de implementación (`writing-plans` → `subagent-driven-development`).
+
+La sección 11 de abajo no se reescribió todavía para no perder el historial de
+la decisión original — el ADR y el roadmap de Fase 2.1 son la versión vigente.
 
 ---
 
@@ -118,22 +133,30 @@ dependencias de Android**, para que sean 100% testeables sin emulador.
 
 MVVM con separación por capas dentro de un único módulo `app`.
 
+> Árbol actualizado al estado real del código (ver sección 0 — incluye lo
+> agregado en las rondas de navegación/Ajustes y tema visual, no solo el plan
+> original de Fase 1).
+
 ```
 app/src/main/java/com/zconte/oopsapp/
 ├── data/
 │   ├── local/          # Room: entities, DAOs, AppDatabase
 │   ├── content/        # loader de JSON desde assets/content/
-│   └── repository/     # ExerciseRepository, ProgressRepository
+│   └── repository/     # ExerciseRepositoryImpl, ProgressRepositoryImpl, SettingsRepositoryImpl
 ├── domain/
-│   ├── model/          # modelos limpios: Exercise, ReviewState, Topic
+│   ├── model/          # modelos limpios: Exercise, ReviewState, Topic, ThemeMode, UserStats
+│   ├── repository/     # interfaces: ExerciseRepository, ProgressRepository, SettingsRepository
 │   ├── srs/            # SchedulerSm2  ← Kotlin puro, testeable
 │   └── usecase/        # GetTodaySession, SubmitAnswer, UpdateStreak
+├── navigation/          # NavHost + bottom nav (Home/Ruta/Ajustes)
 ├── ui/
-│   ├── home/           # racha + botón "estudiar hoy"
-│   ├── session/        # pantalla de ejercicio
-│   ├── progress/       # dominio por objetivo del examen
-│   └── theme/
-└── di/                 # módulos Hilt
+│   ├── components/      # ThemedCard, FunctionalCup, LanguageEmblem, CodeBlock, NavIcons
+│   ├── home/             # racha + XP + tarjeta "TU RUTA" + botón "estudiar hoy"
+│   ├── session/          # pantalla de ejercicio
+│   ├── progress/         # "Ruta" — dominio por objetivo del examen
+│   ├── settings/         # "Ajustes" — selector de tema + versión
+│   └── theme/             # tema "Arcade Neón-Pixel" (claro/oscuro), tipografía, colores extendidos
+└── di/                  # módulos Hilt
 ```
 
 Flujo del bucle diario (vive en la capa domain):
