@@ -8,7 +8,7 @@ Implementado vía `docs/superpowers/plans/2026-07-18-design-corrections-arcade-7
 - **Sombras de tarjeta en modo claro**: `ThemedCard` ahora usa el color de cada tarjeta (`accentColor`) para su sombra dura en claro, en vez de un color tinta fijo — habilita sombras por color en Home y Ajustes (racha=magenta, XP=amarillo, TU RUTA=azul, TEMA=magenta, VERSIÓN=amarillo/ámbar).
 - **Bottom nav arcade**: rediseño completo de la barra inferior — pestaña activa como pill de color por tab (Home=magenta, Ruta=azul, Ajustes=ámbar), sombra dura+borde tinta en claro / glow sin borde en oscuro, labels en Press Start 2P, iconos propios dibujados a mano (taza para Home, nodos de metro para Ruta, engranaje para Ajustes) en vez de iconos genéricos de Material. Se agregó el inset del sistema (`navigationBarsPadding`) y un borde superior separando la barra del contenido — ambos ausentes en el `NavigationBar` por defecto que reemplaza.
 - **Home**: franja-espectro de 5px bajo el wordmark (solo modo claro); tarjeta "TU RUTA" reestructurada (nombre de dominio + "NN% ▶" + mini-barra de progreso separada); botón "Ver ruta" con texto tinta en vez de azul-link.
-- **Home — tarjeta STREAK como hero**: se agregó el ícono de llama (🔥) que faltaba junto al número de racha, se corrigió el color del número (tinta en claro / tertiary en oscuro — antes tertiary fijo en ambos) y se subió su tamaño a 22sp, todo per el mockup 7b. Se le dio más aire a STREAK y se compactó XP/TU RUTA para reforzar la jerarquía visual (STREAK domina, XP y TU RUTA son secundarias) — feedback de una primera pasada de verificación en dispositivo.
+- **Home — tarjeta STREAK como hero**: se agregó el ícono de llama (🔥) que faltaba junto al número de racha, se corrigió el color del número (tinta en claro / tertiary en oscuro — antes tertiary fijo en ambos) y se subió su tamaño a 22sp, todo según el mockup 7b. Se le dio más aire a STREAK y se compactó XP/TU RUTA para reforzar la jerarquía visual (STREAK domina, XP y TU RUTA son secundarias) — feedback de una primera pasada de verificación en dispositivo.
 - **Ruta**: chip "collect() — ahora ▶" bajo la línea de dominio actualmente desbloqueada (Streams).
 - **Ajustes**: radios de tema reemplazados por un radio "chunky" a medida (anillo tinta/acento + punto de acento), reemplazando el `RadioButton` de Material3 por defecto.
 
@@ -20,6 +20,10 @@ Implementado vía `docs/superpowers/plans/2026-07-18-design-corrections-arcade-7
 ### Nota de accesibilidad (no bloqueante)
 
 Las pestañas de la bottom nav y los radios "chunky" son composables a medida que reemplazan `NavigationBarItem`/`RadioButton` de Material3 — pierden la semántica de accesibilidad que esos componentes daban gratis (rol de tab/radio, anuncio de selección para TalkBack). Pendiente de una pasada de accesibilidad futura.
+
+### Estado del repo
+
+Todo mergeado a `main` y pusheado a `https://github.com/JesuZConte/oops_app`. Sin cambios de schema de Room. Verificado en dispositivo (Home, Ruta, Ajustes en claro y oscuro) además de la suite de tests, que sigue pasando completa.
 
 ## 2026-07-17 — Fase 2 (Arcade Neón-Pixel) + navegación, Ajustes y rediseño de Home
 
