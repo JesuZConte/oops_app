@@ -1,5 +1,25 @@
 # Changelog
 
+## 2026-07-20 — Correcciones de diseño (handoff 7a/7b)
+
+Implementado vía `docs/superpowers/plans/2026-07-18-design-corrections-arcade-7b.md` (7 tareas, subagent-driven-development), a partir del handoff actualizado en `docs/design/design_handoff_oops_arcade/` (secciones 7a/7b, definitivas).
+
+- **Marca**: wordmark "OOPs!" con el "!" en color secondary (antes un solo color).
+- **Sombras de tarjeta en modo claro**: `ThemedCard` ahora usa el color de cada tarjeta (`accentColor`) para su sombra dura en claro, en vez de un color tinta fijo — habilita sombras por color en Home y Ajustes (racha=magenta, XP=amarillo, TU RUTA=azul, TEMA=magenta, VERSIÓN=amarillo/ámbar).
+- **Bottom nav arcade**: rediseño completo de la barra inferior — pestaña activa como pill de color por tab (Home=magenta, Ruta=azul, Ajustes=ámbar), sombra dura+borde tinta en claro / glow sin borde en oscuro, labels en Press Start 2P, iconos propios dibujados a mano (taza para Home, nodos de metro para Ruta, engranaje para Ajustes) en vez de iconos genéricos de Material. Se agregó el inset del sistema (`navigationBarsPadding`) y un borde superior separando la barra del contenido — ambos ausentes en el `NavigationBar` por defecto que reemplaza.
+- **Home**: franja-espectro de 5px bajo el wordmark (solo modo claro); tarjeta "TU RUTA" reestructurada (nombre de dominio + "NN% ▶" + mini-barra de progreso separada); botón "Ver ruta" con texto tinta en vez de azul-link.
+- **Ruta**: chip "collect() — ahora ▶" bajo la línea de dominio actualmente desbloqueada (Streams).
+- **Ajustes**: radios de tema reemplazados por un radio "chunky" a medida (anillo tinta/acento + punto de acento), reemplazando el `RadioButton` de Material3 por defecto.
+
+### Decisiones de alcance resueltas durante esta ronda
+
+- El handoff nuevo implica tres datos que no existen en el modelo actual (récord histórico de racha, XP del día para el relleno de la taza, y el "paso actual" por dominio en Ruta) — las tres ya se habían diferido antes por requerir cambios de Room. Se optó por valores estáticos/proxy para esta pasada visual: "récord 12" fijo en el copy, la taza sigue usando el progreso de nivel como proxy de relleno, y el chip de Ruta usa un texto fijo. Sin cambios de schema.
+- La paleta de la taza (contorno terracota / relleno café, elegida en una ronda anterior para dar identidad "Java" a la mascota) se mantuvo intacta, como desviación deliberada del nuevo mockup (que pedía contorno tinta/ámbar + relleno tertiary) — decisión explícita del usuario.
+
+### Nota de accesibilidad (no bloqueante)
+
+Las pestañas de la bottom nav y los radios "chunky" son composables a medida que reemplazan `NavigationBarItem`/`RadioButton` de Material3 — pierden la semántica de accesibilidad que esos componentes daban gratis (rol de tab/radio, anuncio de selección para TalkBack). Pendiente de una pasada de accesibilidad futura.
+
 ## 2026-07-17 — Fase 2 (Arcade Neón-Pixel) + navegación, Ajustes y rediseño de Home
 
 ### Fase 2: tema visual "Arcade Neón-Pixel"
