@@ -101,19 +101,26 @@ fun HomeScreen(
         ThemedCard(
             accentColor = if (isDark) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.secondary
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            Row(
+                modifier = Modifier.padding(vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
                 FunctionalCup(xpLevelFraction = levelFraction, streakDays = uiState.streak)
-                Column {
+                Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
                     Text(
                         text = "STREAK",
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurface
                     )
-                    Text(
-                        text = uiState.streak.toString().padStart(2, '0'),
-                        style = MaterialTheme.typography.headlineSmall.copy(fontFamily = PressStart2P, fontSize = 20.sp),
-                        color = MaterialTheme.colorScheme.tertiary
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                        Text(text = "🔥", fontSize = 18.sp)
+                        Text(
+                            text = uiState.streak.toString().padStart(2, '0'),
+                            style = MaterialTheme.typography.headlineSmall.copy(fontFamily = PressStart2P, fontSize = 22.sp),
+                            color = if (isDark) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurface
+                        )
+                    }
                     Text(
                         text = "días seguidos · récord 12",
                         style = MaterialTheme.typography.bodyMedium,
@@ -126,7 +133,7 @@ fun HomeScreen(
         ThemedCard(
             accentColor = if (isDark) MaterialTheme.colorScheme.primary else PaperAccentAmber
         ) {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text(text = "XP", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurface)
                 Text(
                     text = uiState.xp.toString(),
@@ -145,7 +152,7 @@ fun HomeScreen(
             modifier = Modifier.clickable(onClick = onProgressClick),
             accentColor = MaterialTheme.colorScheme.primary
         ) {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text(
                     text = "TU RUTA",
                     style = MaterialTheme.typography.labelMedium,
