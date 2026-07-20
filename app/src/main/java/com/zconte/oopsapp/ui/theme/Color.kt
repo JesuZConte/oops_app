@@ -28,6 +28,8 @@ val PaperSuccess = Color(0xFF4FB03A)
 val PaperError = Color(0xFFE23B2E)
 val PaperLockedBackground = Color(0xFFE2DCCB)
 val PaperLockedBorder = Color(0xFFB7AD97)
+// Light-only accent used for XP/VERSIÓN card shadows (no dark equivalent — those cards use primary/tertiary in dark)
+val PaperAccentAmber = Color(0xFFF7C331)
 
 // Code block: same look in both themes except background
 val CodeBlockBackgroundDark = Color(0xFF16141F)
