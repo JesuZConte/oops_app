@@ -1,6 +1,7 @@
 package com.zconte.oopsapp.ui.progress
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,6 +28,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.zconte.oopsapp.ui.theme.OopsTheme
 import com.zconte.oopsapp.ui.theme.PressStart2P
+import com.zconte.oopsapp.ui.theme.RouteChipBackgroundLight
 import com.zconte.oopsapp.ui.theme.RouteHeaderBackground
 
 private data class RouteLine(
@@ -33,7 +36,8 @@ private data class RouteLine(
     val statusLine: String,
     val color: Color?,
     val locked: Boolean,
-    val lockedHint: String? = null
+    val lockedHint: String? = null,
+    val currentStepLabel: String? = null
 )
 
 @Composable
@@ -53,7 +57,8 @@ fun ProgressScreen(
             label = "STREAMS · L1",
             statusLine = "${(streamsReadiness * 100).toInt()}% dominado",
             color = MaterialTheme.colorScheme.primary,
-            locked = false
+            locked = false,
+            currentStepLabel = "collect() — ahora ▶"
         ),
         RouteLine(
             label = "COLLECTIONS · L2",
@@ -133,6 +138,25 @@ private fun RouteLineRow(line: RouteLine) {
                     text = "🔒 ${line.lockedHint}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = extended.lockedText
+                )
+            }
+            if (!line.locked && line.currentStepLabel != null && line.color != null) {
+                val chipShape = RoundedCornerShape(10.dp)
+                Text(
+                    text = line.currentStepLabel,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = if (extended.isDark) line.color else MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier
+                        .background(
+                            color = if (extended.isDark) line.color.copy(alpha = 0.14f) else RouteChipBackgroundLight,
+                            shape = chipShape
+                        )
+                        .border(
+                            width = if (extended.isDark) 1.dp else 2.dp,
+                            color = line.color,
+                            shape = chipShape
+                        )
+                        .padding(horizontal = 10.dp, vertical = 6.dp)
                 )
             }
         }
