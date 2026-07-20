@@ -34,7 +34,7 @@ fun ThemedCard(
                 if (!extended.isDark) {
                     val offsetPx = 4.dp.toPx()
                     drawRoundRect(
-                        color = extended.hardShadowColor,
+                        color = accentColor,
                         topLeft = Offset(offsetPx, offsetPx),
                         size = size,
                         cornerRadius = CornerRadius(20.dp.toPx())
