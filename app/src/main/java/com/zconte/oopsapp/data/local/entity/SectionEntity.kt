@@ -3,12 +3,10 @@ package com.zconte.oopsapp.data.local.entity
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "exercises")
-data class ExerciseEntity(
+@Entity(tableName = "sections")
+data class SectionEntity(
     @PrimaryKey val id: String,
-    val unitId: String,
-    val type: String,
-    val payload: String,
-    val difficulty: Int,
+    val name: String,
+    val orderIndex: Int,
     val examVersion: String
 )

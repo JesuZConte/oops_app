@@ -16,6 +16,9 @@ interface ExerciseDao {
     @Query("SELECT COUNT(*) FROM exercises")
     suspend fun count(): Int
 
+    @Query("DELETE FROM exercises")
+    suspend fun clearAll()
+
     @Query(
         """
         SELECT exercises.* FROM exercises
@@ -34,12 +37,24 @@ interface ExerciseDao {
     )
     suspend fun getNew(limit: Int): List<ExerciseEntity>
 
+    @Query("SELECT * FROM exercises WHERE unitId = :unitId")
+    suspend fun getByUnit(unitId: String): List<ExerciseEntity>
+
     @Query(
         """
-        SELECT topics.certObjective AS objective, COUNT(*) AS totalCount
+        SELECT exercises.* FROM exercises
+        INNER JOIN units ON exercises.unitId = units.id
+        WHERE units.sectionId = :sectionId
+        """
+    )
+    suspend fun getBySection(sectionId: String): List<ExerciseEntity>
+
+    @Query(
+        """
+        SELECT units.certObjective AS objective, COUNT(*) AS totalCount
         FROM exercises
-        INNER JOIN topics ON exercises.topicId = topics.id
-        GROUP BY topics.certObjective
+        INNER JOIN units ON exercises.unitId = units.id
+        GROUP BY units.certObjective
         """
     )
     suspend fun getTotalCountByObjective(): List<ObjectiveTotalCount>

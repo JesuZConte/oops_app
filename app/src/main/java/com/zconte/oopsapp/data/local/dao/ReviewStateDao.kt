@@ -16,14 +16,17 @@ interface ReviewStateDao {
     @Query("SELECT * FROM review_state WHERE exerciseId = :exerciseId")
     suspend fun getByExerciseId(exerciseId: String): ReviewStateEntity?
 
+    @Query("SELECT exerciseId FROM review_state WHERE exerciseId IN (:exerciseIds)")
+    suspend fun getExistingIds(exerciseIds: List<String>): List<String>
+
     @Query(
         """
-        SELECT topics.certObjective AS objective, COUNT(*) AS masteredCount
+        SELECT units.certObjective AS objective, COUNT(*) AS masteredCount
         FROM review_state
         INNER JOIN exercises ON review_state.exerciseId = exercises.id
-        INNER JOIN topics ON exercises.topicId = topics.id
+        INNER JOIN units ON exercises.unitId = units.id
         WHERE review_state.repetitions >= 2
-        GROUP BY topics.certObjective
+        GROUP BY units.certObjective
         """
     )
     suspend fun getMasteredCountByObjective(): List<ObjectiveMasteryCount>
