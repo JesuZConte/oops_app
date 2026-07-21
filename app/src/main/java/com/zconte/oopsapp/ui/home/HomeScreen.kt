@@ -163,18 +163,18 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = "Streams",
+                        text = uiState.currentSectionName,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = "${(uiState.streamsReadiness * 100).toInt()}% ▶",
+                        text = "${(uiState.currentSectionProgress * 100).toInt()}% ▶",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 }
                 LinearProgressIndicator(
-                    progress = { uiState.streamsReadiness },
+                    progress = { uiState.currentSectionProgress },
                     modifier = Modifier.fillMaxWidth().height(6.dp),
                     color = MaterialTheme.colorScheme.primary
                 )

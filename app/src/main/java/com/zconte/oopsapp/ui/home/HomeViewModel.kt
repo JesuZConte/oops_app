@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.zconte.oopsapp.data.content.ContentSeeder
 import com.zconte.oopsapp.domain.repository.ProgressRepository
+import com.zconte.oopsapp.domain.usecase.GetLearningPathUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,12 +17,14 @@ data class HomeUiState(
     val streak: Int = 0,
     val xp: Int = 0,
     val isReady: Boolean = false,
-    val streamsReadiness: Float = 0f
+    val currentSectionName: String = "",
+    val currentSectionProgress: Float = 0f
 )
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val progressRepository: ProgressRepository,
+    private val getLearningPathUseCase: GetLearningPathUseCase,
     private val contentSeeder: ContentSeeder
 ) : ViewModel() {
 
@@ -42,12 +45,18 @@ class HomeViewModel @Inject constructor(
 
     private suspend fun refreshStats() {
         val stats = progressRepository.getUserStats()
-        val readiness = progressRepository.getReadinessByObjective()
+        val sections = getLearningPathUseCase()
+        val currentSection = sections.firstOrNull { !it.completed } ?: sections.lastOrNull()
+        val progress = currentSection?.let { section ->
+            if (section.units.isEmpty()) 0f else section.units.count { it.completed }.toFloat() / section.units.size
+        } ?: 0f
+
         _uiState.update {
             it.copy(
                 streak = stats.streak,
                 xp = stats.xp,
-                streamsReadiness = readiness["streams-lambdas"] ?: 0f
+                currentSectionName = currentSection?.section?.name ?: "",
+                currentSectionProgress = progress
             )
         }
     }
