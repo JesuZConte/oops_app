@@ -1,0 +1,192 @@
+{
+  "sectionId": "java-fundamentals",
+  "name": "Fundamentos de Java",
+  "orderIndex": 1,
+  "examVersion": "core",
+  "units": [
+    {
+      "unitId": "fund-what-is-java",
+      "name": "Que es Java?",
+      "certObjective": "language-basics",
+      "orderIndex": 1,
+      "exercises": [
+        {
+          "id": "fund-whatis-01",
+          "type": "mcq",
+          "difficulty": 1,
+          "prompt": "Que significa JVM?",
+          "answer": "Java Virtual Machine",
+          "distractors": ["Java Verified Method", "Java Variable Manager", "Java Visual Machine"],
+          "explanation": "La JVM (Java Virtual Machine) es el programa que ejecuta el bytecode Java, independiente del sistema operativo."
+        },
+        {
+          "id": "fund-whatis-02",
+          "type": "mcq",
+          "difficulty": 1,
+          "prompt": "Que transforma el codigo fuente .java en bytecode .class?",
+          "answer": "El compilador (javac)",
+          "distractors": ["La JVM", "El JRE", "El sistema operativo"],
+          "explanation": "javac es el compilador que traduce codigo fuente Java a bytecode."
+        },
+        {
+          "id": "fund-whatis-03",
+          "type": "fill_blank",
+          "difficulty": 1,
+          "prompt": "Compila Main.java desde la terminal:",
+          "code": "_____ Main.java",
+          "answer": "javac",
+          "distractors": ["java", "jar", "jshell"],
+          "explanation": "javac Main.java genera Main.class con el bytecode."
+        },
+        {
+          "id": "fund-whatis-04",
+          "type": "fill_blank",
+          "difficulty": 1,
+          "prompt": "Ejecuta la clase compilada Main:",
+          "code": "_____ Main",
+          "answer": "java",
+          "distractors": ["javac", "jar", "jshell"],
+          "explanation": "El comando java arranca la JVM y ejecuta la clase indicada."
+        },
+        {
+          "id": "fund-whatis-05",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Que incluye el JDK que el JRE no incluye?",
+          "answer": "Herramientas de desarrollo (como el compilador)",
+          "distractors": ["La JVM", "Las librerias estandar", "El recolector de basura"],
+          "explanation": "El JDK (Java Development Kit) es el JRE mas herramientas de desarrollo (javac, jshell, etc.). El JRE (Java Runtime Environment) solo permite ejecutar, no compilar."
+        },
+        {
+          "id": "fund-whatis-06",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Java es un lenguaje...",
+          "answer": "Compilado a bytecode e interpretado/JIT por la JVM",
+          "distractors": ["Puramente interpretado, sin compilacion", "Compilado directo a codigo maquina nativo", "Que no necesita ningun runtime"],
+          "explanation": "Java compila a bytecode intermedio; la JVM lo interpreta y ademas compila en caliente partes del codigo a codigo nativo en tiempo de ejecucion (JIT)."
+        }
+      ]
+    },
+    {
+      "unitId": "fund-class-structure",
+      "name": "Estructura de una clase",
+      "certObjective": "language-basics",
+      "orderIndex": 2,
+      "exercises": [
+        {
+          "id": "fund-class-01",
+          "type": "mcq",
+          "difficulty": 1,
+          "prompt": "Que es un constructor?",
+          "answer": "Un metodo especial que inicializa un objeto nuevo",
+          "distractors": ["Un metodo que devuelve un valor obligatoriamente", "Un campo estatico de la clase", "Un tipo de bucle"],
+          "explanation": "El constructor se ejecuta al crear una instancia con new y suele inicializar los fields."
+        },
+        {
+          "id": "fund-class-02",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Que es este bloque de codigo?",
+          "code": "public Persona(String nombre) {\n    this.nombre = nombre;\n}",
+          "answer": "Un constructor",
+          "distractors": ["Un getter", "Un setter", "Un metodo estatico"],
+          "explanation": "Tiene el mismo nombre que la clase y no declara tipo de retorno: es un constructor."
+        },
+        {
+          "id": "fund-class-03",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Que es este metodo?",
+          "code": "public String getNombre() {\n    return nombre;\n}",
+          "answer": "Un getter",
+          "distractors": ["Un setter", "Un constructor", "Un field"],
+          "explanation": "Devuelve el valor de un field sin modificarlo: es un getter."
+        },
+        {
+          "id": "fund-class-04",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Que es este metodo?",
+          "code": "public void setNombre(String nombre) {\n    this.nombre = nombre;\n}",
+          "answer": "Un setter",
+          "distractors": ["Un getter", "Un constructor", "Un field"],
+          "explanation": "Recibe un valor y lo asigna a un field: es un setter."
+        },
+        {
+          "id": "fund-class-05",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Puede un archivo .java contener mas de una clase de nivel superior?",
+          "answer": "Si, pero solo una puede ser public y debe coincidir con el nombre del archivo",
+          "distractors": ["No, nunca mas de una clase por archivo", "Si, todas pueden ser public", "No, el nombre del archivo no importa"],
+          "explanation": "Un archivo puede tener varias clases top-level, pero como maximo una public, y su nombre debe coincidir con el del archivo."
+        },
+        {
+          "id": "fund-class-06",
+          "type": "fill_blank",
+          "difficulty": 1,
+          "prompt": "Declara un field privado de tipo String llamado nombre:",
+          "code": "public class Persona {\n    private String _____;\n}",
+          "answer": "nombre",
+          "distractors": [],
+          "explanation": "Los fields se declaran con un tipo y un identificador dentro del cuerpo de la clase."
+        }
+      ]
+    },
+    {
+      "unitId": "fund-types-and-main",
+      "name": "Tipos, variables y el metodo main",
+      "certObjective": "language-basics",
+      "orderIndex": 3,
+      "exercises": [
+        {
+          "id": "fund-main-01",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Cual es la firma correcta del metodo main?",
+          "answer": "public static void main(String[] args)",
+          "distractors": ["public void main(String[] args)", "static void main(String args)", "public static int main(String[] args)"],
+          "explanation": "main debe ser public, static, sin retorno (void), y recibir un arreglo de String."
+        },
+        {
+          "id": "fund-main-02",
+          "type": "mcq",
+          "difficulty": 1,
+          "prompt": "Cual de estos es un tipo primitivo en Java?",
+          "answer": "int",
+          "distractors": ["String", "Integer", "ArrayList"],
+          "explanation": "int es primitivo; String, Integer y ArrayList son tipos de referencia (clases)."
+        },
+        {
+          "id": "fund-main-03",
+          "type": "fill_blank",
+          "difficulty": 1,
+          "prompt": "Declara una variable entera llamada edad con valor 30:",
+          "code": "int _____ = 30;",
+          "answer": "edad",
+          "distractors": [],
+          "explanation": "La sintaxis es tipo nombre = valor;"
+        },
+        {
+          "id": "fund-main-04",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Que diferencia hay entre int e Integer?",
+          "answer": "int es primitivo, Integer es un objeto que lo envuelve (wrapper)",
+          "distractors": ["No hay diferencia", "Integer es primitivo e int es un objeto", "int solo existe en versiones antiguas de Java"],
+          "explanation": "Integer es la clase wrapper de int, permite valores null y se usa en colecciones genericas."
+        },
+        {
+          "id": "fund-main-05",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Por que el metodo main es static?",
+          "answer": "Porque la JVM lo invoca sin crear antes una instancia de la clase",
+          "distractors": ["Porque todos los metodos en Java son static", "Porque main no puede acceder a fields", "Porque static hace que el metodo sea mas rapido"],
+          "explanation": "static permite invocar main directamente sobre la clase, sin necesidad de instanciarla primero."
+        }
+      ]
+    }
+  ]
+}

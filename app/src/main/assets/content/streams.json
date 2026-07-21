@@ -1,203 +1,236 @@
 {
-  "topicId": "java-streams",
+  "sectionId": "java-streams",
   "name": "Streams y lambdas",
-  "certObjective": "streams-lambdas",
-  "exercises": [
+  "orderIndex": 2,
+  "examVersion": "java21",
+  "units": [
     {
-      "id": "streams-01",
-      "type": "fill_blank",
-      "difficulty": 1,
-      "prompt": "Convierte un Stream<String> en List<String>:",
-      "code": "stream._____(Collectors.toList())",
-      "answer": "collect",
-      "distractors": ["map", "reduce", "forEach"],
-      "explanation": "collect() es una operacion terminal que acumula elementos en una coleccion."
+      "unitId": "streams-creation",
+      "name": "Creacion de streams",
+      "certObjective": "streams-lambdas",
+      "orderIndex": 1,
+      "exercises": [
+        {
+          "id": "streams-20",
+          "type": "mcq",
+          "difficulty": 1,
+          "prompt": "Que metodo crea un Stream a partir de una List?",
+          "answer": "stream",
+          "distractors": ["toStream", "asStream", "of"],
+          "explanation": "List.stream() crea un Stream secuencial respaldado por la coleccion."
+        },
+        {
+          "id": "streams-16",
+          "type": "fill_blank",
+          "difficulty": 2,
+          "prompt": "Genera un rango de enteros de 1 (inclusive) a 10 (exclusive):",
+          "code": "IntStream._____(1, 10)",
+          "answer": "range",
+          "distractors": ["of", "generate", "iterate"],
+          "explanation": "IntStream.range(start, end) genera enteros con el limite superior exclusivo."
+        }
+      ]
     },
     {
-      "id": "streams-02",
-      "type": "fill_blank",
-      "difficulty": 1,
-      "prompt": "Filtra los elementos que cumplen una condicion:",
-      "code": "stream._____(s -> s.length() > 3)",
-      "answer": "filter",
-      "distractors": ["map", "sorted", "limit"],
-      "explanation": "filter() conserva solo los elementos que cumplen el predicado."
+      "unitId": "streams-intermediate",
+      "name": "Operaciones intermedias",
+      "certObjective": "streams-lambdas",
+      "orderIndex": 2,
+      "exercises": [
+        {
+          "id": "streams-02",
+          "type": "fill_blank",
+          "difficulty": 1,
+          "prompt": "Filtra los elementos que cumplen una condicion:",
+          "code": "stream._____(s -> s.length() > 3)",
+          "answer": "filter",
+          "distractors": ["map", "sorted", "limit"],
+          "explanation": "filter() conserva solo los elementos que cumplen el predicado."
+        },
+        {
+          "id": "streams-03",
+          "type": "fill_blank",
+          "difficulty": 1,
+          "prompt": "Transforma cada elemento del stream:",
+          "code": "stream._____(String::toUpperCase)",
+          "answer": "map",
+          "distractors": ["filter", "reduce", "peek"],
+          "explanation": "map() aplica una funcion a cada elemento y produce un nuevo stream."
+        },
+        {
+          "id": "streams-06",
+          "type": "fill_blank",
+          "difficulty": 2,
+          "prompt": "Elimina elementos duplicados:",
+          "code": "stream._____()",
+          "answer": "distinct",
+          "distractors": ["unique", "filter", "dedupe"],
+          "explanation": "distinct() usa equals() para descartar duplicados."
+        },
+        {
+          "id": "streams-07",
+          "type": "fill_blank",
+          "difficulty": 2,
+          "prompt": "Ordena los elementos usando su orden natural:",
+          "code": "stream._____()",
+          "answer": "sorted",
+          "distractors": ["order", "arrange", "collect"],
+          "explanation": "sorted() sin argumentos usa Comparable/orden natural."
+        },
+        {
+          "id": "streams-08",
+          "type": "fill_blank",
+          "difficulty": 2,
+          "prompt": "Limita el stream a los primeros 5 elementos:",
+          "code": "stream._____(5)",
+          "answer": "limit",
+          "distractors": ["take", "first", "cap"],
+          "explanation": "limit(n) trunca el stream a n elementos."
+        },
+        {
+          "id": "streams-09",
+          "type": "fill_blank",
+          "difficulty": 2,
+          "prompt": "Descarta los primeros 3 elementos:",
+          "code": "stream._____(3)",
+          "answer": "skip",
+          "distractors": ["drop", "offset", "limit"],
+          "explanation": "skip(n) descarta los primeros n elementos del stream."
+        },
+        {
+          "id": "streams-15",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Que metodo aplana un Stream de listas en un unico Stream de elementos?",
+          "answer": "flatMap",
+          "distractors": ["map", "collect", "reduce"],
+          "explanation": "flatMap() sustituye cada elemento por un stream y los aplana en uno solo."
+        }
+      ]
     },
     {
-      "id": "streams-03",
-      "type": "fill_blank",
-      "difficulty": 1,
-      "prompt": "Transforma cada elemento del stream:",
-      "code": "stream._____(String::toUpperCase)",
-      "answer": "map",
-      "distractors": ["filter", "reduce", "peek"],
-      "explanation": "map() aplica una funcion a cada elemento y produce un nuevo stream."
+      "unitId": "streams-terminal",
+      "name": "Operaciones terminales",
+      "certObjective": "streams-lambdas",
+      "orderIndex": 3,
+      "exercises": [
+        {
+          "id": "streams-01",
+          "type": "fill_blank",
+          "difficulty": 1,
+          "prompt": "Convierte un Stream<String> en List<String>:",
+          "code": "stream._____(Collectors.toList())",
+          "answer": "collect",
+          "distractors": ["map", "reduce", "forEach"],
+          "explanation": "collect() es una operacion terminal que acumula elementos en una coleccion."
+        },
+        {
+          "id": "streams-04",
+          "type": "mcq",
+          "difficulty": 1,
+          "prompt": "Cual de estas es una operacion terminal (cierra el stream)?",
+          "answer": "forEach",
+          "distractors": ["map", "filter", "sorted"],
+          "explanation": "forEach() consume el stream; map, filter y sorted son operaciones intermedias (lazy)."
+        },
+        {
+          "id": "streams-05",
+          "type": "fill_blank",
+          "difficulty": 2,
+          "prompt": "Cuenta los elementos del stream:",
+          "code": "long total = stream._____();",
+          "answer": "count",
+          "distractors": ["size", "sum", "length"],
+          "explanation": "count() es una operacion terminal que devuelve un long."
+        },
+        {
+          "id": "streams-10",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Que operacion combina todos los elementos en un unico resultado usando un acumulador?",
+          "answer": "reduce",
+          "distractors": ["collect", "map", "filter"],
+          "explanation": "reduce() combina elementos de a pares hasta obtener un unico valor."
+        },
+        {
+          "id": "streams-11",
+          "type": "fill_blank",
+          "difficulty": 2,
+          "prompt": "Verifica si algun elemento cumple una condicion:",
+          "code": "stream._____(s -> s.isEmpty())",
+          "answer": "anyMatch",
+          "distractors": ["allMatch", "noneMatch", "filter"],
+          "explanation": "anyMatch() devuelve true si al menos un elemento cumple el predicado."
+        },
+        {
+          "id": "streams-12",
+          "type": "fill_blank",
+          "difficulty": 2,
+          "prompt": "Verifica que todos los elementos cumplan una condicion:",
+          "code": "stream._____(s -> s.length() > 0)",
+          "answer": "allMatch",
+          "distractors": ["anyMatch", "noneMatch", "map"],
+          "explanation": "allMatch() devuelve true solo si todos los elementos cumplen el predicado."
+        },
+        {
+          "id": "streams-13",
+          "type": "fill_blank",
+          "difficulty": 3,
+          "prompt": "Verifica que ningun elemento cumpla una condicion:",
+          "code": "stream._____(s -> s == null)",
+          "answer": "noneMatch",
+          "distractors": ["allMatch", "anyMatch", "filter"],
+          "explanation": "noneMatch() devuelve true si ningun elemento cumple el predicado."
+        },
+        {
+          "id": "streams-17",
+          "type": "fill_blank",
+          "difficulty": 3,
+          "prompt": "Obtiene el elemento minimo segun un comparador:",
+          "code": "stream._____(Comparator.naturalOrder())",
+          "answer": "min",
+          "distractors": ["max", "sorted", "reduce"],
+          "explanation": "min() es una operacion terminal que devuelve un Optional<T>."
+        },
+        {
+          "id": "streams-18",
+          "type": "fill_blank",
+          "difficulty": 3,
+          "prompt": "Obtiene el elemento maximo segun un comparador:",
+          "code": "stream._____(Comparator.naturalOrder())",
+          "answer": "max",
+          "distractors": ["min", "sorted", "limit"],
+          "explanation": "max() es una operacion terminal que devuelve un Optional<T>."
+        }
+      ]
     },
     {
-      "id": "streams-04",
-      "type": "mcq",
-      "difficulty": 1,
-      "prompt": "Cual de estas es una operacion terminal (cierra el stream)?",
-      "answer": "forEach",
-      "distractors": ["map", "filter", "sorted"],
-      "explanation": "forEach() consume el stream; map, filter y sorted son operaciones intermedias (lazy)."
-    },
-    {
-      "id": "streams-05",
-      "type": "fill_blank",
-      "difficulty": 2,
-      "prompt": "Cuenta los elementos del stream:",
-      "code": "long total = stream._____();",
-      "answer": "count",
-      "distractors": ["size", "sum", "length"],
-      "explanation": "count() es una operacion terminal que devuelve un long."
-    },
-    {
-      "id": "streams-06",
-      "type": "fill_blank",
-      "difficulty": 2,
-      "prompt": "Elimina elementos duplicados:",
-      "code": "stream._____()",
-      "answer": "distinct",
-      "distractors": ["unique", "filter", "dedupe"],
-      "explanation": "distinct() usa equals() para descartar duplicados."
-    },
-    {
-      "id": "streams-07",
-      "type": "fill_blank",
-      "difficulty": 2,
-      "prompt": "Ordena los elementos usando su orden natural:",
-      "code": "stream._____()",
-      "answer": "sorted",
-      "distractors": ["order", "arrange", "collect"],
-      "explanation": "sorted() sin argumentos usa Comparable/orden natural."
-    },
-    {
-      "id": "streams-08",
-      "type": "fill_blank",
-      "difficulty": 2,
-      "prompt": "Limita el stream a los primeros 5 elementos:",
-      "code": "stream._____(5)",
-      "answer": "limit",
-      "distractors": ["take", "first", "cap"],
-      "explanation": "limit(n) trunca el stream a n elementos."
-    },
-    {
-      "id": "streams-09",
-      "type": "fill_blank",
-      "difficulty": 2,
-      "prompt": "Descarta los primeros 3 elementos:",
-      "code": "stream._____(3)",
-      "answer": "skip",
-      "distractors": ["drop", "offset", "limit"],
-      "explanation": "skip(n) descarta los primeros n elementos del stream."
-    },
-    {
-      "id": "streams-10",
-      "type": "mcq",
-      "difficulty": 2,
-      "prompt": "Que operacion combina todos los elementos en un unico resultado usando un acumulador?",
-      "answer": "reduce",
-      "distractors": ["collect", "map", "filter"],
-      "explanation": "reduce() combina elementos de a pares hasta obtener un unico valor."
-    },
-    {
-      "id": "streams-11",
-      "type": "fill_blank",
-      "difficulty": 2,
-      "prompt": "Verifica si algun elemento cumple una condicion:",
-      "code": "stream._____(s -> s.isEmpty())",
-      "answer": "anyMatch",
-      "distractors": ["allMatch", "noneMatch", "filter"],
-      "explanation": "anyMatch() devuelve true si al menos un elemento cumple el predicado."
-    },
-    {
-      "id": "streams-12",
-      "type": "fill_blank",
-      "difficulty": 2,
-      "prompt": "Verifica que todos los elementos cumplan una condicion:",
-      "code": "stream._____(s -> s.length() > 0)",
-      "answer": "allMatch",
-      "distractors": ["anyMatch", "noneMatch", "map"],
-      "explanation": "allMatch() devuelve true solo si todos los elementos cumplen el predicado."
-    },
-    {
-      "id": "streams-13",
-      "type": "fill_blank",
-      "difficulty": 3,
-      "prompt": "Verifica que ningun elemento cumpla una condicion:",
-      "code": "stream._____(s -> s == null)",
-      "answer": "noneMatch",
-      "distractors": ["allMatch", "anyMatch", "filter"],
-      "explanation": "noneMatch() devuelve true si ningun elemento cumple el predicado."
-    },
-    {
-      "id": "streams-14",
-      "type": "fill_blank",
-      "difficulty": 2,
-      "prompt": "Une los elementos del stream en un String separado por coma:",
-      "code": "stream.collect(Collectors._____(\", \"))",
-      "answer": "joining",
-      "distractors": ["toList", "toSet", "groupingBy"],
-      "explanation": "Collectors.joining() concatena Strings con el separador dado."
-    },
-    {
-      "id": "streams-15",
-      "type": "mcq",
-      "difficulty": 3,
-      "prompt": "Que metodo aplana un Stream de listas en un unico Stream de elementos?",
-      "answer": "flatMap",
-      "distractors": ["map", "collect", "reduce"],
-      "explanation": "flatMap() sustituye cada elemento por un stream y los aplana en uno solo."
-    },
-    {
-      "id": "streams-16",
-      "type": "fill_blank",
-      "difficulty": 2,
-      "prompt": "Genera un rango de enteros de 1 (inclusive) a 10 (exclusive):",
-      "code": "IntStream._____(1, 10)",
-      "answer": "range",
-      "distractors": ["of", "generate", "iterate"],
-      "explanation": "IntStream.range(start, end) genera enteros con el limite superior exclusivo."
-    },
-    {
-      "id": "streams-17",
-      "type": "fill_blank",
-      "difficulty": 3,
-      "prompt": "Obtiene el elemento minimo segun un comparador:",
-      "code": "stream._____(Comparator.naturalOrder())",
-      "answer": "min",
-      "distractors": ["max", "sorted", "reduce"],
-      "explanation": "min() es una operacion terminal que devuelve un Optional<T>."
-    },
-    {
-      "id": "streams-18",
-      "type": "fill_blank",
-      "difficulty": 3,
-      "prompt": "Obtiene el elemento maximo segun un comparador:",
-      "code": "stream._____(Comparator.naturalOrder())",
-      "answer": "max",
-      "distractors": ["min", "sorted", "limit"],
-      "explanation": "max() es una operacion terminal que devuelve un Optional<T>."
-    },
-    {
-      "id": "streams-19",
-      "type": "fill_blank",
-      "difficulty": 3,
-      "prompt": "Agrupa los elementos por una propiedad derivada:",
-      "code": "stream.collect(Collectors._____(String::length))",
-      "answer": "groupingBy",
-      "distractors": ["joining", "toMap", "partitioningBy"],
-      "explanation": "Collectors.groupingBy() agrupa elementos en un Map segun la funcion clasificadora."
-    },
-    {
-      "id": "streams-20",
-      "type": "mcq",
-      "difficulty": 1,
-      "prompt": "Que metodo crea un Stream a partir de una List?",
-      "answer": "stream",
-      "distractors": ["toStream", "asStream", "of"],
-      "explanation": "List.stream() crea un Stream secuencial respaldado por la coleccion."
+      "unitId": "streams-collectors",
+      "name": "Collectors avanzados",
+      "certObjective": "streams-lambdas",
+      "orderIndex": 4,
+      "exercises": [
+        {
+          "id": "streams-14",
+          "type": "fill_blank",
+          "difficulty": 2,
+          "prompt": "Une los elementos del stream en un String separado por coma:",
+          "code": "stream.collect(Collectors._____(\", \"))",
+          "answer": "joining",
+          "distractors": ["toList", "toSet", "groupingBy"],
+          "explanation": "Collectors.joining() concatena Strings con el separador dado."
+        },
+        {
+          "id": "streams-19",
+          "type": "fill_blank",
+          "difficulty": 3,
+          "prompt": "Agrupa los elementos por una propiedad derivada:",
+          "code": "stream.collect(Collectors._____(String::length))",
+          "answer": "groupingBy",
+          "distractors": ["joining", "toMap", "partitioningBy"],
+          "explanation": "Collectors.groupingBy() agrupa elementos en un Map segun la funcion clasificadora."
+        }
+      ]
     }
   ]
 }
