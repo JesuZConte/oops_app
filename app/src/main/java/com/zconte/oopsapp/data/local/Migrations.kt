@@ -60,7 +60,7 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
         db.execSQL(
             """
             CREATE TABLE IF NOT EXISTS checkpoint_attempts (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 sectionId TEXT NOT NULL,
                 kind TEXT NOT NULL,
                 scorePct INTEGER NOT NULL,
