@@ -10,6 +10,7 @@ import com.zconte.oopsapp.domain.model.ExerciseContent
 import com.zconte.oopsapp.domain.usecase.CompleteCheckpointUseCase
 import com.zconte.oopsapp.domain.usecase.GetCheckpointSessionUseCase
 import com.zconte.oopsapp.domain.usecase.SubmitAnswerUseCase
+import com.zconte.oopsapp.domain.usecase.UpdateStreakUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -40,6 +41,7 @@ class CheckpointViewModel @Inject constructor(
     private val getCheckpointSessionUseCase: GetCheckpointSessionUseCase,
     private val submitAnswerUseCase: SubmitAnswerUseCase,
     private val completeCheckpointUseCase: CompleteCheckpointUseCase,
+    private val updateStreakUseCase: UpdateStreakUseCase,
     private val json: Json
 ) : ViewModel() {
 
@@ -91,6 +93,7 @@ class CheckpointViewModel @Inject constructor(
             _uiState.update { it.copy(isCompleting = true) }
             viewModelScope.launch {
                 pendingAnswerJob?.join()
+                updateStreakUseCase(LocalDate.now())
                 val result = completeCheckpointUseCase(
                     sectionId = sectionId,
                     kind = CheckpointKind.REVIEW,

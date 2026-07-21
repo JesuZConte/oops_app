@@ -6,8 +6,6 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.zconte.oopsapp.data.local.entity.ReviewStateEntity
 
-data class ObjectiveMasteryCount(val objective: String, val masteredCount: Int)
-
 @Dao
 interface ReviewStateDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -18,16 +16,4 @@ interface ReviewStateDao {
 
     @Query("SELECT exerciseId FROM review_state WHERE exerciseId IN (:exerciseIds)")
     suspend fun getExistingIds(exerciseIds: List<String>): List<String>
-
-    @Query(
-        """
-        SELECT units.certObjective AS objective, COUNT(*) AS masteredCount
-        FROM review_state
-        INNER JOIN exercises ON review_state.exerciseId = exercises.id
-        INNER JOIN units ON exercises.unitId = units.id
-        WHERE review_state.repetitions >= 2
-        GROUP BY units.certObjective
-        """
-    )
-    suspend fun getMasteredCountByObjective(): List<ObjectiveMasteryCount>
 }

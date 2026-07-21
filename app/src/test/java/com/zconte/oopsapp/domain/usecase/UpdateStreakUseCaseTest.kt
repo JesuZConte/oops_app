@@ -14,7 +14,6 @@ private class FakeProgressRepositoryForStreak(initial: UserStats) : ProgressRepo
     override suspend fun saveUserStats(stats: UserStats) {
         this.stats = stats
     }
-    override suspend fun getReadinessByObjective(): Map<String, Float> = emptyMap()
 }
 
 class UpdateStreakUseCaseTest {

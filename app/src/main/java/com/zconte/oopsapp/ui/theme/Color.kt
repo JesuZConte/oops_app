@@ -42,9 +42,6 @@ val SpectrumStripeColors = listOf(
     Color(0xFFE5427E)
 )
 
-// Ruta current-step chip background, light mode only (dark mode uses a low-alpha tint of the line's own color)
-val RouteChipBackgroundLight = Color(0xFFE4EDFB)
-
 // Code block: same look in both themes except background
 val CodeBlockBackgroundDark = Color(0xFF16141F)
 val CodeBlockBackgroundLight = Color(0xFF2A2632)

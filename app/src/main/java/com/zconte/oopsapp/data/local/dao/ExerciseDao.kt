@@ -6,15 +6,10 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.zconte.oopsapp.data.local.entity.ExerciseEntity
 
-data class ObjectiveTotalCount(val objective: String, val totalCount: Int)
-
 @Dao
 interface ExerciseDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(exercises: List<ExerciseEntity>)
-
-    @Query("SELECT COUNT(*) FROM exercises")
-    suspend fun count(): Int
 
     @Query("DELETE FROM exercises")
     suspend fun clearAll()
@@ -48,14 +43,4 @@ interface ExerciseDao {
         """
     )
     suspend fun getBySection(sectionId: String): List<ExerciseEntity>
-
-    @Query(
-        """
-        SELECT units.certObjective AS objective, COUNT(*) AS totalCount
-        FROM exercises
-        INNER JOIN units ON exercises.unitId = units.id
-        GROUP BY units.certObjective
-        """
-    )
-    suspend fun getTotalCountByObjective(): List<ObjectiveTotalCount>
 }

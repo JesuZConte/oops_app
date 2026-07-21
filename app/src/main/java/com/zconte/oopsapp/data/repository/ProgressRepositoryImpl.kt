@@ -1,7 +1,5 @@
 package com.zconte.oopsapp.data.repository
 
-import com.zconte.oopsapp.data.local.dao.ExerciseDao
-import com.zconte.oopsapp.data.local.dao.ReviewStateDao
 import com.zconte.oopsapp.data.local.dao.UserStatsDao
 import com.zconte.oopsapp.data.local.entity.UserStatsEntity
 import com.zconte.oopsapp.domain.model.UserStats
@@ -10,9 +8,7 @@ import java.time.LocalDate
 import javax.inject.Inject
 
 class ProgressRepositoryImpl @Inject constructor(
-    private val userStatsDao: UserStatsDao,
-    private val reviewStateDao: ReviewStateDao,
-    private val exerciseDao: ExerciseDao
+    private val userStatsDao: UserStatsDao
 ) : ProgressRepository {
 
     override suspend fun getUserStats(): UserStats {
@@ -32,15 +28,5 @@ class ProgressRepositoryImpl @Inject constructor(
                 lastStudyDate = stats.lastStudyDate?.toEpochDay()
             )
         )
-    }
-
-    override suspend fun getReadinessByObjective(): Map<String, Float> {
-        val mastered = reviewStateDao.getMasteredCountByObjective()
-            .associate { it.objective to it.masteredCount }
-        val total = exerciseDao.getTotalCountByObjective()
-            .associate { it.objective to it.totalCount }
-        return total.mapValues { (objective, totalCount) ->
-            if (totalCount == 0) 0f else (mastered[objective] ?: 0).toFloat() / totalCount
-        }
     }
 }
