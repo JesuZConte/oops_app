@@ -1,10 +1,13 @@
 package com.zconte.oopsapp.ui.session
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.zconte.oopsapp.domain.model.Exercise
 import com.zconte.oopsapp.domain.model.ExerciseContent
 import com.zconte.oopsapp.domain.usecase.GetTodaySessionUseCase
+import com.zconte.oopsapp.domain.usecase.GetUnitSessionUseCase
+import com.zconte.oopsapp.domain.usecase.MarkUnitProgressUseCase
 import com.zconte.oopsapp.domain.usecase.SubmitAnswerUseCase
 import com.zconte.oopsapp.domain.usecase.UpdateStreakUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -31,11 +34,16 @@ data class SessionUiState(
 
 @HiltViewModel
 class SessionViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val getTodaySessionUseCase: GetTodaySessionUseCase,
+    private val getUnitSessionUseCase: GetUnitSessionUseCase,
     private val submitAnswerUseCase: SubmitAnswerUseCase,
     private val updateStreakUseCase: UpdateStreakUseCase,
+    private val markUnitProgressUseCase: MarkUnitProgressUseCase,
     private val json: Json
 ) : ViewModel() {
+
+    private val unitId: String? = savedStateHandle["unitId"]
 
     private val _uiState = MutableStateFlow(SessionUiState())
     val uiState: StateFlow<SessionUiState> = _uiState.asStateFlow()
@@ -44,7 +52,7 @@ class SessionViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val queue = getTodaySessionUseCase(LocalDate.now())
+            val queue = unitId?.let { getUnitSessionUseCase(it) } ?: getTodaySessionUseCase(LocalDate.now())
             if (queue.isEmpty()) {
                 // Nothing due and nothing new: nothing to show, so the session is trivially complete.
                 _uiState.update { it.copy(isSessionComplete = true) }
@@ -80,6 +88,7 @@ class SessionViewModel @Inject constructor(
                 // away (and clearing this ViewModel's scope) can't cancel it mid-flight.
                 pendingAnswerJob?.join()
                 updateStreakUseCase(LocalDate.now())
+                unitId?.let { markUnitProgressUseCase(it, LocalDate.now()) }
                 _uiState.update { it.copy(isSessionComplete = true) }
             }
         } else {

@@ -24,6 +24,12 @@ import com.zconte.oopsapp.ui.theme.resolveDarkTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
+private val FULL_SCREEN_ROUTES = setOf(
+    OopsDestinations.SESSION,
+    OopsDestinations.UNIT_SESSION,
+    OopsDestinations.CHECKPOINT
+)
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
@@ -45,7 +51,7 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     bottomBar = {
-                        if (currentRoute != OopsDestinations.SESSION) {
+                        if (currentRoute !in FULL_SCREEN_ROUTES) {
                             OopsBottomBar(navController, currentRoute)
                         }
                     }
@@ -53,7 +59,7 @@ class MainActivity : ComponentActivity() {
                     OopsNavHost(
                         navController = navController,
                         modifier = Modifier.padding(
-                            bottom = if (currentRoute == OopsDestinations.SESSION) {
+                            bottom = if (currentRoute in FULL_SCREEN_ROUTES) {
                                 0.dp
                             } else {
                                 innerPadding.calculateBottomPadding()
