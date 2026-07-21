@@ -1,5 +1,29 @@
 # Changelog
 
+## 2026-07-21 — Fase 2.1: Secciones, Unidades y Checkpoint de repaso
+
+Implementado vía `docs/superpowers/plans/2026-07-20-fase2-1-sections-units-checkpoints.md` (11 tareas, subagent-driven-development), a partir del ADR `docs/adrs/2026-07-20-content-structure-sections-checkpoints.md` y el spec `docs/specs/2026-07-20-fase2-1-foundation-spec.md`. Reemplaza el modelo plano `Topic → Exercise` por una jerarquía **Sección → Unidad → Ejercicio** estilo Duolingo, probada end-to-end con dos secciones reales.
+
+- **Modelo de datos**: migración Room v1→v2 (`MIGRATION_1_2`, pura DDL) que reemplaza `topics`/`exercises` planos por `sections`/`units`/`exercises` v2, más `unit_progress`, `checkpoint_attempts` y `content_meta`. El progreso del usuario (`review_state`, `user_stats`) nunca se toca — validado con un test instrumentado (`MigrationTest`, `androidTest`) que siembra una base v1 real, corre la migración, y confirma que el progreso sobrevive intacto y el contenido v2 se re-siembra correctamente.
+- **Contenido**: nueva sección "Fundamentos de Java" (17 ejercicios, 3 unidades) y la sección "Streams y lambdas" existente reorganizada en 4 unidades — los 20 ids de ejercicio existentes se preservaron byte a byte para que el `review_state` de usuarios existentes siga resolviendo tras la migración. `ContentSeeder` pasa de un guard de "tabla vacía" a un guard de versión de contenido (`content_meta`), para que las actualizaciones de contenido futuras se re-siembren correctamente sin depender de que la base esté vacía.
+- **Progreso por unidad**: una unidad se completa por "primera pasada" (todos sus ejercicios respondidos al menos una vez, sin requerir dominio SM-2). Gating secuencial: la primera sección y su primera unidad siempre están desbloqueadas; una unidad se desbloquea al completar la anterior en su sección; una sección se desbloquea cuando todas las unidades de la sección previa están completas.
+- **Checkpoint de repaso**: mini-cuestionario opcional al final de cada sección (~12 preguntas: la sección recién completada + hasta 3 de secciones anteriores), con umbral de aprobación del **68%** (igual al examen real 1Z0-830). Las respuestas del checkpoint alimentan el motor SM-2 exactamente igual que una sesión diaria — el pass/fail es un cálculo agregado por encima, no una evaluación aislada. Completar un checkpoint también actualiza la racha diaria, igual que cualquier otra sesión.
+- **UI**: `ExerciseAnswerCard` extraído de `SessionScreen` como componente compartido (reubicación exacta, sin rediseño), reutilizado por la nueva `CheckpointScreen`. `SessionViewModel` generalizado para reproducir tanto la cola diaria como la de una unidad específica. Ruta rediseñada: de líneas de dominio planas a un camino Sección→Unidad con filas de unidad jugables/bloqueadas/completas y una fila de Checkpoint al final de cada sección completa — se retira el chip estático "collect() — ahora ▶" (placeholder de la ronda anterior), reemplazado por navegación real. La tarjeta "TU RUTA" de Home ahora refleja la sección actual del jugador (primera sección incompleta) y su progreso real de unidades, en vez de un porcentaje de dominio fijo a Streams.
+
+### Fuera de alcance (diferido a Fase 2.1b)
+
+El checkpoint de **ubicación** (saltar unidades adelantándose, con siembra híbrida de SM-2 para las unidades saltadas) quedó explícitamente fuera de esta ronda — solo se implementó el checkpoint de repaso voluntario. Documentado en el ADR y el roadmap, no olvidado.
+
+### Bugs encontrados y corregidos durante la implementación
+
+- El test de migración instrumentado encontró que `MIGRATION_1_2` creaba `checkpoint_attempts.id` sin `NOT NULL` (difería del esquema exportado de Room) — una migración real en un dispositivo habría fallado al abrir la base tras el upgrade. Corregido antes de continuar.
+- La revisión de tarea encontró una condición de carrera en `CheckpointViewModel.nextExercise()`: un doble-tap en la última pregunta del checkpoint podía lanzar dos inserciones concurrentes en `checkpoint_attempts`. Corregido con el mismo guard `isCompleting` que ya usaba `SessionViewModel`.
+- La revisión final de rama encontró un pipeline de "readiness" basado en dominio SM-2 (`ProgressRepository.getReadinessByObjective` y su cadena de DAOs) que había quedado inalcanzable tras el rediseño de Home — eliminado junto con otro código muerto menor (`ExerciseDao.count()`, un color sin uso de la Ruta anterior).
+
+### Estado del repo
+
+Suite de tests unitarios y test instrumentado de migración (`connectedAndroidTest`) verificados en verde sobre la rama ensamblada. Recorrido completo en dispositivo real (claro y oscuro) de todo el flujo: desbloqueo de unidades, gating entre secciones, checkpoint con aprobación, tarjetas de Home actualizadas.
+
 ## 2026-07-20 — Correcciones de diseño (handoff 7a/7b)
 
 Implementado vía `docs/superpowers/plans/2026-07-18-design-corrections-arcade-7b.md` (7 tareas, subagent-driven-development), a partir del handoff actualizado en `docs/design/design_handoff_oops_arcade/` (secciones 7a/7b, definitivas).
