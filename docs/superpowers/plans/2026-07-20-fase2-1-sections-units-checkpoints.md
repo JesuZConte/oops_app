@@ -6,7 +6,7 @@
 
 **Architecture:** El contenido (secciones/unidades/ejercicios) se trata como derivado y re-sembrable desde `assets/content/`; el progreso del usuario (`review_state`, `user_stats`) es el dato precioso que la migración nunca toca. La migración Room v1→v2 solo hace DDL sobre las tablas de contenido (drop+recreate); un `ContentSeeder` versionado (no un guard de `count() > 0`) repuebla sections/units/exercises en cada arranque cuando detecta una versión de contenido nueva.
 
-**Tech Stack:** Kotlin, Room (migración manual + `MigrationTestHelper`), Hilt, kotlinx.serialization, Jetpack Compose.
+**Tech Stack:** Kotlin, Room (migración manual, verificada con SQLite crudo + apertura real de `Room.databaseBuilder`), Hilt, kotlinx.serialization, Jetpack Compose.
 
 ## Global Constraints
 
@@ -1461,7 +1461,13 @@ git commit -m "Author Fundamentos de Java content pack; reorganize Streams into 
 - Consumes: `AppDatabase`, `MIGRATION_1_2` (Task 1); `ContentSeeder`, `ContentLoader` (Task 2); the real asset files from Task 3.
 - Produces: nothing consumed by later tasks — this is the correctness gate for Tasks 1-3 before building anything on top.
 
-**Context:** This is an **instrumented test** (`androidTest`, needs a connected device or emulator — `./gradlew connectedAndroidTest`), not a local JVM test, because Room's `MigrationTestHelper` needs a real SQLite implementation. This is a deliberate exception to this project's usual "testeable sin emulador" convention (see `PROJECT-OOPS.md` section 3) — Room migrations cannot be verified any other way.
+**Context:** This is an **instrumented test** (`androidTest`, needs a connected device or emulator — `./gradlew connectedAndroidTest`), not a local JVM test, because it needs a real SQLite implementation. This is a deliberate exception to this project's usual "testeable sin emulador" convention (see `PROJECT-OOPS.md` section 3).
+
+**Why this test does not use `MigrationTestHelper`:** `MigrationTestHelper.createDatabase(name, version)` requires a pre-exported schema JSON asset for that version (`app/schemas/.../1.json`). Schema export (`exportSchema = true`) was only turned on in Task 1, so `1.json` was never generated and cannot be reconstructed retroactively — the v1 entity classes are already deleted. Using the helper here would fail immediately with "cannot find the schema file in the assets folder."
+
+Instead, this test builds the v1 database file directly with `android.database.sqlite.SQLiteDatabase` (raw SQL, no Room involved) and sets `PRAGMA user_version = 1`. Opening that file afterwards through a normal `Room.databaseBuilder(...).addMigrations(MIGRATION_1_2).build()` makes Room detect the on-disk version is behind the compiled version and run `MIGRATION_1_2` automatically on first access — this is Room's standard upgrade path, identical to what happens on a real user's device. Room still validates the *post*-migration schema against its compiled entities when it opens the database (this check is generated inline in Room's `_AppDatabase_Impl`, independent of the exported schema JSON), so schema correctness is still verified — just without needing the missing `1.json`.
+
+**The v1 raw-SQL shape must match what the deleted v1 entities produced, and the untouched tables must match the CURRENT entities exactly.** `MIGRATION_1_2` drops and recreates `topics`/`exercises` but never touches `review_state`/`user_stats` — those two tables exist post-migration exactly as this test's raw SQL creates them, so if their column affinity/nullability doesn't match `ReviewStateEntity`/`UserStatsEntity` as they exist today, Room's post-open validation fails even though the data itself is correct. The `CREATE TABLE` statements below for `review_state` and `user_stats` are copied verbatim from `app/schemas/com.zconte.oopsapp.data.local.AppDatabase/2.json` (the schema Task 1 exported) — do not alter them.
 
 **The critical thing this test must do, and why:** it is not enough to run the migration in isolation and check the schema is valid — `ContentSeeder.seedIfNeeded()` must also run against the migrated database, through the same path the real app takes on startup, and the test must assert on the *result of that*. The risk this guards against: `ContentSeeder`'s version guard could silently skip seeding after a migration (if the guard logic were wrong), leaving `sections`/`units`/`exercises` empty while `review_state` still references exercise ids that no longer exist anywhere — the app wouldn't crash, it would just silently show empty content. Asserting only "the migration's DDL ran without throwing" would not catch that class of bug.
 
@@ -1472,8 +1478,8 @@ Create `app/src/androidTest/java/com/zconte/oopsapp/data/local/MigrationTest.kt`
 ```kotlin
 package com.zconte.oopsapp.data.local
 
+import android.database.sqlite.SQLiteDatabase
 import androidx.room.Room
-import androidx.room.testing.MigrationTestHelper
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.zconte.oopsapp.data.content.ContentLoader
@@ -1483,7 +1489,6 @@ import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -1492,18 +1497,21 @@ private const val TEST_DB = "migration-test"
 @RunWith(AndroidJUnit4::class)
 class MigrationTest {
 
-    @get:Rule
-    val helper: MigrationTestHelper = MigrationTestHelper(
-        InstrumentationRegistry.getInstrumentation(),
-        AppDatabase::class.java
-    )
-
     @Test
     fun migrate1To2_preservesUserDataAndReseedsV2Content() {
-        // 1. Seed a v1-shaped database with raw SQL (the v1 Kotlin entity classes no longer
-        // exist in the codebase after Task 1's refactor -- the v1 schema shape is reproduced
-        // here directly, matching what TopicEntity/the old ExerciseEntity used to declare).
-        helper.createDatabase(TEST_DB, 1).apply {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        context.deleteDatabase(TEST_DB)
+        val dbFile = context.getDatabasePath(TEST_DB)
+
+        // 1. Build a v1-shaped database file directly with raw SQL (the v1 Kotlin entity
+        // classes no longer exist in the codebase after Task 1's refactor). review_state and
+        // user_stats are copied verbatim from app/schemas/.../2.json since MIGRATION_1_2 never
+        // touches them -- they must match the CURRENT entities exactly, not the old ones.
+        SQLiteDatabase.openOrCreateDatabase(dbFile, null).apply {
+            execSQL("CREATE TABLE topics (id TEXT NOT NULL PRIMARY KEY, name TEXT NOT NULL, certObjective TEXT NOT NULL, orderIndex INTEGER NOT NULL)")
+            execSQL("CREATE TABLE exercises (id TEXT NOT NULL PRIMARY KEY, topicId TEXT NOT NULL, type TEXT NOT NULL, payload TEXT NOT NULL, difficulty INTEGER NOT NULL)")
+            execSQL("CREATE TABLE `review_state` (`exerciseId` TEXT NOT NULL, `easeFactor` REAL NOT NULL, `intervalDays` INTEGER NOT NULL, `repetitions` INTEGER NOT NULL, `dueDate` INTEGER NOT NULL, PRIMARY KEY(`exerciseId`))")
+            execSQL("CREATE TABLE `user_stats` (`id` INTEGER NOT NULL, `streak` INTEGER NOT NULL, `xp` INTEGER NOT NULL, `lastStudyDate` INTEGER, PRIMARY KEY(`id`))")
             execSQL(
                 "INSERT INTO topics (id, name, certObjective, orderIndex) VALUES " +
                     "('java-streams', 'Streams y lambdas', 'streams-lambdas', 0)"
@@ -1519,15 +1527,14 @@ class MigrationTest {
             execSQL(
                 "INSERT INTO user_stats (id, streak, xp, lastStudyDate) VALUES (0, 5, 50, 19000)"
             )
+            version = 1
             close()
         }
 
-        // 2. Run the real migration and validate the resulting schema against what Room expects.
-        helper.runMigrationsAndValidate(TEST_DB, 2, true, MIGRATION_1_2)
-
-        // 3. Open the migrated file as a real AppDatabase (same name/path) and run the actual
-        // seeder against it -- the same path the app takes on startup.
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        // 2. Open via a real Room-managed AppDatabase with the migration registered. Room
+        // detects the on-disk user_version is 1, runs MIGRATION_1_2 automatically on first
+        // access, and validates the resulting schema against its compiled entities -- the same
+        // path a real device takes when the app upgrades.
         val db = Room.databaseBuilder(context, AppDatabase::class.java, TEST_DB)
             .addMigrations(MIGRATION_1_2)
             .allowMainThreadQueries()
