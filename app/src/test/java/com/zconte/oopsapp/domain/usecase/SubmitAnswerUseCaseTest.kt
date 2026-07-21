@@ -13,10 +13,14 @@ private class FakeExerciseRepositoryForAnswer : ExerciseRepository {
 
     override suspend fun getDueExercises(today: LocalDate, limit: Int): List<Exercise> = emptyList()
     override suspend fun getNewExercises(limit: Int): List<Exercise> = emptyList()
+    override suspend fun getExercisesByUnit(unitId: String): List<Exercise> = emptyList()
+    override suspend fun getExercisesBySection(sectionId: String): List<Exercise> = emptyList()
     override suspend fun getReviewState(exerciseId: String): ReviewState? = states[exerciseId]
     override suspend fun saveReviewState(state: ReviewState) {
         states[state.exerciseId] = state
     }
+    override suspend fun getAnsweredExerciseIds(exerciseIds: List<String>): List<String> =
+        states.keys.filter { it in exerciseIds }
 }
 
 class SubmitAnswerUseCaseTest {

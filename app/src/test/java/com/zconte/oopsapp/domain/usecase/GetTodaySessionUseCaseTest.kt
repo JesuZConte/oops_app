@@ -16,12 +16,16 @@ private class FakeExerciseRepositoryForSession(
 
     override suspend fun getDueExercises(today: LocalDate, limit: Int): List<Exercise> = due.take(limit)
     override suspend fun getNewExercises(limit: Int): List<Exercise> = new.take(limit)
+    override suspend fun getExercisesByUnit(unitId: String): List<Exercise> = emptyList()
+    override suspend fun getExercisesBySection(sectionId: String): List<Exercise> = emptyList()
     override suspend fun getReviewState(exerciseId: String): ReviewState? =
         savedStates.find { it.exerciseId == exerciseId }
     override suspend fun saveReviewState(state: ReviewState) {
         savedStates.removeAll { it.exerciseId == state.exerciseId }
         savedStates.add(state)
     }
+    override suspend fun getAnsweredExerciseIds(exerciseIds: List<String>): List<String> =
+        savedStates.map { it.exerciseId }.filter { it in exerciseIds }
 }
 
 class GetTodaySessionUseCaseTest {

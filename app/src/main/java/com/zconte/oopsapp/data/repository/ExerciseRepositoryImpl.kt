@@ -21,16 +21,25 @@ class ExerciseRepositoryImpl @Inject constructor(
     override suspend fun getNewExercises(limit: Int): List<Exercise> =
         exerciseDao.getNew(limit).map { it.toDomain() }
 
+    override suspend fun getExercisesByUnit(unitId: String): List<Exercise> =
+        exerciseDao.getByUnit(unitId).map { it.toDomain() }
+
+    override suspend fun getExercisesBySection(sectionId: String): List<Exercise> =
+        exerciseDao.getBySection(sectionId).map { it.toDomain() }
+
     override suspend fun getReviewState(exerciseId: String): ReviewState? =
         reviewStateDao.getByExerciseId(exerciseId)?.toDomain()
 
     override suspend fun saveReviewState(state: ReviewState) {
         reviewStateDao.upsert(state.toEntity())
     }
+
+    override suspend fun getAnsweredExerciseIds(exerciseIds: List<String>): List<String> =
+        if (exerciseIds.isEmpty()) emptyList() else reviewStateDao.getExistingIds(exerciseIds)
 }
 
 private fun ExerciseEntity.toDomain() = Exercise(
-    id = id, topicId = topicId, type = type, payload = payload, difficulty = difficulty
+    id = id, unitId = unitId, type = type, payload = payload, difficulty = difficulty, examVersion = examVersion
 )
 
 private fun ReviewStateEntity.toDomain() = ReviewState(
