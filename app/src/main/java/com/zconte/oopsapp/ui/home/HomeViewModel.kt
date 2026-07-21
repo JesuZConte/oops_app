@@ -30,7 +30,7 @@ class HomeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            contentSeeder.seedIfEmpty()
+            contentSeeder.seedIfNeeded()
             refreshStats()
             _uiState.update { it.copy(isReady = true) }
         }
