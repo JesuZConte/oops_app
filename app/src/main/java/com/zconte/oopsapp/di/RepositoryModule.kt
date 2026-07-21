@@ -1,9 +1,11 @@
 package com.zconte.oopsapp.di
 
+import com.zconte.oopsapp.data.repository.CheckpointRepositoryImpl
 import com.zconte.oopsapp.data.repository.ContentRepositoryImpl
 import com.zconte.oopsapp.data.repository.ExerciseRepositoryImpl
 import com.zconte.oopsapp.data.repository.ProgressRepositoryImpl
 import com.zconte.oopsapp.data.repository.SettingsRepositoryImpl
+import com.zconte.oopsapp.domain.repository.CheckpointRepository
 import com.zconte.oopsapp.domain.repository.ContentRepository
 import com.zconte.oopsapp.domain.repository.ExerciseRepository
 import com.zconte.oopsapp.domain.repository.ProgressRepository
@@ -27,4 +29,7 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindContentRepository(impl: ContentRepositoryImpl): ContentRepository
+
+    @Binds
+    abstract fun bindCheckpointRepository(impl: CheckpointRepositoryImpl): CheckpointRepository
 }
