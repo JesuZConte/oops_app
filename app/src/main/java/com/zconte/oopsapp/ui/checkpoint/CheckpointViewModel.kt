@@ -30,7 +30,8 @@ data class CheckpointUiState(
     val isAnswered: Boolean = false,
     val isCorrect: Boolean = false,
     val isComplete: Boolean = false,
-    val result: CheckpointResult? = null
+    val result: CheckpointResult? = null,
+    val isCompleting: Boolean = false
 )
 
 @HiltViewModel
@@ -84,8 +85,10 @@ class CheckpointViewModel @Inject constructor(
     }
 
     fun nextExercise() {
+        if (_uiState.value.isCompleting) return
         val remaining = _uiState.value.queue.drop(1)
         if (remaining.isEmpty()) {
+            _uiState.update { it.copy(isCompleting = true) }
             viewModelScope.launch {
                 pendingAnswerJob?.join()
                 val result = completeCheckpointUseCase(
