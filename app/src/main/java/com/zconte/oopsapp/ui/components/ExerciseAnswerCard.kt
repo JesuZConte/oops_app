@@ -11,7 +11,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.LinearProgressIndicator
@@ -79,17 +81,21 @@ fun ExerciseAnswerCard(
             )
         }
 
-        Text(
-            text = exercise.prompt,
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onBackground
-        )
+        Column(
+            modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            Text(
+                text = exercise.prompt,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onBackground
+            )
 
-        exercise.code?.let { code ->
-            CodeBlock(code = code, modifier = Modifier.fillMaxWidth())
+            exercise.code?.let { code ->
+                val filledAnswer = if (state.isAnswered && exercise.type != MCQ_TYPE) exercise.answer else null
+                CodeBlock(code = code, filledAnswer = filledAnswer, modifier = Modifier.fillMaxWidth())
+            }
         }
-
-        Spacer(Modifier.weight(1f))
 
         if (!state.isAnswered) {
             if (exercise.type == MCQ_TYPE) {

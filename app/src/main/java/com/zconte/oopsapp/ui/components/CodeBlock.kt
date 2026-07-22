@@ -40,11 +40,13 @@ private val CodeTypes = setOf("List", "Stream", "IntStream", "Optional", "Collec
 private const val BLANK_ID = "blank"
 
 @Composable
-fun CodeBlock(code: String, modifier: Modifier = Modifier) {
+fun CodeBlock(code: String, filledAnswer: String? = null, modifier: Modifier = Modifier) {
     val extended = OopsTheme.extendedColors
     val primary = MaterialTheme.colorScheme.primary
 
-    val annotated = remember(code, extended) { highlightCode(code, extended) }
+    val annotated = remember(code, extended, primary, filledAnswer) {
+        highlightCode(code, extended, primary, filledAnswer)
+    }
 
     Box(
         modifier = modifier
@@ -78,7 +80,12 @@ fun CodeBlock(code: String, modifier: Modifier = Modifier) {
     }
 }
 
-private fun highlightCode(code: String, extended: com.zconte.oopsapp.ui.theme.OopsExtendedColors): AnnotatedString =
+private fun highlightCode(
+    code: String,
+    extended: com.zconte.oopsapp.ui.theme.OopsExtendedColors,
+    primary: Color,
+    filledAnswer: String?
+): AnnotatedString =
     buildAnnotatedString {
         val blankRegex = Regex("_{5,}")
         val tokenRegex = Regex("[A-Za-z]+")
@@ -95,6 +102,11 @@ private fun highlightCode(code: String, extended: com.zconte.oopsapp.ui.theme.Oo
                 append(code.substring(index, next.range.first))
             }
             when {
+                next === blank && filledAnswer != null -> {
+                    withStyle(
+                        SpanStyle(color = primary, background = primary.copy(alpha = 0.15f))
+                    ) { append(filledAnswer) }
+                }
                 next === blank -> appendInlineContent(BLANK_ID, next.value)
                 next.value in CodeKeywords -> withStyle(SpanStyle(color = extended.codeKeyword)) { append(next.value) }
                 next.value in CodeTypes -> withStyle(SpanStyle(color = extended.codeType)) { append(next.value) }
