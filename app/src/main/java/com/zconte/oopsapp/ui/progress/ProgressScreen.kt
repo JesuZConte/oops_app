@@ -30,6 +30,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.zconte.oopsapp.domain.model.SectionPath
+import com.zconte.oopsapp.domain.model.UnitCompletionSource
 import com.zconte.oopsapp.domain.model.UnitProgress
 import com.zconte.oopsapp.ui.theme.OopsTheme
 import com.zconte.oopsapp.ui.theme.PressStart2P
@@ -40,6 +41,7 @@ fun ProgressScreen(
     modifier: Modifier = Modifier,
     onPlayUnit: (String) -> Unit,
     onOpenCheckpoint: (String) -> Unit,
+    onOpenPlacementCheckpoint: (String) -> Unit,
     viewModel: ProgressViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -88,7 +90,8 @@ fun ProgressScreen(
                 SectionPathBlock(
                     sectionPath = sectionPath,
                     onPlayUnit = onPlayUnit,
-                    onOpenCheckpoint = onOpenCheckpoint
+                    onOpenCheckpoint = onOpenCheckpoint,
+                    onOpenPlacementCheckpoint = onOpenPlacementCheckpoint
                 )
             }
         }
@@ -99,7 +102,8 @@ fun ProgressScreen(
 private fun SectionPathBlock(
     sectionPath: SectionPath,
     onPlayUnit: (String) -> Unit,
-    onOpenCheckpoint: (String) -> Unit
+    onOpenCheckpoint: (String) -> Unit,
+    onOpenPlacementCheckpoint: (String) -> Unit
 ) {
     val extended = OopsTheme.extendedColors
 
@@ -111,7 +115,16 @@ private fun SectionPathBlock(
         )
 
         sectionPath.units.forEach { unitProgress ->
-            UnitRow(unitProgress = unitProgress, onClick = { onPlayUnit(unitProgress.unit.id) })
+            UnitRow(
+                unitProgress = unitProgress,
+                onClick = {
+                    if (unitProgress.unlocked || unitProgress.completed) {
+                        onPlayUnit(unitProgress.unit.id)
+                    } else {
+                        onOpenPlacementCheckpoint(unitProgress.unit.id)
+                    }
+                }
+            )
         }
 
         if (sectionPath.completed) {
@@ -133,7 +146,7 @@ private fun UnitRow(unitProgress: UnitProgress, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(enabled = unitProgress.unlocked, onClick = onClick),
+            .clickable(onClick = onClick),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -151,9 +164,10 @@ private fun UnitRow(unitProgress: UnitProgress, onClick: () -> Unit) {
             )
             Text(
                 text = when {
+                    unitProgress.completed && unitProgress.completedVia == UnitCompletionSource.PLACEMENT -> "Completada por checkpoint"
                     unitProgress.completed -> "Completada"
                     unitProgress.unlocked -> "Toca para jugar"
-                    else -> "🔒 Termina la unidad anterior"
+                    else -> "🔒 Toca para intentar saltarla"
                 },
                 style = MaterialTheme.typography.bodyMedium,
                 color = extended.lockedText
