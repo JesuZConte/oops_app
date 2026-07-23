@@ -14,6 +14,6 @@ interface UnitProgressDao {
     @Query("SELECT * FROM unit_progress WHERE unitId = :unitId")
     suspend fun getByUnit(unitId: String): UnitProgressEntity?
 
-    @Query("SELECT unitId FROM unit_progress WHERE completed = 1")
-    suspend fun getCompletedUnitIds(): List<String>
+    @Query("SELECT * FROM unit_progress WHERE completed = 1")
+    suspend fun getCompleted(): List<UnitProgressEntity>
 }

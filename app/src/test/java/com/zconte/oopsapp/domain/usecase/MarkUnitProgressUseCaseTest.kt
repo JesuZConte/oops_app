@@ -1,9 +1,11 @@
 package com.zconte.oopsapp.domain.usecase
 
+import com.zconte.oopsapp.domain.model.CompletedUnit
 import com.zconte.oopsapp.domain.model.Exercise
 import com.zconte.oopsapp.domain.model.LearningUnit
 import com.zconte.oopsapp.domain.model.ReviewState
 import com.zconte.oopsapp.domain.model.Section
+import com.zconte.oopsapp.domain.model.UnitCompletionSource
 import com.zconte.oopsapp.domain.repository.ContentRepository
 import com.zconte.oopsapp.domain.repository.ExerciseRepository
 import kotlinx.coroutines.test.runTest
@@ -30,8 +32,9 @@ private class FakeContentRepositoryForUnitProgress : ContentRepository {
     val markedComplete = mutableListOf<String>()
     override suspend fun getSections(): List<Section> = emptyList()
     override suspend fun getUnitsBySection(sectionId: String): List<LearningUnit> = emptyList()
-    override suspend fun getCompletedUnitIds(): List<String> = markedComplete
-    override suspend fun markUnitCompleted(unitId: String, completedAt: LocalDate) {
+    override suspend fun getCompletedUnits(): List<CompletedUnit> =
+        markedComplete.map { CompletedUnit(it, UnitCompletionSource.PLAYED) }
+    override suspend fun markUnitCompleted(unitId: String, completedAt: LocalDate, via: String) {
         markedComplete.add(unitId)
     }
 }

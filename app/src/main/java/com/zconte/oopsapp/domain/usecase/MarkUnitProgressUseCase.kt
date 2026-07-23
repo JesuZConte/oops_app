@@ -1,5 +1,6 @@
 package com.zconte.oopsapp.domain.usecase
 
+import com.zconte.oopsapp.domain.model.UnitCompletionSource
 import com.zconte.oopsapp.domain.repository.ContentRepository
 import com.zconte.oopsapp.domain.repository.ExerciseRepository
 import java.time.LocalDate
@@ -17,7 +18,7 @@ class MarkUnitProgressUseCase @Inject constructor(
         if (exercises.isEmpty()) return
         val answeredIds = exerciseRepository.getAnsweredExerciseIds(exercises.map { it.id })
         if (answeredIds.toSet().containsAll(exercises.map { it.id })) {
-            contentRepository.markUnitCompleted(unitId, today)
+            contentRepository.markUnitCompleted(unitId, today, UnitCompletionSource.PLAYED)
         }
     }
 }

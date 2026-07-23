@@ -6,6 +6,7 @@ import com.zconte.oopsapp.data.local.dao.UnitProgressDao
 import com.zconte.oopsapp.data.local.entity.SectionEntity
 import com.zconte.oopsapp.data.local.entity.UnitEntity
 import com.zconte.oopsapp.data.local.entity.UnitProgressEntity
+import com.zconte.oopsapp.domain.model.CompletedUnit
 import com.zconte.oopsapp.domain.model.LearningUnit
 import com.zconte.oopsapp.domain.model.Section
 import com.zconte.oopsapp.domain.repository.ContentRepository
@@ -24,12 +25,17 @@ class ContentRepositoryImpl @Inject constructor(
     override suspend fun getUnitsBySection(sectionId: String): List<LearningUnit> =
         unitDao.getBySection(sectionId).map { it.toDomain() }
 
-    override suspend fun getCompletedUnitIds(): List<String> =
-        unitProgressDao.getCompletedUnitIds()
+    override suspend fun getCompletedUnits(): List<CompletedUnit> =
+        unitProgressDao.getCompleted().map { CompletedUnit(it.unitId, it.completedVia) }
 
-    override suspend fun markUnitCompleted(unitId: String, completedAt: LocalDate) {
+    override suspend fun markUnitCompleted(unitId: String, completedAt: LocalDate, via: String) {
         unitProgressDao.upsert(
-            UnitProgressEntity(unitId = unitId, completed = true, completedAt = completedAt.toEpochDay())
+            UnitProgressEntity(
+                unitId = unitId,
+                completed = true,
+                completedAt = completedAt.toEpochDay(),
+                completedVia = via
+            )
         )
     }
 }

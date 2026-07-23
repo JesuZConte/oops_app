@@ -1,5 +1,6 @@
 package com.zconte.oopsapp.domain.usecase
 
+import com.zconte.oopsapp.domain.model.CompletedUnit
 import com.zconte.oopsapp.domain.model.Exercise
 import com.zconte.oopsapp.domain.model.LearningUnit
 import com.zconte.oopsapp.domain.model.ReviewState
@@ -29,8 +30,8 @@ private class FakeContentRepositoryForCheckpoint(
 ) : ContentRepository {
     override suspend fun getSections(): List<Section> = sections
     override suspend fun getUnitsBySection(sectionId: String): List<LearningUnit> = emptyList()
-    override suspend fun getCompletedUnitIds(): List<String> = emptyList()
-    override suspend fun markUnitCompleted(unitId: String, completedAt: LocalDate) {}
+    override suspend fun getCompletedUnits(): List<CompletedUnit> = emptyList()
+    override suspend fun markUnitCompleted(unitId: String, completedAt: LocalDate, via: String) {}
 }
 
 class GetCheckpointSessionUseCaseTest {

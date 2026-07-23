@@ -3,7 +3,8 @@ package com.zconte.oopsapp.domain.model
 data class UnitProgress(
     val unit: LearningUnit,
     val completed: Boolean,
-    val unlocked: Boolean
+    val unlocked: Boolean,
+    val completedVia: String = UnitCompletionSource.PLAYED
 )
 
 data class SectionPath(
