@@ -7,5 +7,6 @@ import androidx.room.PrimaryKey
 data class UnitProgressEntity(
     @PrimaryKey val unitId: String,
     val completed: Boolean,
-    val completedAt: Long?
+    val completedAt: Long?,
+    val completedVia: String = "played"
 )

@@ -79,3 +79,14 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
         )
     }
 }
+
+/**
+ * Adds completedVia to unit_progress so Ruta can tell "played" units apart from ones unlocked via
+ * a placement checkpoint skip. Everything already completed today was played, so the column
+ * defaults to 'played' -- no backfill logic needed beyond the column default itself.
+ */
+val MIGRATION_2_3 = object : Migration(2, 3) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE unit_progress ADD COLUMN completedVia TEXT NOT NULL DEFAULT 'played'")
+    }
+}
