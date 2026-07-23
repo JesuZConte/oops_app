@@ -51,6 +51,7 @@ fun PlacementCheckpointScreen(
         PlacementEntryView(
             isLoading = uiState.isLoadingSkipped,
             skippedCount = uiState.skippedUnits.size,
+            questionCount = uiState.totalExercises,
             targetName = uiState.targetUnit?.name,
             onStart = viewModel::startCheckpoint,
             onCancel = onCancelled,
@@ -92,6 +93,7 @@ fun PlacementCheckpointScreen(
 private fun PlacementEntryView(
     isLoading: Boolean,
     skippedCount: Int,
+    questionCount: Int,
     targetName: String?,
     onStart: () -> Unit,
     onCancel: () -> Unit,
@@ -109,7 +111,6 @@ private fun PlacementEntryView(
         if (isLoading) {
             Text("Cargando...", style = MaterialTheme.typography.bodyMedium)
         } else {
-            val questionCount = (skippedCount * 3).coerceAtMost(24)
             Text(
                 text = "Vas a saltar $skippedCount " + if (skippedCount == 1) "unidad" else "unidades",
                 style = MaterialTheme.typography.headlineSmall,
@@ -124,7 +125,7 @@ private fun PlacementEntryView(
         Spacer(Modifier.weight(1f))
         Button(
             onClick = onStart,
-            enabled = !isLoading && skippedCount > 0,
+            enabled = !isLoading && questionCount > 0,
             modifier = Modifier.fillMaxWidth().height(52.dp),
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
         ) {

@@ -15,6 +15,15 @@ private const val SEED_EASE_FACTOR = 2.5
 private const val SEED_INTERVAL_DAYS = 1
 private const val SEED_REPETITIONS = 1
 
+/**
+ * Pure grading so callers (e.g. a checkpoint ViewModel) can predict pass/fail from the same
+ * correct/total counts before committing any side effects, without duplicating the formula.
+ */
+fun computeCheckpointResult(correctCount: Int, totalCount: Int): CheckpointResult {
+    val scorePct = if (totalCount == 0) 0 else (correctCount * 100) / totalCount
+    return CheckpointResult(scorePct, scorePct >= PASS_THRESHOLD_PCT)
+}
+
 class CompleteCheckpointUseCase @Inject constructor(
     private val checkpointRepository: CheckpointRepository,
     private val contentRepository: ContentRepository,
@@ -28,15 +37,14 @@ class CompleteCheckpointUseCase @Inject constructor(
         today: LocalDate,
         skippedUnitIds: List<String> = emptyList()
     ): CheckpointResult {
-        val scorePct = if (totalCount == 0) 0 else (correctCount * 100) / totalCount
-        val passed = scorePct >= PASS_THRESHOLD_PCT
-        checkpointRepository.recordAttempt(sectionId, kind, scorePct, passed, today)
+        val result = computeCheckpointResult(correctCount, totalCount)
+        checkpointRepository.recordAttempt(sectionId, kind, result.scorePct, result.passed, today)
 
-        if (kind == CheckpointKind.PLACEMENT && passed) {
+        if (kind == CheckpointKind.PLACEMENT && result.passed) {
             unlockSkippedUnits(skippedUnitIds, today)
         }
 
-        return CheckpointResult(scorePct, passed)
+        return result
     }
 
     private suspend fun unlockSkippedUnits(skippedUnitIds: List<String>, today: LocalDate) {

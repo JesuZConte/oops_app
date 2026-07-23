@@ -2,6 +2,7 @@ package com.zconte.oopsapp.domain.usecase
 
 import com.zconte.oopsapp.domain.model.CompletedUnit
 import com.zconte.oopsapp.domain.model.CheckpointKind
+import com.zconte.oopsapp.domain.model.CheckpointResult
 import com.zconte.oopsapp.domain.model.Exercise
 import com.zconte.oopsapp.domain.model.LearningUnit
 import com.zconte.oopsapp.domain.model.ReviewState
@@ -145,5 +146,11 @@ class CompleteCheckpointUseCaseTest {
         assertFalse(result.passed)
         assertTrue(contentRepository.markedComplete.isEmpty())
         assertTrue(exerciseRepository.seeded.isEmpty())
+    }
+
+    @Test
+    fun `computeCheckpointResult is pure and matches the boundary threshold`() {
+        assertEquals(CheckpointResult(68, true), computeCheckpointResult(correctCount = 17, totalCount = 25))
+        assertEquals(CheckpointResult(0, false), computeCheckpointResult(correctCount = 0, totalCount = 0))
     }
 }

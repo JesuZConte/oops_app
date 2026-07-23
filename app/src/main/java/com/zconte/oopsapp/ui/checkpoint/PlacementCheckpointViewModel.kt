@@ -13,8 +13,8 @@ import com.zconte.oopsapp.domain.usecase.GetPlacementCheckpointSessionUseCase
 import com.zconte.oopsapp.domain.usecase.GetSkippedUnitsUseCase
 import com.zconte.oopsapp.domain.usecase.SubmitAnswerUseCase
 import com.zconte.oopsapp.domain.usecase.UpdateStreakUseCase
+import com.zconte.oopsapp.domain.usecase.computeCheckpointResult
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -58,33 +58,36 @@ class PlacementCheckpointViewModel @Inject constructor(
     val uiState: StateFlow<PlacementCheckpointUiState> = _uiState.asStateFlow()
 
     private var correctCount = 0
-    private var pendingAnswerJob: Job? = null
+
+    // Buffered, not yet written to SM-2: a placement checkpoint only quizzes locked content, so
+    // answers must not enter review_state unless the checkpoint is actually passed -- otherwise a
+    // failed attempt would leak still-locked exercises into the daily review rotation.
+    private val answeredExercises = mutableListOf<Pair<String, Int>>()
 
     init {
         viewModelScope.launch {
-            val result = getSkippedUnitsUseCase(targetUnitId)
+            val skipResult = getSkippedUnitsUseCase(targetUnitId)
+            val skippedIds = skipResult.skippedUnits.map { it.id }
+            val queue = getPlacementCheckpointSessionUseCase(skippedIds)
             _uiState.update {
-                it.copy(isLoadingSkipped = false, targetUnit = result.targetUnit, skippedUnits = result.skippedUnits)
+                it.copy(
+                    isLoadingSkipped = false,
+                    targetUnit = skipResult.targetUnit,
+                    skippedUnits = skipResult.skippedUnits,
+                    queue = queue,
+                    totalExercises = queue.size
+                )
             }
         }
     }
 
     fun startCheckpoint() {
-        viewModelScope.launch {
-            val skippedIds = _uiState.value.skippedUnits.map { it.id }
-            val queue = getPlacementCheckpointSessionUseCase(skippedIds)
-            if (queue.isEmpty()) {
-                _uiState.update { it.copy(hasStarted = true, isComplete = true, result = CheckpointResult(0, false)) }
-            } else {
-                _uiState.update {
-                    it.copy(
-                        hasStarted = true,
-                        queue = queue,
-                        totalExercises = queue.size,
-                        currentIndex = 1,
-                        currentExercise = decode(queue.first())
-                    )
-                }
+        val state = _uiState.value
+        if (state.queue.isEmpty()) {
+            _uiState.update { it.copy(hasStarted = true, isComplete = true, result = CheckpointResult(0, false)) }
+        } else {
+            _uiState.update {
+                it.copy(hasStarted = true, currentIndex = 1, currentExercise = decode(state.queue.first()))
             }
         }
     }
@@ -96,12 +99,9 @@ class PlacementCheckpointViewModel @Inject constructor(
         val exerciseId = current.queue.first().id
         val correct = userAnswer.trim().equals(exercise.answer.trim(), ignoreCase = true)
         if (correct) correctCount++
+        answeredExercises.add(exerciseId to if (correct) 5 else 2)
 
         _uiState.update { it.copy(isAnswered = true, isCorrect = correct, selectedAnswer = userAnswer) }
-
-        pendingAnswerJob = viewModelScope.launch {
-            submitAnswerUseCase(exerciseId, quality = if (correct) 5 else 2, today = LocalDate.now())
-        }
     }
 
     fun nextExercise() {
@@ -110,9 +110,14 @@ class PlacementCheckpointViewModel @Inject constructor(
         if (remaining.isEmpty()) {
             _uiState.update { it.copy(isCompleting = true) }
             viewModelScope.launch {
-                pendingAnswerJob?.join()
-                updateStreakUseCase(LocalDate.now())
                 val state = _uiState.value
+                val predicted = computeCheckpointResult(correctCount, state.totalExercises)
+                if (predicted.passed) {
+                    answeredExercises.forEach { (exerciseId, quality) ->
+                        submitAnswerUseCase(exerciseId, quality = quality, today = LocalDate.now())
+                    }
+                }
+                updateStreakUseCase(LocalDate.now())
                 val result = completeCheckpointUseCase(
                     sectionId = state.targetUnit?.sectionId ?: "",
                     kind = CheckpointKind.PLACEMENT,
