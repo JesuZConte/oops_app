@@ -84,4 +84,78 @@ class ContentPackParsingTest {
 
         assertEquals(null, pack.units.first().exercises.first().code)
     }
+
+    @Test
+    fun `parsons exercise parses lines field`() {
+        val raw = """
+            {
+              "sectionId": "java-streams",
+              "name": "Streams y lambdas",
+              "orderIndex": 2,
+              "examVersion": "java21",
+              "units": [
+                {
+                  "unitId": "streams-terminal",
+                  "name": "Operaciones terminales",
+                  "certObjective": "streams-lambdas",
+                  "orderIndex": 1,
+                  "exercises": [
+                    {
+                      "id": "streams-parsons-01",
+                      "type": "parsons",
+                      "difficulty": 2,
+                      "prompt": "Ordena las lineas:",
+                      "lines": ["numeros.stream()", ".filter(n -> n % 2 == 0)", ".count()"],
+                      "answer": "numeros.stream()\n.filter(n -> n % 2 == 0)\n.count()",
+                      "code": "numeros.stream()\n.filter(n -> n % 2 == 0)\n.count()",
+                      "explanation": "Cuenta los pares del stream."
+                    }
+                  ]
+                }
+              ]
+            }
+        """.trimIndent()
+
+        val pack = json.decodeFromString(ContentPack.serializer(), raw)
+
+        assertEquals(
+            listOf("numeros.stream()", ".filter(n -> n % 2 == 0)", ".count()"),
+            pack.units.first().exercises.first().lines
+        )
+    }
+
+    @Test
+    fun `exercise without lines field defaults to empty list`() {
+        val raw = """
+            {
+              "sectionId": "java-streams",
+              "name": "Streams y lambdas",
+              "orderIndex": 2,
+              "examVersion": "java21",
+              "units": [
+                {
+                  "unitId": "streams-creation",
+                  "name": "Creacion de streams",
+                  "certObjective": "streams-lambdas",
+                  "orderIndex": 0,
+                  "exercises": [
+                    {
+                      "id": "streams-mcq-01",
+                      "type": "mcq",
+                      "difficulty": 1,
+                      "prompt": "Que metodo crea un Stream desde una List?",
+                      "answer": "stream",
+                      "distractors": ["toStream", "asStream", "of"],
+                      "explanation": "List.stream() crea el Stream."
+                    }
+                  ]
+                }
+              ]
+            }
+        """.trimIndent()
+
+        val pack = json.decodeFromString(ContentPack.serializer(), raw)
+
+        assertEquals(emptyList<String>(), pack.units.first().exercises.first().lines)
+    }
 }

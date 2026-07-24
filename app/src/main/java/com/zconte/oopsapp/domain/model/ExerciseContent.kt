@@ -11,5 +11,6 @@ data class ExerciseContent(
     val code: String? = null,
     val answer: String,
     val distractors: List<String> = emptyList(),
+    val lines: List<String> = emptyList(),
     val explanation: String
 )
