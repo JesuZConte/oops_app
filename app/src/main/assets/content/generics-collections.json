@@ -175,7 +175,7 @@
           "prompt": "Que hace este codigo?",
           "code": "Deque<Integer> pila = new ArrayDeque<>();\npila.push(1);\npila.push(2);\nSystem.out.println(pila.pop());",
           "answer": "Usa el Deque como pila (LIFO): imprime 2",
-          "distractors": ["Usa el Deque como cola (FIFO): imprime 1", "Lanza una excepcion porque ArrayDeque no soporta push/pop", "Imprime el tamaño de la pila"],
+          "distractors": ["Usa el Deque como cola (FIFO): imprime 1", "Lanza una excepcion porque ArrayDeque no soporta push/pop", "Imprime el tamano de la pila"],
           "explanation": "push() inserta al frente del Deque; pop() remueve y devuelve el frente. Tras push(1) y push(2), el frente es 2."
         },
         {
@@ -185,7 +185,7 @@
           "prompt": "Que problema practico resuelve un Deque que una List no resuelve tan bien?",
           "answer": "Insertar y remover eficientemente en ambos extremos, sirviendo como pila o cola",
           "distractors": ["Ordenar elementos automaticamente", "Evitar duplicados", "Acceso aleatorio por indice"],
-          "explanation": "Deque (double-ended queue) esta diseñado para operaciones O(1) en ambos extremos, algo que una List generica no garantiza."
+          "explanation": "Deque (double-ended queue) esta disenado para operaciones O(1) en ambos extremos, algo que una List generica no garantiza."
         },
         {
           "id": "gencol-mapsdeques-06",
