@@ -145,11 +145,19 @@ fun ExerciseAnswerCard(
                     }
                 }
                 else -> {
+                    val isPredictOutput = exercise.type == ExerciseType.PREDICT_OUTPUT
                     OutlinedTextField(
                         value = answer,
                         onValueChange = { answer = it },
                         modifier = Modifier.fillMaxWidth(),
-                        textStyle = MaterialTheme.typography.labelMedium
+                        singleLine = !isPredictOutput,
+                        minLines = if (isPredictOutput) 3 else 1,
+                        maxLines = if (isPredictOutput) 6 else 1,
+                        textStyle = if (isPredictOutput) {
+                            MaterialTheme.typography.labelMedium.copy(fontFamily = JetBrainsMono)
+                        } else {
+                            MaterialTheme.typography.labelMedium
+                        }
                     )
                     Spacer(Modifier.height(8.dp))
                     ComprobarButton { onSubmit(answer) }
@@ -359,7 +367,7 @@ private fun FeedbackBanner(isCorrect: Boolean, exerciseType: String, answer: Str
     val title = when {
         isCorrect && !extended.isDark -> "¡Correcto! +10 XP 🎉"
         isCorrect -> "¡Correcto! +10 XP"
-        exerciseType == ExerciseType.PARSONS -> "Incorrecto"
+        exerciseType == ExerciseType.PARSONS || exerciseType == ExerciseType.PREDICT_OUTPUT -> "Incorrecto"
         else -> "Incorrecto. Respuesta: $answer"
     }
 
@@ -398,6 +406,19 @@ private fun FeedbackBanner(isCorrect: Boolean, exerciseType: String, answer: Str
             style = MaterialTheme.typography.titleMedium,
             color = color
         )
+        if (!isCorrect && exerciseType == ExerciseType.PREDICT_OUTPUT) {
+            Text(
+                text = "Salida esperada:",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = answer,
+                fontFamily = JetBrainsMono,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
         Text(
             text = explanation,
             style = MaterialTheme.typography.bodyMedium,
