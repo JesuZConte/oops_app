@@ -244,7 +244,6 @@ private fun ParsonsBuilder(
 
 @Composable
 private fun ParsonsLineChip(text: String, selected: Boolean, onClick: () -> Unit) {
-    val extended = OopsTheme.extendedColors
     val shape = RoundedCornerShape(10.dp)
     val borderColor = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
     val backgroundColor = if (selected) {
@@ -265,7 +264,7 @@ private fun ParsonsLineChip(text: String, selected: Boolean, onClick: () -> Unit
             text = text,
             fontFamily = JetBrainsMono,
             fontSize = 13.sp,
-            color = extended.codeText
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }
