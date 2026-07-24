@@ -14,6 +14,7 @@ import com.zconte.oopsapp.domain.usecase.GetSkippedUnitsUseCase
 import com.zconte.oopsapp.domain.usecase.SubmitAnswerUseCase
 import com.zconte.oopsapp.domain.usecase.UpdateStreakUseCase
 import com.zconte.oopsapp.domain.usecase.computeCheckpointResult
+import com.zconte.oopsapp.domain.usecase.gradeExerciseAnswer
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -97,7 +98,7 @@ class PlacementCheckpointViewModel @Inject constructor(
         if (current.isAnswered) return
         val exercise = current.currentExercise ?: return
         val exerciseId = current.queue.first().id
-        val correct = userAnswer.trim().equals(exercise.answer.trim(), ignoreCase = true)
+        val correct = gradeExerciseAnswer(exercise, userAnswer)
         if (correct) correctCount++
         answeredExercises.add(exerciseId to if (correct) 5 else 2)
 

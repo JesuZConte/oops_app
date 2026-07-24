@@ -10,6 +10,7 @@ import com.zconte.oopsapp.domain.usecase.GetUnitSessionUseCase
 import com.zconte.oopsapp.domain.usecase.MarkUnitProgressUseCase
 import com.zconte.oopsapp.domain.usecase.SubmitAnswerUseCase
 import com.zconte.oopsapp.domain.usecase.UpdateStreakUseCase
+import com.zconte.oopsapp.domain.usecase.gradeExerciseAnswer
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -69,7 +70,7 @@ class SessionViewModel @Inject constructor(
         if (current.isAnswered) return
         val exercise = current.currentExercise ?: return
         val exerciseId = current.queue.first().id
-        val correct = userAnswer.trim().equals(exercise.answer.trim(), ignoreCase = true)
+        val correct = gradeExerciseAnswer(exercise, userAnswer)
 
         _uiState.update { it.copy(isAnswered = true, isCorrect = correct, selectedAnswer = userAnswer) }
 
