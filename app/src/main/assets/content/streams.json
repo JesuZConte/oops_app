@@ -28,6 +28,15 @@
           "answer": "range",
           "distractors": ["of", "generate", "iterate"],
           "explanation": "IntStream.range(start, end) genera enteros con el limite superior exclusivo."
+        },
+        {
+          "id": "streams-predict-02",
+          "type": "predict_output",
+          "difficulty": 1,
+          "prompt": "Que imprime este codigo?",
+          "code": "IntStream.range(1, 4)\n    .forEach(System.out::println);",
+          "answer": "1\n2\n3",
+          "explanation": "range(1, 4) genera 1, 2 y 3 (el limite superior es exclusivo); forEach imprime cada uno en su propia linea."
         }
       ]
     },
@@ -105,6 +114,15 @@
           "answer": "flatMap",
           "distractors": ["map", "collect", "reduce"],
           "explanation": "flatMap() sustituye cada elemento por un stream y los aplana en uno solo."
+        },
+        {
+          "id": "streams-predict-01",
+          "type": "predict_output",
+          "difficulty": 2,
+          "prompt": "Que imprime este codigo?",
+          "code": "Stream.of(\"a\", \"b\", \"c\")\n    .limit(2)\n    .forEach(System.out::println);",
+          "answer": "a\nb",
+          "explanation": "limit(2) trunca el stream a los primeros 2 elementos antes de forEach()."
         }
       ]
     },
@@ -201,6 +219,16 @@
           "answer": "max",
           "distractors": ["min", "sorted", "limit"],
           "explanation": "max() es una operacion terminal que devuelve un Optional<T>."
+        },
+        {
+          "id": "streams-parsons-01",
+          "type": "parsons",
+          "difficulty": 2,
+          "prompt": "Ordena las lineas para filtrar los pares y sumarlos:",
+          "lines": ["numeros.stream()", ".filter(n -> n % 2 == 0)", ".mapToInt(Integer::intValue)", ".sum()"],
+          "answer": "numeros.stream()\n.filter(n -> n % 2 == 0)\n.mapToInt(Integer::intValue)\n.sum()",
+          "code": "numeros.stream()\n.filter(n -> n % 2 == 0)\n.mapToInt(Integer::intValue)\n.sum()",
+          "explanation": "stream() abre el pipeline, filter() selecciona los pares, mapToInt() desempaqueta a int y sum() reduce a un total."
         }
       ]
     },
@@ -229,6 +257,16 @@
           "answer": "groupingBy",
           "distractors": ["joining", "toMap", "partitioningBy"],
           "explanation": "Collectors.groupingBy() agrupa elementos en un Map segun la funcion clasificadora."
+        },
+        {
+          "id": "streams-parsons-02",
+          "type": "parsons",
+          "difficulty": 3,
+          "prompt": "Ordena las lineas para pasar las palabras a mayusculas y juntarlas en una lista:",
+          "lines": ["palabras.stream()", ".map(String::toUpperCase)", ".collect(Collectors.toList())"],
+          "answer": "palabras.stream()\n.map(String::toUpperCase)\n.collect(Collectors.toList())",
+          "code": "palabras.stream()\n.map(String::toUpperCase)\n.collect(Collectors.toList())",
+          "explanation": "map() transforma cada elemento y collect(Collectors.toList()) los acumula en una lista nueva."
         }
       ]
     }

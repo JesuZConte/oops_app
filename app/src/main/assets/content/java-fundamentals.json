@@ -65,6 +65,15 @@
           "answer": "Compilado a bytecode e interpretado/JIT por la JVM",
           "distractors": ["Puramente interpretado, sin compilacion", "Compilado directo a codigo maquina nativo", "Que no necesita ningun runtime"],
           "explanation": "Java compila a bytecode intermedio; la JVM lo interpreta y ademas compila en caliente partes del codigo a codigo nativo en tiempo de ejecucion (JIT)."
+        },
+        {
+          "id": "fund-predict-01",
+          "type": "predict_output",
+          "difficulty": 1,
+          "prompt": "Que imprime este codigo?",
+          "code": "int a = 5;\nint b = 3;\nSystem.out.println(a + b);",
+          "answer": "8",
+          "explanation": "a + b suma los valores de las variables: 5 + 3 = 8."
         }
       ]
     },
@@ -131,6 +140,16 @@
           "answer": "nombre",
           "distractors": [],
           "explanation": "Los fields se declaran con un tipo y un identificador dentro del cuerpo de la clase."
+        },
+        {
+          "id": "fund-parsons-01",
+          "type": "parsons",
+          "difficulty": 1,
+          "prompt": "Ordena las lineas para formar el getter del field nombre:",
+          "lines": ["public String getNombre() {", "    return nombre;", "}"],
+          "answer": "public String getNombre() {\n    return nombre;\n}",
+          "code": "public String getNombre() {\n    return nombre;\n}",
+          "explanation": "Un getter declara el tipo de retorno y su nombre, contiene un return con el valor del field, y cierra con la llave correspondiente."
         }
       ]
     },
@@ -185,6 +204,25 @@
           "answer": "Porque la JVM lo invoca sin crear antes una instancia de la clase",
           "distractors": ["Porque todos los metodos en Java son static", "Porque main no puede acceder a fields", "Porque static hace que el metodo sea mas rapido"],
           "explanation": "static permite invocar main directamente sobre la clase, sin necesidad de instanciarla primero."
+        },
+        {
+          "id": "fund-parsons-02",
+          "type": "parsons",
+          "difficulty": 1,
+          "prompt": "Ordena las lineas para formar una clase Main que imprime Hola:",
+          "lines": ["public class Main {", "    public static void main(String[] args) {", "        System.out.println(\"Hola\");", "    }", "}"],
+          "answer": "public class Main {\n    public static void main(String[] args) {\n        System.out.println(\"Hola\");\n    }\n}",
+          "code": "public class Main {\n    public static void main(String[] args) {\n        System.out.println(\"Hola\");\n    }\n}",
+          "explanation": "La clase contiene el metodo main, que contiene la instruccion a ejecutar; las llaves de apertura y cierre definen el anidamiento."
+        },
+        {
+          "id": "fund-predict-02",
+          "type": "predict_output",
+          "difficulty": 1,
+          "prompt": "Que imprime este codigo?",
+          "code": "int edad = 30;\nedad = edad + 1;\nSystem.out.println(edad);",
+          "answer": "31",
+          "explanation": "Se reasigna edad sumandole 1 antes de imprimir, resultando en 31."
         }
       ]
     }
