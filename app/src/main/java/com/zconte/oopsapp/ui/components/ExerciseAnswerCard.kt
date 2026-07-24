@@ -35,10 +35,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.zconte.oopsapp.domain.model.ExerciseContent
+import com.zconte.oopsapp.domain.model.ExerciseType
+import com.zconte.oopsapp.ui.theme.JetBrainsMono
 import com.zconte.oopsapp.ui.theme.OopsTheme
-
-private const val MCQ_TYPE = "mcq"
 
 data class ExerciseAnswerState(
     val exercise: ExerciseContent,
@@ -60,8 +61,12 @@ fun ExerciseAnswerCard(
     var answer by remember(exercise.id) { mutableStateOf("") }
     var selectedOption by remember(exercise.id) { mutableStateOf<String?>(null) }
     val mcqOptions = remember(exercise.id) {
-        if (exercise.type == MCQ_TYPE) (exercise.distractors + exercise.answer).shuffled() else emptyList()
+        if (exercise.type == ExerciseType.MCQ) (exercise.distractors + exercise.answer).shuffled() else emptyList()
     }
+    var parsonsAvailable by remember(exercise.id) {
+        mutableStateOf(if (exercise.type == ExerciseType.PARSONS) exercise.lines.shuffled() else emptyList())
+    }
+    var parsonsBuilt by remember(exercise.id) { mutableStateOf(emptyList<String>()) }
     val progressFraction = if (state.totalExercises > 0) state.currentIndex / state.totalExercises.toFloat() else 0f
 
     Column(
@@ -92,49 +97,66 @@ fun ExerciseAnswerCard(
             )
 
             exercise.code?.let { code ->
-                val filledAnswer = if (state.isAnswered && exercise.type != MCQ_TYPE) exercise.answer else null
-                CodeBlock(code = code, filledAnswer = filledAnswer, modifier = Modifier.fillMaxWidth())
+                val hideBeforeAnswered = exercise.type == ExerciseType.PARSONS && !state.isAnswered
+                if (!hideBeforeAnswered) {
+                    val filledAnswer = if (state.isAnswered && exercise.type == ExerciseType.FILL_BLANK) {
+                        exercise.answer
+                    } else {
+                        null
+                    }
+                    CodeBlock(code = code, filledAnswer = filledAnswer, modifier = Modifier.fillMaxWidth())
+                }
             }
         }
 
         if (!state.isAnswered) {
-            if (exercise.type == MCQ_TYPE) {
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    mcqOptions.forEach { option ->
-                        McqOptionButton(
-                            text = option,
-                            state = if (option == selectedOption) McqOptionState.SELECTED else McqOptionState.NORMAL,
-                            onClick = { selectedOption = option }
-                        )
+            when (exercise.type) {
+                ExerciseType.MCQ -> {
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        mcqOptions.forEach { option ->
+                            McqOptionButton(
+                                text = option,
+                                state = if (option == selectedOption) McqOptionState.SELECTED else McqOptionState.NORMAL,
+                                onClick = { selectedOption = option }
+                            )
+                        }
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    ComprobarButton(enabled = selectedOption != null) {
+                        selectedOption?.let { onSubmit(it) }
                     }
                 }
-                Spacer(Modifier.height(8.dp))
-                Button(
-                    onClick = { selectedOption?.let { onSubmit(it) } },
-                    enabled = selectedOption != null,
-                    modifier = Modifier.fillMaxWidth().height(52.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                ) {
-                    Text("COMPROBAR", style = MaterialTheme.typography.titleMedium)
+                ExerciseType.PARSONS -> {
+                    ParsonsBuilder(
+                        available = parsonsAvailable,
+                        built = parsonsBuilt,
+                        onTapAvailable = { line ->
+                            parsonsBuilt = parsonsBuilt + line
+                            parsonsAvailable = parsonsAvailable - line
+                        },
+                        onTapBuilt = { line ->
+                            parsonsAvailable = parsonsAvailable + line
+                            parsonsBuilt = parsonsBuilt - line
+                        }
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    ComprobarButton(enabled = parsonsBuilt.size == exercise.lines.size) {
+                        onSubmit(parsonsBuilt.joinToString("\n"))
+                    }
                 }
-            } else {
-                OutlinedTextField(
-                    value = answer,
-                    onValueChange = { answer = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    textStyle = MaterialTheme.typography.labelMedium
-                )
-                Spacer(Modifier.height(8.dp))
-                Button(
-                    onClick = { onSubmit(answer) },
-                    modifier = Modifier.fillMaxWidth().height(52.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                ) {
-                    Text("COMPROBAR", style = MaterialTheme.typography.titleMedium)
+                else -> {
+                    OutlinedTextField(
+                        value = answer,
+                        onValueChange = { answer = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        textStyle = MaterialTheme.typography.labelMedium
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    ComprobarButton { onSubmit(answer) }
                 }
             }
         } else {
-            if (exercise.type == MCQ_TYPE) {
+            if (exercise.type == ExerciseType.MCQ) {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     mcqOptions.forEach { option ->
                         val optionState = when {
@@ -150,6 +172,7 @@ fun ExerciseAnswerCard(
 
             FeedbackBanner(
                 isCorrect = state.isCorrect,
+                exerciseType = exercise.type,
                 answer = exercise.answer,
                 explanation = exercise.explanation
             )
@@ -162,6 +185,80 @@ fun ExerciseAnswerCard(
                 Text("SIGUIENTE", style = MaterialTheme.typography.titleMedium)
             }
         }
+    }
+}
+
+@Composable
+private fun ComprobarButton(enabled: Boolean = true, onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        enabled = enabled,
+        modifier = Modifier.fillMaxWidth().height(52.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+    ) {
+        Text("COMPROBAR", style = MaterialTheme.typography.titleMedium)
+    }
+}
+
+@Composable
+private fun ParsonsBuilder(
+    available: List<String>,
+    built: List<String>,
+    onTapAvailable: (String) -> Unit,
+    onTapBuilt: (String) -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                text = "Tu secuencia:",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            if (built.isEmpty()) {
+                Text(
+                    text = "Toca las lineas de abajo en el orden correcto",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            } else {
+                built.forEach { line ->
+                    ParsonsLineChip(text = line, selected = true, onClick = { onTapBuilt(line) })
+                }
+            }
+        }
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            available.forEach { line ->
+                ParsonsLineChip(text = line, selected = false, onClick = { onTapAvailable(line) })
+            }
+        }
+    }
+}
+
+@Composable
+private fun ParsonsLineChip(text: String, selected: Boolean, onClick: () -> Unit) {
+    val extended = OopsTheme.extendedColors
+    val shape = RoundedCornerShape(10.dp)
+    val borderColor = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
+    val backgroundColor = if (selected) {
+        MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+    } else {
+        MaterialTheme.colorScheme.surface
+    }
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(backgroundColor)
+            .border(1.5.dp, borderColor, shape)
+            .clickable(onClick = onClick)
+            .padding(vertical = 10.dp, horizontal = 14.dp)
+    ) {
+        Text(
+            text = text,
+            fontFamily = JetBrainsMono,
+            fontSize = 13.sp,
+            color = extended.codeText
+        )
     }
 }
 
@@ -246,7 +343,7 @@ private fun McqOptionButton(
 }
 
 @Composable
-private fun FeedbackBanner(isCorrect: Boolean, answer: String, explanation: String) {
+private fun FeedbackBanner(isCorrect: Boolean, exerciseType: String, answer: String, explanation: String) {
     val extended = OopsTheme.extendedColors
     val color = if (isCorrect) extended.success else MaterialTheme.colorScheme.error
     val shape = RoundedCornerShape(14.dp)
@@ -262,6 +359,7 @@ private fun FeedbackBanner(isCorrect: Boolean, answer: String, explanation: Stri
     val title = when {
         isCorrect && !extended.isDark -> "¡Correcto! +10 XP 🎉"
         isCorrect -> "¡Correcto! +10 XP"
+        exerciseType == ExerciseType.PARSONS -> "Incorrecto"
         else -> "Incorrecto. Respuesta: $answer"
     }
 
