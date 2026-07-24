@@ -1,7 +1,7 @@
 {
   "sectionId": "java-streams",
   "name": "Streams y lambdas",
-  "orderIndex": 2,
+  "orderIndex": 3,
   "examVersion": "java21",
   "units": [
     {
