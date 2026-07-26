@@ -1,7 +1,10 @@
 # ADR: Ideas futuras — timer de checkpoint y marcado de errores de contenido
 
-**Estado:** Propuesto (no aceptado — captura de ideas para brainstormear en
-detalle antes de implementar, no una decisión de arquitectura tomada).
+**Estado:** Parcialmente resuelto. Ver "Actualización 2026-07-26" abajo:
+la idea 1 (timer) fue **aceptada** y se implementa como parte del spec de
+checkpoint obligatorio; la idea 2 (marcado de contenido) sube de prioridad
+pero sigue sin diseñar; se agregan dos ítems nuevos de roadmap (simulacro
+de examen completo y preparación de entrevistas).
 
 ## Contexto
 
@@ -10,6 +13,32 @@ ideas de producto no relacionadas con ese fix. Se decide no mezclarlas en
 ese spec (mismo motivo por el que la Fase 2 completa se descompuso en
 sub-fases) y dejarlas registradas acá para desarrollar cada una en su
 propia sesión de brainstorming más adelante.
+
+## Actualización 2026-07-26
+
+Al brainstormear el checkpoint obligatorio
+(`docs/superpowers/specs/2026-07-26-mandatory-cumulative-checkpoint-design.md`),
+estas ideas se conectaron:
+
+- **Idea 1 (timer): ACEPTADA.** El presupuesto de tiempo total (no por
+  pregunta), proporcional a la cantidad de preguntas (~1.8 min/pregunta),
+  se implementa como parte del checkpoint obligatorio — exactamente la
+  opinión preliminar registrada abajo. Deja de ser una idea suelta.
+- **Idea 2 (marcado de error de contenido): sin diseñar, pero sube de
+  prioridad.** Como el checkpoint pasa a ser un gate obligatorio, una
+  pregunta con error podría trancar el avance; una válvula de escape para
+  reportar contenido malo se vuelve más necesaria. Sigue necesitando su
+  propio ciclo de brainstorming.
+- **Nuevo ítem de roadmap — modo simulacro de examen completo.** Standalone,
+  a demanda, full-length (~50 preguntas / 90 min), sobre todo el temario,
+  cronometrado, **diagnóstico no-gate** (no bloquea, repetible): "¿ya estoy
+  listo?". Distinto del checkpoint de sección (que es un gate acotado y
+  creciente). Idealmente alimenta SM-2. Su propio ciclo brainstorming →
+  spec → plan.
+- **Nuevo ítem de roadmap — preparación de entrevistas.** Género distinto
+  (razonamiento y criterio abierto, no certificación); se cruza con el
+  problema diferido de evaluar código/texto libre sin compilador. Futuro
+  lejano.
 
 ## Idea 1 — Timer en el checkpoint
 
