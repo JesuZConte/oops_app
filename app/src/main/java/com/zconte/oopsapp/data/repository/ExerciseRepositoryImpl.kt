@@ -18,9 +18,6 @@ class ExerciseRepositoryImpl @Inject constructor(
     override suspend fun getDueExercises(today: LocalDate, limit: Int): List<Exercise> =
         exerciseDao.getDue(today.toEpochDay()).take(limit).map { it.toDomain() }
 
-    override suspend fun getNewExercises(limit: Int): List<Exercise> =
-        exerciseDao.getNew(limit).map { it.toDomain() }
-
     override suspend fun getExercisesByUnit(unitId: String): List<Exercise> =
         exerciseDao.getByUnit(unitId).map { it.toDomain() }
 

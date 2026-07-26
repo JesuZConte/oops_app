@@ -17,7 +17,6 @@ private class FakeExerciseRepositoryForCheckpoint(
     private val bySection: Map<String, List<Exercise>>
 ) : ExerciseRepository {
     override suspend fun getDueExercises(today: LocalDate, limit: Int): List<Exercise> = emptyList()
-    override suspend fun getNewExercises(limit: Int): List<Exercise> = emptyList()
     override suspend fun getExercisesByUnit(unitId: String): List<Exercise> = emptyList()
     override suspend fun getExercisesBySection(sectionId: String): List<Exercise> = bySection[sectionId] ?: emptyList()
     override suspend fun getReviewState(exerciseId: String): ReviewState? = null

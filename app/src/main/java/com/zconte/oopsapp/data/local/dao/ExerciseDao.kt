@@ -23,15 +23,6 @@ interface ExerciseDao {
     )
     suspend fun getDue(today: Long): List<ExerciseEntity>
 
-    @Query(
-        """
-        SELECT * FROM exercises
-        WHERE id NOT IN (SELECT exerciseId FROM review_state)
-        LIMIT :limit
-        """
-    )
-    suspend fun getNew(limit: Int): List<ExerciseEntity>
-
     @Query("SELECT * FROM exercises WHERE unitId = :unitId")
     suspend fun getByUnit(unitId: String): List<ExerciseEntity>
 
