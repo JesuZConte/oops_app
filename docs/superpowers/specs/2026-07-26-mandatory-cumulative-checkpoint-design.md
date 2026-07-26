@@ -137,13 +137,44 @@ anteriores y el resto de la actual. Se rebalancea:
   ya ocurre por el lado de la práctica diaria (que ahora resurfacea justo
   tus fallos). Así el checkpoint sigue siendo un test honesto.
 
-## 5. Streak desacoplado
+## 5. Pantalla de resultados con desglose por sección
+
+Un gate obligatorio que solo dice "reprobaste" es una caja negra que no
+ayuda a aprender. Al terminar el checkpoint (apruebe o repruebe), la
+pantalla de resultados muestra, además del puntaje global y el
+aprobado/reprobado, un **desglose de aciertos por sección**:
+
+```
+Fundamentos de Java      9/10   90%
+Streams y lambdas        2/4    50%
+Genéricos y Colecciones  2/5    40%
+```
+
+- **Granularidad por sección, no por unidad.** En una muestra chica (10-16
+  preguntas repartidas) una unidad puede tener solo 1-2 preguntas, así que
+  un puntaje por unidad sería ruido estadístico. Por sección es
+  significativo y es el nivel al que se decide "repaso Streams". Refleja el
+  reporte por dominio del examen real 1Z0-830.
+- **Casi gratis:** como el checkpoint es acumulativo, ya se conoce la
+  sección de cada pregunta (vía `unitId` → sección), así que el puntaje por
+  sección se calcula de datos que ya se tienen; no requiere persistencia
+  nueva más allá de la ya definida para la barrera de reintento.
+- **Drill-down opcional:** poder tocar una sección del desglose para ver
+  qué preguntas específicas se fallaron (detalle de UI, se afina en el
+  plan).
+- **Cierra el círculo con la práctica diaria:** el desglose hace *visible*
+  la remediación que el SM-2 ya hace por debajo — le muestra al jugador
+  dónde está flojo, mientras la sesión diaria le devuelve automáticamente
+  esos ejercicios fallados. La pantalla no manda a re-jugar la sección
+  entera; los fallos puntuales vuelven solos por el motor SM-2.
+
+## 6. Streak desacoplado
 
 Aprobar o reprobar un checkpoint **no toca el streak**. El streak mide
 hábito diario (estudiaste, no te saltaste un día); la maestría es otro eje.
 Reprobar no debe penalizar el hábito.
 
-## 6. Umbral
+## 7. Umbral
 
 Se mantiene **68%** — el umbral real del 1Z0-830 (ADR línea 45), para
 acostumbrar al estándar real desde el día uno.
@@ -184,7 +215,9 @@ Se registran en el ADR `2026-07-25-checkpoint-timer-and-content-flagging-ideas.m
   (ponderación, piso, techo, sesgo a vencidos), lógica del gate (sección
   completa solo con checkpoint aprobado; placement satisface el gate),
   lógica de la barrera de reintento (habilita solo tras re-exposición de
-  los fallos), y el cálculo del presupuesto de tiempo como función pura.
+  los fallos), el cálculo del presupuesto de tiempo como función pura, y el
+  cálculo del desglose de aciertos por sección (agrupar respuestas por la
+  sección de cada ejercicio).
 - **Tests de ViewModel:** los estados de timer (cuenta regresiva,
   auto-envío al agotarse) y de bloqueo/habilitación de reintento —
   reusando la infraestructura de tests de ViewModel ya construida
@@ -207,6 +240,7 @@ Se registran en el ADR `2026-07-25-checkpoint-timer-and-content-flagging-ideas.m
 | Contenido | Acumulativo, ponderado a lo nuevo + sesgado a vencidos | 2026-07-26 |
 | Tamaño | Creciente con piso 8 / +2 por sección / techo 20 (revisable) | 2026-07-26 |
 | Tiempo | Presupuesto total, ~1.8 min/pregunta; auto-envío al agotarse | 2026-07-26 |
+| Resultados | Desglose de aciertos por sección (no por unidad), drill-down opcional | 2026-07-26 |
 | Streak | Desacoplado (reprobar no lo afecta) | 2026-07-26 |
 | Umbral | 68% (real del 1Z0-830, sin cambio) | 2026-07-26 |
 | Examen de ubicación | Aprobarlo cuenta como aprobar el checkpoint de las secciones saltadas | 2026-07-26 |
