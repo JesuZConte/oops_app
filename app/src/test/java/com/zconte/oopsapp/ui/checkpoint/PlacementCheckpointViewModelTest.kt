@@ -52,7 +52,7 @@ class PlacementCheckpointViewModelTest {
         checkpointRepository: CheckpointRepository
     ): PlacementCheckpointViewModel = PlacementCheckpointViewModel(
         savedStateHandle = SavedStateHandle(mapOf("targetUnitId" to targetUnitId)),
-        getSkippedUnitsUseCase = GetSkippedUnitsUseCase(GetLearningPathUseCase(contentRepository)),
+        getSkippedUnitsUseCase = GetSkippedUnitsUseCase(GetLearningPathUseCase(contentRepository, FakeCheckpointRepository())),
         getPlacementCheckpointSessionUseCase = GetPlacementCheckpointSessionUseCase(exerciseRepository),
         submitAnswerUseCase = SubmitAnswerUseCase(exerciseRepository),
         completeCheckpointUseCase = CompleteCheckpointUseCase(checkpointRepository, contentRepository, exerciseRepository),

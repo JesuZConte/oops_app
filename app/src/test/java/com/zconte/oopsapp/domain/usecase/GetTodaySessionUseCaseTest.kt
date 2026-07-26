@@ -7,6 +7,7 @@ import com.zconte.oopsapp.domain.model.ReviewState
 import com.zconte.oopsapp.domain.model.Section
 import com.zconte.oopsapp.domain.repository.ContentRepository
 import com.zconte.oopsapp.domain.repository.ExerciseRepository
+import com.zconte.oopsapp.testutil.FakeCheckpointRepository
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -64,7 +65,7 @@ class GetTodaySessionUseCaseTest {
         )
         val useCase = GetTodaySessionUseCase(
             exerciseRepository,
-            GetCurrentUnitUseCase(GetLearningPathUseCase(contentRepository))
+            GetCurrentUnitUseCase(GetLearningPathUseCase(contentRepository, FakeCheckpointRepository()))
         )
 
         val result = useCase(today)
@@ -86,7 +87,7 @@ class GetTodaySessionUseCaseTest {
         )
         val useCase = GetTodaySessionUseCase(
             exerciseRepository,
-            GetCurrentUnitUseCase(GetLearningPathUseCase(contentRepository))
+            GetCurrentUnitUseCase(GetLearningPathUseCase(contentRepository, FakeCheckpointRepository()))
         )
 
         val result = useCase(today, newExercisesLimit = 2)
@@ -111,7 +112,7 @@ class GetTodaySessionUseCaseTest {
         )
         val useCase = GetTodaySessionUseCase(
             exerciseRepository,
-            GetCurrentUnitUseCase(GetLearningPathUseCase(contentRepository))
+            GetCurrentUnitUseCase(GetLearningPathUseCase(contentRepository, FakeCheckpointRepository()))
         )
 
         val result = useCase(today)
@@ -132,7 +133,7 @@ class GetTodaySessionUseCaseTest {
         )
         val useCase = GetTodaySessionUseCase(
             exerciseRepository,
-            GetCurrentUnitUseCase(GetLearningPathUseCase(contentRepository))
+            GetCurrentUnitUseCase(GetLearningPathUseCase(contentRepository, FakeCheckpointRepository()))
         )
 
         val result = useCase(today)
@@ -152,7 +153,7 @@ class GetTodaySessionUseCaseTest {
         )
         val useCase = GetTodaySessionUseCase(
             exerciseRepository,
-            GetCurrentUnitUseCase(GetLearningPathUseCase(contentRepository))
+            GetCurrentUnitUseCase(GetLearningPathUseCase(contentRepository, FakeCheckpointRepository()))
         )
 
         val result = useCase(today)

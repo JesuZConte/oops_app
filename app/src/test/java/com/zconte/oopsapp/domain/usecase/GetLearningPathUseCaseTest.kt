@@ -1,10 +1,12 @@
 package com.zconte.oopsapp.domain.usecase
 
+import com.zconte.oopsapp.domain.model.CheckpointKind
 import com.zconte.oopsapp.domain.model.CompletedUnit
 import com.zconte.oopsapp.domain.model.LearningUnit
 import com.zconte.oopsapp.domain.model.Section
 import com.zconte.oopsapp.domain.model.UnitCompletionSource
 import com.zconte.oopsapp.domain.repository.ContentRepository
+import com.zconte.oopsapp.testutil.FakeCheckpointRepository
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -36,7 +38,7 @@ class GetLearningPathUseCaseTest {
             unitsBySection = mapOf("s1" to listOf(unit("s1-u1", "s1", 1), unit("s1-u2", "s1", 2))),
             completedUnits = emptyList()
         )
-        val useCase = GetLearningPathUseCase(repository)
+        val useCase = GetLearningPathUseCase(repository, FakeCheckpointRepository())
 
         val path = useCase()
 
@@ -52,7 +54,7 @@ class GetLearningPathUseCaseTest {
             unitsBySection = mapOf("s1" to listOf(unit("s1-u1", "s1", 1), unit("s1-u2", "s1", 2))),
             completedUnits = listOf(played("s1-u1"))
         )
-        val useCase = GetLearningPathUseCase(repository)
+        val useCase = GetLearningPathUseCase(repository, FakeCheckpointRepository())
 
         val path = useCase()
 
@@ -60,7 +62,7 @@ class GetLearningPathUseCaseTest {
     }
 
     @Test
-    fun `a section unlocks once every unit of the previous section is completed`() = runTest {
+    fun `a section unlocks once every unit is complete AND its checkpoint is approved`() = runTest {
         val repository = FakeContentRepositoryForPath(
             sections = listOf(section("s1", 1), section("s2", 2)),
             unitsBySection = mapOf(
@@ -69,13 +71,78 @@ class GetLearningPathUseCaseTest {
             ),
             completedUnits = listOf(played("s1-u1"))
         )
-        val useCase = GetLearningPathUseCase(repository)
+        val checkpointRepository = FakeCheckpointRepository()
+        checkpointRepository.recordAttempt(
+            "s1", CheckpointKind.REVIEW, scorePct = 80, passed = true,
+            takenAt = LocalDate.of(2026, 7, 20), failedExerciseIds = emptyList()
+        )
+        val useCase = GetLearningPathUseCase(repository, checkpointRepository)
 
         val path = useCase()
 
         assertTrue(path.first().completed)
+        assertTrue(path.first().checkpointSatisfied)
         assertTrue(path[1].unlocked)
         assertEquals("s2", path[1].section.id)
+    }
+
+    @Test
+    fun `a section stays locked when units are done but the checkpoint has not been approved`() = runTest {
+        val repository = FakeContentRepositoryForPath(
+            sections = listOf(section("s1", 1), section("s2", 2)),
+            unitsBySection = mapOf(
+                "s1" to listOf(unit("s1-u1", "s1", 1)),
+                "s2" to listOf(unit("s2-u1", "s2", 1))
+            ),
+            completedUnits = listOf(played("s1-u1"))
+        )
+        val useCase = GetLearningPathUseCase(repository, FakeCheckpointRepository())
+
+        val path = useCase()
+
+        assertTrue(path.first().completed)
+        assertFalse(path.first().checkpointSatisfied)
+        assertFalse(path[1].unlocked)
+    }
+
+    @Test
+    fun `a section fully completed via placement satisfies the checkpoint gate without an explicit attempt`() = runTest {
+        val repository = FakeContentRepositoryForPath(
+            sections = listOf(section("s1", 1), section("s2", 2)),
+            unitsBySection = mapOf(
+                "s1" to listOf(unit("s1-u1", "s1", 1)),
+                "s2" to listOf(unit("s2-u1", "s2", 1))
+            ),
+            completedUnits = listOf(CompletedUnit("s1-u1", UnitCompletionSource.PLACEMENT))
+        )
+        val useCase = GetLearningPathUseCase(repository, FakeCheckpointRepository())
+
+        val path = useCase()
+
+        assertTrue(path.first().checkpointSatisfied)
+        assertTrue(path[1].unlocked)
+    }
+
+    @Test
+    fun `a section only partially completed via placement still requires an approved checkpoint`() = runTest {
+        val repository = FakeContentRepositoryForPath(
+            sections = listOf(section("s1", 1), section("s2", 2)),
+            unitsBySection = mapOf(
+                "s1" to listOf(unit("s1-u1", "s1", 1), unit("s1-u2", "s1", 2)),
+                "s2" to listOf(unit("s2-u1", "s2", 1))
+            ),
+            completedUnits = listOf(
+                CompletedUnit("s1-u1", UnitCompletionSource.PLACEMENT),
+                CompletedUnit("s1-u2", UnitCompletionSource.PLAYED)
+            )
+        )
+        val useCase = GetLearningPathUseCase(repository, FakeCheckpointRepository())
+
+        val path = useCase()
+
+        assertTrue(path.first().completed)
+        assertFalse(path.first().checkpointSatisfied)
+        assertFalse(path[1].unlocked)
     }
 
     @Test
@@ -88,7 +155,7 @@ class GetLearningPathUseCaseTest {
             ),
             completedUnits = listOf(played("s1-u1"))
         )
-        val useCase = GetLearningPathUseCase(repository)
+        val useCase = GetLearningPathUseCase(repository, FakeCheckpointRepository())
 
         val path = useCase()
 
@@ -102,7 +169,7 @@ class GetLearningPathUseCaseTest {
             unitsBySection = mapOf("s1" to listOf(unit("s1-u1", "s1", 1))),
             completedUnits = listOf(CompletedUnit("s1-u1", UnitCompletionSource.PLACEMENT))
         )
-        val useCase = GetLearningPathUseCase(repository)
+        val useCase = GetLearningPathUseCase(repository, FakeCheckpointRepository())
 
         val path = useCase()
 

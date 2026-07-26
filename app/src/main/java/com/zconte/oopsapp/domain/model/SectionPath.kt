@@ -11,5 +11,6 @@ data class SectionPath(
     val section: Section,
     val unlocked: Boolean,
     val units: List<UnitProgress>,
-    val completed: Boolean
+    val completed: Boolean,
+    val checkpointSatisfied: Boolean
 )

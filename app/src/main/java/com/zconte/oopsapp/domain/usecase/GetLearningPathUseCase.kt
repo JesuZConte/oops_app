@@ -1,22 +1,25 @@
 package com.zconte.oopsapp.domain.usecase
 
+import com.zconte.oopsapp.domain.model.CheckpointKind
 import com.zconte.oopsapp.domain.model.SectionPath
 import com.zconte.oopsapp.domain.model.UnitCompletionSource
 import com.zconte.oopsapp.domain.model.UnitProgress
+import com.zconte.oopsapp.domain.repository.CheckpointRepository
 import com.zconte.oopsapp.domain.repository.ContentRepository
 import javax.inject.Inject
 
 class GetLearningPathUseCase @Inject constructor(
-    private val contentRepository: ContentRepository
+    private val contentRepository: ContentRepository,
+    private val checkpointRepository: CheckpointRepository
 ) {
     suspend operator fun invoke(): List<SectionPath> {
         val sections = contentRepository.getSections().sortedBy { it.orderIndex }
         val completedUnits = contentRepository.getCompletedUnits().associateBy { it.unitId }
 
-        var previousSectionComplete = true
+        var previousSectionFullyDone = true
         return sections.map { section ->
             val units = contentRepository.getUnitsBySection(section.id).sortedBy { it.orderIndex }
-            val sectionUnlocked = previousSectionComplete
+            val sectionUnlocked = previousSectionFullyDone
 
             var previousUnitComplete = true
             val unitProgress = units.map { unit ->
@@ -28,9 +31,13 @@ class GetLearningPathUseCase @Inject constructor(
             }
 
             val sectionComplete = units.isNotEmpty() && units.all { it.id in completedUnits }
-            previousSectionComplete = sectionComplete
+            val checkpointSatisfied = sectionComplete && (
+                checkpointRepository.hasApprovedAttempt(section.id, CheckpointKind.REVIEW) ||
+                    unitProgress.all { it.completedVia == UnitCompletionSource.PLACEMENT }
+                )
+            previousSectionFullyDone = checkpointSatisfied
 
-            SectionPath(section, sectionUnlocked, unitProgress, sectionComplete)
+            SectionPath(section, sectionUnlocked, unitProgress, sectionComplete, checkpointSatisfied)
         }
     }
 }

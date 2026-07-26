@@ -1,10 +1,12 @@
 package com.zconte.oopsapp.domain.usecase
 
+import com.zconte.oopsapp.domain.model.CheckpointKind
 import com.zconte.oopsapp.domain.model.CompletedUnit
 import com.zconte.oopsapp.domain.model.LearningUnit
 import com.zconte.oopsapp.domain.model.Section
 import com.zconte.oopsapp.domain.model.UnitCompletionSource
 import com.zconte.oopsapp.domain.repository.ContentRepository
+import com.zconte.oopsapp.testutil.FakeCheckpointRepository
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -35,7 +37,7 @@ class GetCurrentUnitUseCaseTest {
             unitsBySection = mapOf("s1" to listOf(unit("s1-u1", "s1", 1), unit("s1-u2", "s1", 2))),
             completedUnits = emptyList()
         )
-        val useCase = GetCurrentUnitUseCase(GetLearningPathUseCase(repository))
+        val useCase = GetCurrentUnitUseCase(GetLearningPathUseCase(repository, FakeCheckpointRepository()))
 
         val current = useCase()
 
@@ -49,7 +51,7 @@ class GetCurrentUnitUseCaseTest {
             unitsBySection = mapOf("s1" to listOf(unit("s1-u1", "s1", 1), unit("s1-u2", "s1", 2))),
             completedUnits = listOf(played("s1-u1"))
         )
-        val useCase = GetCurrentUnitUseCase(GetLearningPathUseCase(repository))
+        val useCase = GetCurrentUnitUseCase(GetLearningPathUseCase(repository, FakeCheckpointRepository()))
 
         val current = useCase()
 
@@ -66,7 +68,12 @@ class GetCurrentUnitUseCaseTest {
             ),
             completedUnits = listOf(played("s1-u1"))
         )
-        val useCase = GetCurrentUnitUseCase(GetLearningPathUseCase(repository))
+        val checkpointRepository = FakeCheckpointRepository()
+        checkpointRepository.recordAttempt(
+            "s1", CheckpointKind.REVIEW, scorePct = 80, passed = true,
+            takenAt = LocalDate.of(2026, 7, 20), failedExerciseIds = emptyList()
+        )
+        val useCase = GetCurrentUnitUseCase(GetLearningPathUseCase(repository, checkpointRepository))
 
         val current = useCase()
 
@@ -80,7 +87,7 @@ class GetCurrentUnitUseCaseTest {
             unitsBySection = mapOf("s1" to listOf(unit("s1-u1", "s1", 1), unit("s1-u2", "s1", 2))),
             completedUnits = listOf(CompletedUnit("s1-u1", UnitCompletionSource.PLACEMENT))
         )
-        val useCase = GetCurrentUnitUseCase(GetLearningPathUseCase(repository))
+        val useCase = GetCurrentUnitUseCase(GetLearningPathUseCase(repository, FakeCheckpointRepository()))
 
         val current = useCase()
 
@@ -94,7 +101,7 @@ class GetCurrentUnitUseCaseTest {
             unitsBySection = mapOf("s1" to listOf(unit("s1-u1", "s1", 1))),
             completedUnits = listOf(played("s1-u1"))
         )
-        val useCase = GetCurrentUnitUseCase(GetLearningPathUseCase(repository))
+        val useCase = GetCurrentUnitUseCase(GetLearningPathUseCase(repository, FakeCheckpointRepository()))
 
         val current = useCase()
 
