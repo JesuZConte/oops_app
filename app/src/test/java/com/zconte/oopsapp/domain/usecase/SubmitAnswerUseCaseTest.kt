@@ -27,7 +27,7 @@ class SubmitAnswerUseCaseTest {
     private val today = LocalDate.of(2026, 7, 15)
 
     @Test
-    fun `creates a default review state on first answer and applies SM-2`() = runTest {
+    fun `creates a default review state on first answer, applies SM-2 and stamps lastReviewedAt`() = runTest {
         val repository = FakeExerciseRepositoryForAnswer()
         val useCase = SubmitAnswerUseCase(repository)
 
@@ -36,15 +36,16 @@ class SubmitAnswerUseCaseTest {
         assertEquals(1, result.repetitions)
         assertEquals(1, result.intervalDays)
         assertEquals(today.plusDays(1), result.dueDate)
+        assertEquals(today, result.lastReviewedAt)
         assertEquals(result, repository.states["ex-1"])
     }
 
     @Test
-    fun `reuses the existing review state on later answers`() = runTest {
+    fun `reuses the existing review state on later answers and re-stamps lastReviewedAt`() = runTest {
         val repository = FakeExerciseRepositoryForAnswer().apply {
             states["ex-1"] = ReviewState(
                 exerciseId = "ex-1", easeFactor = 2.5, intervalDays = 1,
-                repetitions = 1, dueDate = today
+                repetitions = 1, dueDate = today, lastReviewedAt = today.minusDays(6)
             )
         }
         val useCase = SubmitAnswerUseCase(repository)
@@ -53,5 +54,6 @@ class SubmitAnswerUseCaseTest {
 
         assertEquals(2, result.repetitions)
         assertEquals(6, result.intervalDays)
+        assertEquals(today, result.lastReviewedAt)
     }
 }

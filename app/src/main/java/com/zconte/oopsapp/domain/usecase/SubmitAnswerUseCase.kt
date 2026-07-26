@@ -15,7 +15,7 @@ class SubmitAnswerUseCase @Inject constructor(
                 exerciseId = exerciseId, easeFactor = 2.5, intervalDays = 0,
                 repetitions = 0, dueDate = today
             )
-        val updated = SchedulerSm2.review(current, quality, today)
+        val updated = SchedulerSm2.review(current, quality, today).copy(lastReviewedAt = today)
         exerciseRepository.saveReviewState(updated)
         return updated
     }
