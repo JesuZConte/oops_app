@@ -69,13 +69,14 @@ class SessionViewModel @Inject constructor(
         val current = _uiState.value
         if (current.isAnswered) return
         val exercise = current.currentExercise ?: return
-        val exerciseId = current.queue.first().id
+        val queuedExercise = current.queue.first()
         val correct = gradeExerciseAnswer(exercise, userAnswer)
 
         _uiState.update { it.copy(isAnswered = true, isCorrect = correct, selectedAnswer = userAnswer) }
 
         pendingAnswerJob = viewModelScope.launch {
-            submitAnswerUseCase(exerciseId, quality = if (correct) 5 else 2, today = LocalDate.now())
+            submitAnswerUseCase(queuedExercise.id, quality = if (correct) 5 else 2, today = LocalDate.now())
+            markUnitProgressUseCase(queuedExercise.unitId, LocalDate.now())
         }
     }
 
@@ -89,7 +90,6 @@ class SessionViewModel @Inject constructor(
                 // away (and clearing this ViewModel's scope) can't cancel it mid-flight.
                 pendingAnswerJob?.join()
                 updateStreakUseCase(LocalDate.now())
-                unitId?.let { markUnitProgressUseCase(it, LocalDate.now()) }
                 _uiState.update { it.copy(isSessionComplete = true) }
             }
         } else {

@@ -9,6 +9,7 @@ import com.zconte.oopsapp.domain.model.Exercise
 import com.zconte.oopsapp.domain.model.ExerciseContent
 import com.zconte.oopsapp.domain.usecase.CompleteCheckpointUseCase
 import com.zconte.oopsapp.domain.usecase.GetCheckpointSessionUseCase
+import com.zconte.oopsapp.domain.usecase.MarkUnitProgressUseCase
 import com.zconte.oopsapp.domain.usecase.SubmitAnswerUseCase
 import com.zconte.oopsapp.domain.usecase.UpdateStreakUseCase
 import com.zconte.oopsapp.domain.usecase.gradeExerciseAnswer
@@ -43,6 +44,7 @@ class CheckpointViewModel @Inject constructor(
     private val submitAnswerUseCase: SubmitAnswerUseCase,
     private val completeCheckpointUseCase: CompleteCheckpointUseCase,
     private val updateStreakUseCase: UpdateStreakUseCase,
+    private val markUnitProgressUseCase: MarkUnitProgressUseCase,
     private val json: Json
 ) : ViewModel() {
 
@@ -76,14 +78,15 @@ class CheckpointViewModel @Inject constructor(
         val current = _uiState.value
         if (current.isAnswered) return
         val exercise = current.currentExercise ?: return
-        val exerciseId = current.queue.first().id
+        val queuedExercise = current.queue.first()
         val correct = gradeExerciseAnswer(exercise, userAnswer)
         if (correct) correctCount++
 
         _uiState.update { it.copy(isAnswered = true, isCorrect = correct, selectedAnswer = userAnswer) }
 
         pendingAnswerJob = viewModelScope.launch {
-            submitAnswerUseCase(exerciseId, quality = if (correct) 5 else 2, today = LocalDate.now())
+            submitAnswerUseCase(queuedExercise.id, quality = if (correct) 5 else 2, today = LocalDate.now())
+            markUnitProgressUseCase(queuedExercise.unitId, LocalDate.now())
         }
     }
 
