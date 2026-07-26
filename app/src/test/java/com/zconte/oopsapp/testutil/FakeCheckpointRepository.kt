@@ -32,9 +32,10 @@ class FakeCheckpointRepository : CheckpointRepository {
         recordedAttempts.any { it.sectionId == sectionId && it.kind == kind && it.passed }
 
     override suspend fun getLatestFailedAttempt(sectionId: String, kind: String): FailedCheckpointAttempt? {
+        // Mirrors CheckpointAttemptDao.getLatestAttempt's "ORDER BY id DESC LIMIT 1": the
+        // most-recently-inserted matching attempt wins ties on takenAt, not the earliest-recorded.
         val latest = recordedAttempts
-            .filter { it.sectionId == sectionId && it.kind == kind }
-            .maxByOrNull { it.takenAt }
+            .lastOrNull { it.sectionId == sectionId && it.kind == kind }
             ?: return null
         if (latest.passed) return null
         return FailedCheckpointAttempt(latest.takenAt, latest.failedExerciseIds)
