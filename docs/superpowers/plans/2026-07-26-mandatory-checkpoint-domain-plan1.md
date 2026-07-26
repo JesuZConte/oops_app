@@ -75,6 +75,23 @@ convention as the rest of `domain/usecase`), plus one new instrumented
   called by `CheckpointViewModel` independently of
   `CompleteCheckpointUseCase`'s result, and its own logic is purely
   date-based — nothing here changes that).
+- **Task 1's real risk is invisible to the JVM test suite — the reviewer
+  must check it by reading, not by trusting green tests.** `AppDatabase`
+  has `exportSchema = true`; Room validates the migrated on-device schema
+  against the compiled entities at `.build()` time, and nothing in this
+  environment can execute that check (`testDebugUnitTest` never opens
+  SQLite; the instrumented migration test can only be compiled, not run —
+  see the constraint above). The one precedent that proves the pattern is
+  safe is `MIGRATION_2_3` / `UnitProgressEntity.completedVia`: it adds a
+  column with a SQL-level `DEFAULT` and declares **no** `@ColumnInfo` on
+  the Kotlin field, and it shipped clean (confirmed: `3.json`'s exported
+  schema for `completedVia` carries no `defaultValue` key at all — Room
+  isn't diffing that value here). Task 1's `ReviewStateEntity.lastReviewedAt`
+  must follow the exact same shape: plain `val lastReviewedAt: Long = 0L`,
+  no `@ColumnInfo`, matching `MIGRATION_3_4`'s
+  `ADD COLUMN lastReviewedAt INTEGER NOT NULL DEFAULT 0`. If a future editor
+  adds a `@ColumnInfo(defaultValue = ...)` "for clarity," treat that as a
+  deviation from the proven-safe precedent, not an improvement — flag it.
 
 ---
 
@@ -645,6 +662,21 @@ Expected: BUILD SUCCESSFUL. This is the only verification available for
 the new migration test in this environment (see Global Constraints) — do
 not attempt `connectedAndroidTest`, there is no device/emulator here.
 
+- [ ] **Step 15b: Confirm the exported schema file for version 4 was generated**
+
+`AppDatabase` has `exportSchema = true` (see `app/schemas/com.zconte.oopsapp.data.local.AppDatabase/2.json`
+and `.../3.json` from prior migrations), so bumping to version 4 must
+produce a matching `4.json`. This file is Room's schema-validation source
+of truth on-device — a stale or missing one means Task 1 hasn't actually
+compiled the entities in their new shape.
+
+Run: `ls app/schemas/com.zconte.oopsapp.data.local.AppDatabase/`
+Expected: `1.json 2.json 3.json 4.json` (the annotation processor writes
+`4.json` as a side effect of Step 15's compile — no separate command
+needed). If `4.json` is missing, re-run Step 15's compile command; Room's
+KSP/kapt step only regenerates schema files on a source change it hasn't
+seen yet.
+
 - [ ] **Step 16: Run the full existing JVM unit test suite**
 
 Run: `./gradlew :app:testDebugUnitTest`
@@ -669,7 +701,8 @@ git add app/src/main/java/com/zconte/oopsapp/data/local/entity/ReviewStateEntity
         app/src/main/java/com/zconte/oopsapp/data/repository/ExerciseRepositoryImpl.kt \
         app/src/test/java/com/zconte/oopsapp/testutil/FakeCheckpointRepository.kt \
         app/src/test/java/com/zconte/oopsapp/domain/usecase/CompleteCheckpointUseCaseTest.kt \
-        app/src/androidTest/java/com/zconte/oopsapp/data/local/MigrationTest.kt
+        app/src/androidTest/java/com/zconte/oopsapp/data/local/MigrationTest.kt \
+        app/schemas/com.zconte.oopsapp.data.local.AppDatabase/4.json
 git commit -m "feat: add review_state.lastReviewedAt and checkpoint_attempt_failures (migration v3->v4)"
 ```
 
