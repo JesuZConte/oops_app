@@ -8,5 +8,5 @@ data class ReviewState(
     val intervalDays: Int,
     val repetitions: Int,
     val dueDate: LocalDate,
-    val lastReviewedAt: LocalDate = LocalDate.EPOCH
+    val lastReviewedAt: LocalDate = LocalDate.ofEpochDay(0)
 )
