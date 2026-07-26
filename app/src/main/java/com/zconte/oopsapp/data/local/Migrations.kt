@@ -90,3 +90,25 @@ val MIGRATION_2_3 = object : Migration(2, 3) {
         db.execSQL("ALTER TABLE unit_progress ADD COLUMN completedVia TEXT NOT NULL DEFAULT 'played'")
     }
 }
+
+/**
+ * Adds lastReviewedAt to review_state (needed by the mandatory-checkpoint retry gate: "has this
+ * exercise been re-answered since the last failed attempt?") and a new checkpoint_attempt_failures
+ * table (which exercises were failed in a given attempt, so a retry knows what to check for
+ * re-exposure). Pre-existing review_state rows default lastReviewedAt to the epoch (well before
+ * any real attempt date), which is intentional -- see design spec, no backfill needed.
+ */
+val MIGRATION_3_4 = object : Migration(3, 4) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE review_state ADD COLUMN lastReviewedAt INTEGER NOT NULL DEFAULT 0")
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS checkpoint_attempt_failures (
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                attemptId INTEGER NOT NULL,
+                exerciseId TEXT NOT NULL
+            )
+            """.trimIndent()
+        )
+    }
+}

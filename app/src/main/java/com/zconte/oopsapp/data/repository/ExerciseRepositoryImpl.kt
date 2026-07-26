@@ -44,7 +44,8 @@ private fun ReviewStateEntity.toDomain() = ReviewState(
     easeFactor = easeFactor,
     intervalDays = intervalDays,
     repetitions = repetitions,
-    dueDate = LocalDate.ofEpochDay(dueDate)
+    dueDate = LocalDate.ofEpochDay(dueDate),
+    lastReviewedAt = LocalDate.ofEpochDay(lastReviewedAt)
 )
 
 private fun ReviewState.toEntity() = ReviewStateEntity(
@@ -52,5 +53,6 @@ private fun ReviewState.toEntity() = ReviewStateEntity(
     easeFactor = easeFactor,
     intervalDays = intervalDays,
     repetitions = repetitions,
-    dueDate = dueDate.toEpochDay()
+    dueDate = dueDate.toEpochDay(),
+    lastReviewedAt = lastReviewedAt.toEpochDay()
 )

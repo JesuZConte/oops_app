@@ -20,12 +20,29 @@ import org.junit.Test
 import java.time.LocalDate
 
 private class FakeCheckpointRepository : CheckpointRepository {
-    data class RecordedAttempt(val sectionId: String, val kind: String, val scorePct: Int, val passed: Boolean)
+    data class RecordedAttempt(
+        val sectionId: String,
+        val kind: String,
+        val scorePct: Int,
+        val passed: Boolean,
+        val failedExerciseIds: List<String>
+    )
     val recorded = mutableListOf<RecordedAttempt>()
 
-    override suspend fun recordAttempt(sectionId: String, kind: String, scorePct: Int, passed: Boolean, takenAt: LocalDate) {
-        recorded.add(RecordedAttempt(sectionId, kind, scorePct, passed))
+    override suspend fun recordAttempt(
+        sectionId: String,
+        kind: String,
+        scorePct: Int,
+        passed: Boolean,
+        takenAt: LocalDate,
+        failedExerciseIds: List<String>
+    ) {
+        recorded.add(RecordedAttempt(sectionId, kind, scorePct, passed, failedExerciseIds))
     }
+
+    override suspend fun hasApprovedAttempt(sectionId: String, kind: String): Boolean = false
+
+    override suspend fun getLatestFailedAttempt(sectionId: String, kind: String): com.zconte.oopsapp.domain.model.FailedCheckpointAttempt? = null
 }
 
 private class FakeContentRepositoryForComplete : ContentRepository {

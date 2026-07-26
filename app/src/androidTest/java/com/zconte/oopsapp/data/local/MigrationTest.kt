@@ -6,6 +6,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.zconte.oopsapp.data.content.ContentLoader
 import com.zconte.oopsapp.data.content.ContentSeeder
+import com.zconte.oopsapp.data.local.entity.CheckpointAttemptFailureEntity
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
@@ -149,6 +150,66 @@ class MigrationTest {
                 val stats = db.userStatsDao().get()
                 assertNotNull(stats)
                 assertEquals(5, stats!!.streak)
+            }
+        } finally {
+            db.close()
+        }
+    }
+
+    @Test
+    fun migrate3To4_addsLastReviewedAtAndTheAttemptFailuresTable() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val dbName = "migration-test-3-4"
+        context.deleteDatabase(dbName)
+        val dbFile = context.getDatabasePath(dbName)
+
+        // 1. Build a v3-shaped database file directly with raw SQL (pre-migration shape: no
+        // lastReviewedAt column, no checkpoint_attempt_failures table yet), with a pre-existing
+        // review_state row and a pre-existing checkpoint attempt representing prior user data.
+        SQLiteDatabase.openOrCreateDatabase(dbFile, null).apply {
+            execSQL("CREATE TABLE sections (id TEXT NOT NULL PRIMARY KEY, name TEXT NOT NULL, orderIndex INTEGER NOT NULL, examVersion TEXT NOT NULL)")
+            execSQL("CREATE TABLE units (id TEXT NOT NULL PRIMARY KEY, sectionId TEXT NOT NULL, name TEXT NOT NULL, certObjective TEXT NOT NULL, orderIndex INTEGER NOT NULL)")
+            execSQL("CREATE TABLE exercises (id TEXT NOT NULL PRIMARY KEY, unitId TEXT NOT NULL, type TEXT NOT NULL, payload TEXT NOT NULL, difficulty INTEGER NOT NULL, examVersion TEXT NOT NULL)")
+            execSQL("CREATE TABLE unit_progress (unitId TEXT NOT NULL PRIMARY KEY, completed INTEGER NOT NULL, completedAt INTEGER, completedVia TEXT NOT NULL DEFAULT 'played')")
+            execSQL("CREATE TABLE checkpoint_attempts (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, sectionId TEXT NOT NULL, kind TEXT NOT NULL, scorePct INTEGER NOT NULL, passed INTEGER NOT NULL, takenAt INTEGER NOT NULL)")
+            execSQL("CREATE TABLE content_meta (configKey TEXT NOT NULL PRIMARY KEY, value TEXT NOT NULL)")
+            execSQL("CREATE TABLE `review_state` (`exerciseId` TEXT NOT NULL, `easeFactor` REAL NOT NULL, `intervalDays` INTEGER NOT NULL, `repetitions` INTEGER NOT NULL, `dueDate` INTEGER NOT NULL, PRIMARY KEY(`exerciseId`))")
+            execSQL("CREATE TABLE `user_stats` (`id` INTEGER NOT NULL, `streak` INTEGER NOT NULL, `xp` INTEGER NOT NULL, `lastStudyDate` INTEGER, PRIMARY KEY(`id`))")
+            execSQL("INSERT INTO review_state (exerciseId, easeFactor, intervalDays, repetitions, dueDate) VALUES ('fund-ex-1', 2.6, 6, 2, 19000)")
+            execSQL(
+                "INSERT INTO checkpoint_attempts (sectionId, kind, scorePct, passed, takenAt) VALUES " +
+                    "('java-fundamentals', 'review', 80, 1, 19000)"
+            )
+            version = 3
+            close()
+        }
+
+        // 2. Open via a real Room-managed AppDatabase with all three migrations registered.
+        val db = Room.databaseBuilder(context, AppDatabase::class.java, dbName)
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+            .allowMainThreadQueries()
+            .build()
+
+        try {
+            runBlocking {
+                // Pre-existing review_state survived and defaulted lastReviewedAt to the epoch.
+                val reviewState = db.reviewStateDao().getByExerciseId("fund-ex-1")
+                assertNotNull("review_state must survive the migration", reviewState)
+                assertEquals(2.6, reviewState!!.easeFactor, 0.0001)
+                assertEquals(0L, reviewState.lastReviewedAt)
+
+                // The pre-existing attempt survived and has no failure rows (it predates this
+                // migration and was never associated with per-question failures).
+                val attempts = db.checkpointAttemptDao().getBySection("java-fundamentals")
+                assertEquals(1, attempts.size)
+                val failures = db.checkpointAttemptDao().getFailedExerciseIds(attempts.first().id)
+                assertTrue("no failure rows exist for a pre-migration attempt", failures.isEmpty())
+
+                // The new table accepts real inserts going forward.
+                db.checkpointAttemptDao().insertFailures(
+                    listOf(CheckpointAttemptFailureEntity(attemptId = attempts.first().id, exerciseId = "fund-ex-1"))
+                )
+                assertEquals(listOf("fund-ex-1"), db.checkpointAttemptDao().getFailedExerciseIds(attempts.first().id))
             }
         } finally {
             db.close()

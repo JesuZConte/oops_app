@@ -7,5 +7,6 @@ data class ReviewState(
     val easeFactor: Double,
     val intervalDays: Int,
     val repetitions: Int,
-    val dueDate: LocalDate
+    val dueDate: LocalDate,
+    val lastReviewedAt: LocalDate = LocalDate.EPOCH
 )

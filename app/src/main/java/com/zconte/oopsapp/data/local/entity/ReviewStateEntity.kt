@@ -9,5 +9,6 @@ data class ReviewStateEntity(
     val easeFactor: Double,
     val intervalDays: Int,
     val repetitions: Int,
-    val dueDate: Long
+    val dueDate: Long,
+    val lastReviewedAt: Long = 0L
 )

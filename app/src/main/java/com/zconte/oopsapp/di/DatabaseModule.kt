@@ -5,6 +5,7 @@ import androidx.room.Room
 import com.zconte.oopsapp.data.local.AppDatabase
 import com.zconte.oopsapp.data.local.MIGRATION_1_2
 import com.zconte.oopsapp.data.local.MIGRATION_2_3
+import com.zconte.oopsapp.data.local.MIGRATION_3_4
 import com.zconte.oopsapp.data.local.dao.CheckpointAttemptDao
 import com.zconte.oopsapp.data.local.dao.ContentMetaDao
 import com.zconte.oopsapp.data.local.dao.ExerciseDao
@@ -27,7 +28,7 @@ object DatabaseModule {
     @Singleton
     fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase =
         Room.databaseBuilder(context, AppDatabase::class.java, "oops.db")
-            .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
             .build()
 
     @Provides

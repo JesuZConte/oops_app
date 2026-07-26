@@ -11,6 +11,7 @@ import com.zconte.oopsapp.data.local.dao.UnitDao
 import com.zconte.oopsapp.data.local.dao.UnitProgressDao
 import com.zconte.oopsapp.data.local.dao.UserStatsDao
 import com.zconte.oopsapp.data.local.entity.CheckpointAttemptEntity
+import com.zconte.oopsapp.data.local.entity.CheckpointAttemptFailureEntity
 import com.zconte.oopsapp.data.local.entity.ContentMetaEntity
 import com.zconte.oopsapp.data.local.entity.ExerciseEntity
 import com.zconte.oopsapp.data.local.entity.ReviewStateEntity
@@ -23,9 +24,10 @@ import com.zconte.oopsapp.data.local.entity.UserStatsEntity
     entities = [
         SectionEntity::class, UnitEntity::class, ExerciseEntity::class,
         ReviewStateEntity::class, UserStatsEntity::class,
-        UnitProgressEntity::class, CheckpointAttemptEntity::class, ContentMetaEntity::class
+        UnitProgressEntity::class, CheckpointAttemptEntity::class, ContentMetaEntity::class,
+        CheckpointAttemptFailureEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
