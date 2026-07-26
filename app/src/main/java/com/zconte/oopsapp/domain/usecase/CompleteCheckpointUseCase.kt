@@ -35,10 +35,11 @@ class CompleteCheckpointUseCase @Inject constructor(
         correctCount: Int,
         totalCount: Int,
         today: LocalDate,
-        skippedUnitIds: List<String> = emptyList()
+        skippedUnitIds: List<String> = emptyList(),
+        failedExerciseIds: List<String> = emptyList()
     ): CheckpointResult {
         val result = computeCheckpointResult(correctCount, totalCount)
-        checkpointRepository.recordAttempt(sectionId, kind, result.scorePct, result.passed, today)
+        checkpointRepository.recordAttempt(sectionId, kind, result.scorePct, result.passed, today, failedExerciseIds)
 
         if (kind == CheckpointKind.PLACEMENT && result.passed) {
             unlockSkippedUnits(skippedUnitIds, today)

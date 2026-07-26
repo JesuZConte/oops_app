@@ -107,6 +107,21 @@ class CompleteCheckpointUseCaseTest {
     }
 
     @Test
+    fun `failed exercise ids are threaded through to the recorded attempt`() = runTest {
+        val checkpointRepository = FakeCheckpointRepository()
+        val useCase = CompleteCheckpointUseCase(
+            checkpointRepository, FakeContentRepositoryForComplete(), FakeExerciseRepositoryForComplete()
+        )
+
+        useCase(
+            "s1", CheckpointKind.REVIEW, correctCount = 6, totalCount = 12, today = today,
+            failedExerciseIds = listOf("ex-3", "ex-7")
+        )
+
+        assertEquals(listOf("ex-3", "ex-7"), checkpointRepository.recorded.first().failedExerciseIds)
+    }
+
+    @Test
     fun `a passed review checkpoint never marks units complete even if skippedUnitIds is passed by mistake`() = runTest {
         val contentRepository = FakeContentRepositoryForComplete()
         val useCase = CompleteCheckpointUseCase(
