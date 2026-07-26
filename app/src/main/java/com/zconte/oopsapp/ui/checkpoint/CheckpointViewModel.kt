@@ -58,7 +58,7 @@ class CheckpointViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val queue = getCheckpointSessionUseCase(sectionId)
+            val queue = getCheckpointSessionUseCase(sectionId, LocalDate.now())
             if (queue.isEmpty()) {
                 _uiState.update { it.copy(isComplete = true, result = CheckpointResult(0, false)) }
             } else {
