@@ -9,9 +9,11 @@ import com.zconte.oopsapp.domain.model.Exercise
 import com.zconte.oopsapp.domain.model.ExerciseContent
 import com.zconte.oopsapp.domain.usecase.CompleteCheckpointUseCase
 import com.zconte.oopsapp.domain.usecase.GetCheckpointSessionUseCase
+import com.zconte.oopsapp.domain.usecase.IsCheckpointRetryUnlockedUseCase
 import com.zconte.oopsapp.domain.usecase.MarkUnitProgressUseCase
 import com.zconte.oopsapp.domain.usecase.SubmitAnswerUseCase
 import com.zconte.oopsapp.domain.usecase.UpdateStreakUseCase
+import com.zconte.oopsapp.domain.usecase.computeCheckpointTimeBudgetSeconds
 import com.zconte.oopsapp.domain.usecase.gradeExerciseAnswer
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -34,13 +36,17 @@ data class CheckpointUiState(
     val isCorrect: Boolean = false,
     val isComplete: Boolean = false,
     val result: CheckpointResult? = null,
-    val isCompleting: Boolean = false
+    val isCompleting: Boolean = false,
+    val isRetryLocked: Boolean = false,
+    val showIntro: Boolean = false,
+    val timeBudgetSeconds: Int = 0
 )
 
 @HiltViewModel
 class CheckpointViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val getCheckpointSessionUseCase: GetCheckpointSessionUseCase,
+    private val isCheckpointRetryUnlockedUseCase: IsCheckpointRetryUnlockedUseCase,
     private val submitAnswerUseCase: SubmitAnswerUseCase,
     private val completeCheckpointUseCase: CompleteCheckpointUseCase,
     private val updateStreakUseCase: UpdateStreakUseCase,
@@ -53,11 +59,15 @@ class CheckpointViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(CheckpointUiState())
     val uiState: StateFlow<CheckpointUiState> = _uiState.asStateFlow()
 
-    private var correctCount = 0
+    private val answeredResults = mutableListOf<Pair<Exercise, Boolean>>()
     private var pendingAnswerJob: Job? = null
 
     init {
         viewModelScope.launch {
+            if (!isCheckpointRetryUnlockedUseCase(sectionId)) {
+                _uiState.update { it.copy(isRetryLocked = true) }
+                return@launch
+            }
             val queue = getCheckpointSessionUseCase(sectionId, LocalDate.now())
             if (queue.isEmpty()) {
                 _uiState.update { it.copy(isComplete = true, result = CheckpointResult(0, false)) }
@@ -66,11 +76,23 @@ class CheckpointViewModel @Inject constructor(
                     it.copy(
                         queue = queue,
                         totalExercises = queue.size,
-                        currentIndex = 1,
-                        currentExercise = decode(queue.first())
+                        showIntro = true,
+                        timeBudgetSeconds = computeCheckpointTimeBudgetSeconds(queue.size)
                     )
                 }
             }
+        }
+    }
+
+    fun startCheckpoint() {
+        val state = _uiState.value
+        if (!state.showIntro) return
+        _uiState.update {
+            it.copy(
+                showIntro = false,
+                currentIndex = 1,
+                currentExercise = decode(it.queue.first())
+            )
         }
     }
 
@@ -80,7 +102,7 @@ class CheckpointViewModel @Inject constructor(
         val exercise = current.currentExercise ?: return
         val queuedExercise = current.queue.first()
         val correct = gradeExerciseAnswer(exercise, userAnswer)
-        if (correct) correctCount++
+        answeredResults.add(queuedExercise to correct)
 
         _uiState.update { it.copy(isAnswered = true, isCorrect = correct, selectedAnswer = userAnswer) }
 
@@ -95,18 +117,7 @@ class CheckpointViewModel @Inject constructor(
         val remaining = _uiState.value.queue.drop(1)
         if (remaining.isEmpty()) {
             _uiState.update { it.copy(isCompleting = true) }
-            viewModelScope.launch {
-                pendingAnswerJob?.join()
-                updateStreakUseCase(LocalDate.now())
-                val result = completeCheckpointUseCase(
-                    sectionId = sectionId,
-                    kind = CheckpointKind.REVIEW,
-                    correctCount = correctCount,
-                    totalCount = _uiState.value.totalExercises,
-                    today = LocalDate.now()
-                )
-                _uiState.update { it.copy(isComplete = true, result = result) }
-            }
+            viewModelScope.launch { finishCheckpoint() }
         } else {
             _uiState.update {
                 it.copy(
@@ -119,6 +130,22 @@ class CheckpointViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    private suspend fun finishCheckpoint() {
+        pendingAnswerJob?.join()
+        updateStreakUseCase(LocalDate.now())
+        val correctCount = answeredResults.count { it.second }
+        val failedExerciseIds = answeredResults.filter { !it.second }.map { it.first.id }
+        val result = completeCheckpointUseCase(
+            sectionId = sectionId,
+            kind = CheckpointKind.REVIEW,
+            correctCount = correctCount,
+            totalCount = _uiState.value.totalExercises,
+            today = LocalDate.now(),
+            failedExerciseIds = failedExerciseIds
+        )
+        _uiState.update { it.copy(isComplete = true, result = result) }
     }
 
     private fun decode(exercise: Exercise): ExerciseContent =

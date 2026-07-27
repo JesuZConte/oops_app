@@ -33,8 +33,23 @@ fun CheckpointScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    if (uiState.isRetryLocked) {
+        RetryLockedView(onBack = onFinished, modifier = modifier)
+        return
+    }
+
     if (uiState.isComplete) {
         CheckpointResultView(result = uiState.result, onContinue = onFinished, modifier = modifier)
+        return
+    }
+
+    if (uiState.showIntro) {
+        CheckpointIntroView(
+            questionCount = uiState.totalExercises,
+            timeBudgetSeconds = uiState.timeBudgetSeconds,
+            onStart = viewModel::startCheckpoint,
+            modifier = modifier
+        )
         return
     }
 
@@ -65,6 +80,78 @@ fun CheckpointScreen(
             .imePadding()
             .padding(16.dp)
     )
+}
+
+@Composable
+private fun RetryLockedView(onBack: () -> Unit, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .systemBarsPadding()
+            .padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Spacer(Modifier.weight(1f))
+        Text(
+            text = "Todavía no puedes reintentar",
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+        Text(
+            text = "Fallaste ejercicios que aún no has vuelto a responder. " +
+                "En cuanto vuelvan a aparecerte en tu práctica diaria y los respondas, " +
+                "podrás reintentar el checkpoint.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Spacer(Modifier.weight(1f))
+        Button(
+            onClick = onBack,
+            modifier = Modifier.fillMaxWidth().height(52.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+        ) {
+            Text("VOLVER", style = MaterialTheme.typography.titleMedium)
+        }
+    }
+}
+
+@Composable
+private fun CheckpointIntroView(
+    questionCount: Int,
+    timeBudgetSeconds: Int,
+    onStart: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val minutes = timeBudgetSeconds / 60
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .systemBarsPadding()
+            .padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Spacer(Modifier.weight(1f))
+        Text(
+            text = "Checkpoint",
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+        Text(
+            text = "$questionCount preguntas · $minutes minutos",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Spacer(Modifier.weight(1f))
+        Button(
+            onClick = onStart,
+            modifier = Modifier.fillMaxWidth().height(52.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+        ) {
+            Text("COMENZAR", style = MaterialTheme.typography.titleMedium)
+        }
+    }
 }
 
 @Composable

@@ -1,7 +1,9 @@
 package com.zconte.oopsapp.ui.checkpoint
 
 import androidx.lifecycle.SavedStateHandle
+import com.zconte.oopsapp.domain.model.CheckpointKind
 import com.zconte.oopsapp.domain.model.Exercise
+import com.zconte.oopsapp.domain.model.ReviewState
 import com.zconte.oopsapp.domain.model.Section
 import com.zconte.oopsapp.domain.repository.CheckpointRepository
 import com.zconte.oopsapp.domain.repository.ContentRepository
@@ -9,6 +11,7 @@ import com.zconte.oopsapp.domain.repository.ExerciseRepository
 import com.zconte.oopsapp.domain.repository.ProgressRepository
 import com.zconte.oopsapp.domain.usecase.CompleteCheckpointUseCase
 import com.zconte.oopsapp.domain.usecase.GetCheckpointSessionUseCase
+import com.zconte.oopsapp.domain.usecase.IsCheckpointRetryUnlockedUseCase
 import com.zconte.oopsapp.domain.usecase.MarkUnitProgressUseCase
 import com.zconte.oopsapp.domain.usecase.SubmitAnswerUseCase
 import com.zconte.oopsapp.domain.usecase.UpdateStreakUseCase
@@ -24,6 +27,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
+import java.time.LocalDate
 
 class CheckpointViewModelTest {
 
@@ -47,6 +51,7 @@ class CheckpointViewModelTest {
     ): CheckpointViewModel = CheckpointViewModel(
         savedStateHandle = SavedStateHandle(mapOf("sectionId" to sectionId)),
         getCheckpointSessionUseCase = GetCheckpointSessionUseCase(exerciseRepository, contentRepository),
+        isCheckpointRetryUnlockedUseCase = IsCheckpointRetryUnlockedUseCase(checkpointRepository, exerciseRepository),
         submitAnswerUseCase = SubmitAnswerUseCase(exerciseRepository),
         completeCheckpointUseCase = CompleteCheckpointUseCase(checkpointRepository, contentRepository, exerciseRepository),
         updateStreakUseCase = UpdateStreakUseCase(progressRepository),
@@ -55,7 +60,7 @@ class CheckpointViewModelTest {
     )
 
     @Test
-    fun `init loads the checkpoint session for the given section`() = runTest {
+    fun `init loads the checkpoint session and shows the intro before any question`() = runTest {
         val contentRepository = FakeContentRepository(sections = listOf(Section("s1", "s1", 1, "core")))
         val exerciseRepository = FakeExerciseRepository(
             exercisesBySection = mapOf("s1" to listOf(exercise("ex-1", "s1-u1")))
@@ -69,8 +74,31 @@ class CheckpointViewModelTest {
         )
 
         val state = viewModel.uiState.value
-        assertEquals(listOf("ex-1"), state.queue.map { it.id })
+        assertTrue(state.showIntro)
+        assertFalse(state.isRetryLocked)
         assertEquals(1, state.totalExercises)
+        assertEquals(null, state.currentExercise)
+        assertEquals(0, state.currentIndex)
+    }
+
+    @Test
+    fun `startCheckpoint reveals the first question and leaves the intro`() = runTest {
+        val contentRepository = FakeContentRepository(sections = listOf(Section("s1", "s1", 1, "core")))
+        val exerciseRepository = FakeExerciseRepository(
+            exercisesBySection = mapOf("s1" to listOf(exercise("ex-1", "s1-u1")))
+        )
+        val viewModel = buildViewModel(
+            sectionId = "s1",
+            contentRepository = contentRepository,
+            exerciseRepository = exerciseRepository,
+            progressRepository = FakeProgressRepository(),
+            checkpointRepository = FakeCheckpointRepository()
+        )
+
+        viewModel.startCheckpoint()
+
+        val state = viewModel.uiState.value
+        assertFalse(state.showIntro)
         assertEquals(1, state.currentIndex)
         assertEquals("ex-1", state.currentExercise?.id)
     }
@@ -92,6 +120,62 @@ class CheckpointViewModelTest {
     }
 
     @Test
+    fun `init when the retry gate is locked shows isRetryLocked without loading a session`() = runTest {
+        val contentRepository = FakeContentRepository(sections = listOf(Section("s1", "s1", 1, "core")))
+        val exerciseRepository = FakeExerciseRepository(
+            exercisesBySection = mapOf("s1" to listOf(exercise("ex-1", "s1-u1")))
+        )
+        val checkpointRepository = FakeCheckpointRepository()
+        checkpointRepository.recordAttempt(
+            "s1", CheckpointKind.REVIEW, scorePct = 50, passed = false,
+            takenAt = LocalDate.of(2026, 7, 20), failedExerciseIds = listOf("ex-1")
+        )
+        val viewModel = buildViewModel(
+            sectionId = "s1",
+            contentRepository = contentRepository,
+            exerciseRepository = exerciseRepository,
+            progressRepository = FakeProgressRepository(),
+            checkpointRepository = checkpointRepository
+        )
+
+        val state = viewModel.uiState.value
+        assertTrue(state.isRetryLocked)
+        assertFalse(state.showIntro)
+        assertTrue(state.queue.isEmpty())
+    }
+
+    @Test
+    fun `init when the retry gate is unlocked after re-study loads a fresh session`() = runTest {
+        val contentRepository = FakeContentRepository(sections = listOf(Section("s1", "s1", 1, "core")))
+        val exerciseRepository = FakeExerciseRepository(
+            exercisesBySection = mapOf("s1" to listOf(exercise("ex-1", "s1-u1")))
+        )
+        exerciseRepository.saveReviewState(
+            ReviewState(
+                exerciseId = "ex-1", easeFactor = 2.5, intervalDays = 1, repetitions = 1,
+                dueDate = LocalDate.of(2026, 7, 22), lastReviewedAt = LocalDate.of(2026, 7, 21)
+            )
+        )
+        val checkpointRepository = FakeCheckpointRepository()
+        checkpointRepository.recordAttempt(
+            "s1", CheckpointKind.REVIEW, scorePct = 50, passed = false,
+            takenAt = LocalDate.of(2026, 7, 20), failedExerciseIds = listOf("ex-1")
+        )
+        val viewModel = buildViewModel(
+            sectionId = "s1",
+            contentRepository = contentRepository,
+            exerciseRepository = exerciseRepository,
+            progressRepository = FakeProgressRepository(),
+            checkpointRepository = checkpointRepository
+        )
+
+        val state = viewModel.uiState.value
+        assertFalse(state.isRetryLocked)
+        assertTrue(state.showIntro)
+        assertEquals(1, state.totalExercises)
+    }
+
+    @Test
     fun `submitAnswer with a correct answer submits SM-2 and marks unit progress`() = runTest {
         val contentRepository = FakeContentRepository(sections = listOf(Section("s1", "s1", 1, "core")))
         val sharedExercise = exercise("ex-1", "s1-u1", answer = "42")
@@ -106,6 +190,7 @@ class CheckpointViewModelTest {
             progressRepository = FakeProgressRepository(),
             checkpointRepository = FakeCheckpointRepository()
         )
+        viewModel.startCheckpoint()
 
         viewModel.submitAnswer("42")
 
@@ -128,6 +213,7 @@ class CheckpointViewModelTest {
             progressRepository = FakeProgressRepository(),
             checkpointRepository = FakeCheckpointRepository()
         )
+        viewModel.startCheckpoint()
 
         viewModel.submitAnswer("wrong")
 
@@ -151,6 +237,7 @@ class CheckpointViewModelTest {
             progressRepository = FakeProgressRepository(),
             checkpointRepository = FakeCheckpointRepository()
         )
+        viewModel.startCheckpoint()
         val firstId = viewModel.uiState.value.currentExercise?.id
 
         // Both fixture exercises share answer "42", so this grades correctly regardless of
@@ -180,6 +267,7 @@ class CheckpointViewModelTest {
             progressRepository = progressRepository,
             checkpointRepository = checkpointRepository
         )
+        viewModel.startCheckpoint()
 
         // One wrong, one right: 50% score, regardless of which exercise the fake session put first.
         viewModel.submitAnswer("wrong")
@@ -193,5 +281,27 @@ class CheckpointViewModelTest {
         assertFalse(state.result?.passed ?: true)
         assertEquals(1, progressRepository.stats.streak)
         assertEquals(1, checkpointRepository.recordedAttempts.size)
+    }
+
+    @Test
+    fun `a wrong answer is recorded as a failed exercise id on the completed attempt`() = runTest {
+        val checkpointRepository = FakeCheckpointRepository()
+        val contentRepository = FakeContentRepository(sections = listOf(Section("s1", "s1", 1, "core")))
+        val exerciseRepository = FakeExerciseRepository(
+            exercisesBySection = mapOf("s1" to listOf(exercise("ex-1", "s1-u1", answer = "42")))
+        )
+        val viewModel = buildViewModel(
+            sectionId = "s1",
+            contentRepository = contentRepository,
+            exerciseRepository = exerciseRepository,
+            progressRepository = FakeProgressRepository(),
+            checkpointRepository = checkpointRepository
+        )
+        viewModel.startCheckpoint()
+
+        viewModel.submitAnswer("wrong")
+        viewModel.nextExercise()
+
+        assertEquals(listOf("ex-1"), checkpointRepository.recordedAttempts.first().failedExerciseIds)
     }
 }
