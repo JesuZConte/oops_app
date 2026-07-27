@@ -15,6 +15,7 @@ import com.zconte.oopsapp.domain.usecase.SubmitAnswerUseCase
 import com.zconte.oopsapp.domain.usecase.UpdateStreakUseCase
 import com.zconte.oopsapp.domain.usecase.computeCheckpointTimeBudgetSeconds
 import com.zconte.oopsapp.domain.usecase.gradeExerciseAnswer
+import com.zconte.oopsapp.domain.util.Clock
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,6 +26,8 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import java.time.LocalDate
 import javax.inject.Inject
+
+private const val CHECKPOINT_DEADLINE_KEY = "checkpointDeadlineMillis"
 
 data class CheckpointUiState(
     val queue: List<Exercise> = emptyList(),
@@ -39,19 +42,21 @@ data class CheckpointUiState(
     val isCompleting: Boolean = false,
     val isRetryLocked: Boolean = false,
     val showIntro: Boolean = false,
-    val timeBudgetSeconds: Int = 0
+    val timeBudgetSeconds: Int = 0,
+    val timeRemainingSeconds: Int = 0
 )
 
 @HiltViewModel
 class CheckpointViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+    private val savedStateHandle: SavedStateHandle,
     private val getCheckpointSessionUseCase: GetCheckpointSessionUseCase,
     private val isCheckpointRetryUnlockedUseCase: IsCheckpointRetryUnlockedUseCase,
     private val submitAnswerUseCase: SubmitAnswerUseCase,
     private val completeCheckpointUseCase: CompleteCheckpointUseCase,
     private val updateStreakUseCase: UpdateStreakUseCase,
     private val markUnitProgressUseCase: MarkUnitProgressUseCase,
-    private val json: Json
+    private val json: Json,
+    private val clock: Clock
 ) : ViewModel() {
 
     private val sectionId: String = checkNotNull(savedStateHandle["sectionId"])
@@ -87,12 +92,28 @@ class CheckpointViewModel @Inject constructor(
     fun startCheckpoint() {
         val state = _uiState.value
         if (!state.showIntro) return
+        val deadline = clock.nowMillis() + state.timeBudgetSeconds * 1000L
+        savedStateHandle[CHECKPOINT_DEADLINE_KEY] = deadline
         _uiState.update {
             it.copy(
                 showIntro = false,
                 currentIndex = 1,
-                currentExercise = decode(it.queue.first())
+                currentExercise = decode(it.queue.first()),
+                timeRemainingSeconds = state.timeBudgetSeconds
             )
+        }
+    }
+
+    fun tick() {
+        val state = _uiState.value
+        if (state.showIntro || state.isComplete || state.isRetryLocked || state.isCompleting) return
+        val deadline = savedStateHandle.get<Long>(CHECKPOINT_DEADLINE_KEY) ?: return
+        val remainingMillis = deadline - clock.nowMillis()
+        if (remainingMillis <= 0) {
+            _uiState.update { it.copy(timeRemainingSeconds = 0, isCompleting = true) }
+            viewModelScope.launch { finishCheckpoint() }
+        } else {
+            _uiState.update { it.copy(timeRemainingSeconds = (remainingMillis / 1000).toInt()) }
         }
     }
 

@@ -15,7 +15,9 @@ import com.zconte.oopsapp.domain.usecase.IsCheckpointRetryUnlockedUseCase
 import com.zconte.oopsapp.domain.usecase.MarkUnitProgressUseCase
 import com.zconte.oopsapp.domain.usecase.SubmitAnswerUseCase
 import com.zconte.oopsapp.domain.usecase.UpdateStreakUseCase
+import com.zconte.oopsapp.domain.util.Clock
 import com.zconte.oopsapp.testutil.FakeCheckpointRepository
+import com.zconte.oopsapp.testutil.FakeClock
 import com.zconte.oopsapp.testutil.FakeContentRepository
 import com.zconte.oopsapp.testutil.FakeExerciseRepository
 import com.zconte.oopsapp.testutil.FakeProgressRepository
@@ -47,7 +49,8 @@ class CheckpointViewModelTest {
         contentRepository: ContentRepository,
         exerciseRepository: ExerciseRepository,
         progressRepository: ProgressRepository,
-        checkpointRepository: CheckpointRepository
+        checkpointRepository: CheckpointRepository,
+        clock: Clock = FakeClock()
     ): CheckpointViewModel = CheckpointViewModel(
         savedStateHandle = SavedStateHandle(mapOf("sectionId" to sectionId)),
         getCheckpointSessionUseCase = GetCheckpointSessionUseCase(exerciseRepository, contentRepository),
@@ -56,7 +59,8 @@ class CheckpointViewModelTest {
         completeCheckpointUseCase = CompleteCheckpointUseCase(checkpointRepository, contentRepository, exerciseRepository),
         updateStreakUseCase = UpdateStreakUseCase(progressRepository),
         markUnitProgressUseCase = MarkUnitProgressUseCase(exerciseRepository, contentRepository),
-        json = json
+        json = json,
+        clock = clock
     )
 
     @Test
@@ -303,5 +307,87 @@ class CheckpointViewModelTest {
         viewModel.nextExercise()
 
         assertEquals(listOf("ex-1"), checkpointRepository.recordedAttempts.first().failedExerciseIds)
+    }
+
+    @Test
+    fun `startCheckpoint sets the initial time remaining to the full budget`() = runTest {
+        val contentRepository = FakeContentRepository(sections = listOf(Section("s1", "s1", 1, "core")))
+        // GetCheckpointSessionUseCase (Plan 1) caps a lone first section's session at the size
+        // floor (8), regardless of how many exercises are available -- so exactly 8 fixture
+        // exercises here means the queue (and therefore the time budget) is fully predictable.
+        val exerciseRepository = FakeExerciseRepository(
+            exercisesBySection = mapOf(
+                "s1" to (1..8).map { exercise("ex-$it", "s1-u1") }
+            )
+        )
+        val viewModel = buildViewModel(
+            sectionId = "s1",
+            contentRepository = contentRepository,
+            exerciseRepository = exerciseRepository,
+            progressRepository = FakeProgressRepository(),
+            checkpointRepository = FakeCheckpointRepository()
+        )
+        val budget = viewModel.uiState.value.timeBudgetSeconds
+
+        viewModel.startCheckpoint()
+
+        assertEquals(budget, viewModel.uiState.value.timeRemainingSeconds)
+        assertEquals(840, budget) // 8 questions * 1.8 min = 14.4 -> rounds to 14 min = 840s, pinning the Plan 1 formula
+    }
+
+    @Test
+    fun `tick counts down as the clock advances`() = runTest {
+        val contentRepository = FakeContentRepository(sections = listOf(Section("s1", "s1", 1, "core")))
+        val exerciseRepository = FakeExerciseRepository(
+            exercisesBySection = mapOf("s1" to listOf(exercise("ex-1", "s1-u1")))
+        )
+        val clock = FakeClock()
+        val viewModel = buildViewModel(
+            sectionId = "s1",
+            contentRepository = contentRepository,
+            exerciseRepository = exerciseRepository,
+            progressRepository = FakeProgressRepository(),
+            checkpointRepository = FakeCheckpointRepository(),
+            clock = clock
+        )
+        viewModel.startCheckpoint()
+        val budget = viewModel.uiState.value.timeBudgetSeconds
+
+        clock.advanceBy(5_000L)
+        viewModel.tick()
+
+        assertEquals(budget - 5, viewModel.uiState.value.timeRemainingSeconds)
+    }
+
+    @Test
+    fun `tick past the deadline auto-completes without marking the unanswered exercise as failed`() = runTest {
+        val checkpointRepository = FakeCheckpointRepository()
+        val contentRepository = FakeContentRepository(sections = listOf(Section("s1", "s1", 1, "core")))
+        val exerciseRepository = FakeExerciseRepository(
+            exercisesBySection = mapOf(
+                "s1" to listOf(exercise("ex-1", "s1-u1", answer = "42"), exercise("ex-2", "s1-u1", answer = "42"))
+            )
+        )
+        val clock = FakeClock()
+        val viewModel = buildViewModel(
+            sectionId = "s1",
+            contentRepository = contentRepository,
+            exerciseRepository = exerciseRepository,
+            progressRepository = FakeProgressRepository(),
+            checkpointRepository = checkpointRepository,
+            clock = clock
+        )
+        viewModel.startCheckpoint()
+        val budgetSeconds = viewModel.uiState.value.timeBudgetSeconds
+
+        // Answer only the first of 2 exercises correctly; the second is never reached.
+        viewModel.submitAnswer("42")
+        clock.advanceBy(budgetSeconds * 1000L + 1_000L)
+        viewModel.tick()
+
+        val state = viewModel.uiState.value
+        assertTrue(state.isComplete)
+        assertEquals(50, state.result?.scorePct) // 1 correct out of 2 total -- the unanswered one counts against the score
+        assertTrue(checkpointRepository.recordedAttempts.first().failedExerciseIds.isEmpty()) // but NOT against the retry gate
     }
 }

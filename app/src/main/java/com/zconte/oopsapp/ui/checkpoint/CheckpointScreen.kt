@@ -14,6 +14,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,6 +25,7 @@ import com.zconte.oopsapp.domain.model.CheckpointResult
 import com.zconte.oopsapp.ui.components.ExerciseAnswerCard
 import com.zconte.oopsapp.ui.components.ExerciseAnswerState
 import com.zconte.oopsapp.ui.theme.OopsTheme
+import kotlinx.coroutines.delay
 
 @Composable
 fun CheckpointScreen(
@@ -32,6 +34,14 @@ fun CheckpointScreen(
     viewModel: CheckpointViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(uiState.showIntro, uiState.isComplete, uiState.isRetryLocked) {
+        if (uiState.showIntro || uiState.isComplete || uiState.isRetryLocked) return@LaunchedEffect
+        while (true) {
+            delay(1000)
+            viewModel.tick()
+        }
+    }
 
     if (uiState.isRetryLocked) {
         RetryLockedView(onBack = onFinished, modifier = modifier)
@@ -70,7 +80,8 @@ fun CheckpointScreen(
             totalExercises = uiState.totalExercises,
             isAnswered = uiState.isAnswered,
             isCorrect = uiState.isCorrect,
-            selectedAnswer = uiState.selectedAnswer
+            selectedAnswer = uiState.selectedAnswer,
+            timeRemainingLabel = formatRemaining(uiState.timeRemainingSeconds)
         ),
         onSubmit = viewModel::submitAnswer,
         onNext = viewModel::nextExercise,
@@ -80,6 +91,12 @@ fun CheckpointScreen(
             .imePadding()
             .padding(16.dp)
     )
+}
+
+private fun formatRemaining(totalSeconds: Int): String {
+    val minutes = totalSeconds / 60
+    val seconds = totalSeconds % 60
+    return "%02d:%02d".format(minutes, seconds)
 }
 
 @Composable

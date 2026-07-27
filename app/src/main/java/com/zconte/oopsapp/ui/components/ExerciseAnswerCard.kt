@@ -47,7 +47,8 @@ data class ExerciseAnswerState(
     val totalExercises: Int,
     val isAnswered: Boolean,
     val isCorrect: Boolean,
-    val selectedAnswer: String?
+    val selectedAnswer: String?,
+    val timeRemainingLabel: String? = null
 )
 
 @Composable
@@ -80,7 +81,11 @@ fun ExerciseAnswerCard(
                 color = MaterialTheme.colorScheme.primary
             )
             Text(
-                text = "${state.currentIndex}/${state.totalExercises}",
+                text = if (state.timeRemainingLabel != null) {
+                    "${state.currentIndex}/${state.totalExercises} · ${state.timeRemainingLabel}"
+                } else {
+                    "${state.currentIndex}/${state.totalExercises}"
+                },
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )
