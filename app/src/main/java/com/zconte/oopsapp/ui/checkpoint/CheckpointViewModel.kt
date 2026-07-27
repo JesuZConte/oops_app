@@ -7,7 +7,9 @@ import com.zconte.oopsapp.domain.model.CheckpointKind
 import com.zconte.oopsapp.domain.model.CheckpointResult
 import com.zconte.oopsapp.domain.model.Exercise
 import com.zconte.oopsapp.domain.model.ExerciseContent
+import com.zconte.oopsapp.domain.usecase.CheckpointSectionBreakdown
 import com.zconte.oopsapp.domain.usecase.CompleteCheckpointUseCase
+import com.zconte.oopsapp.domain.usecase.GetCheckpointResultBreakdownUseCase
 import com.zconte.oopsapp.domain.usecase.GetCheckpointSessionUseCase
 import com.zconte.oopsapp.domain.usecase.IsCheckpointRetryUnlockedUseCase
 import com.zconte.oopsapp.domain.usecase.MarkUnitProgressUseCase
@@ -43,7 +45,8 @@ data class CheckpointUiState(
     val isRetryLocked: Boolean = false,
     val showIntro: Boolean = false,
     val timeBudgetSeconds: Int = 0,
-    val timeRemainingSeconds: Int = 0
+    val timeRemainingSeconds: Int = 0,
+    val sectionBreakdown: List<CheckpointSectionBreakdown> = emptyList()
 )
 
 @HiltViewModel
@@ -56,7 +59,8 @@ class CheckpointViewModel @Inject constructor(
     private val updateStreakUseCase: UpdateStreakUseCase,
     private val markUnitProgressUseCase: MarkUnitProgressUseCase,
     private val json: Json,
-    private val clock: Clock
+    private val clock: Clock,
+    private val getCheckpointResultBreakdownUseCase: GetCheckpointResultBreakdownUseCase
 ) : ViewModel() {
 
     private val sectionId: String = checkNotNull(savedStateHandle["sectionId"])
@@ -166,7 +170,8 @@ class CheckpointViewModel @Inject constructor(
             today = LocalDate.now(),
             failedExerciseIds = failedExerciseIds
         )
-        _uiState.update { it.copy(isComplete = true, result = result) }
+        val breakdown = if (!result.passed) getCheckpointResultBreakdownUseCase(answeredResults) else emptyList()
+        _uiState.update { it.copy(isComplete = true, result = result, sectionBreakdown = breakdown) }
     }
 
     private fun decode(exercise: Exercise): ExerciseContent =

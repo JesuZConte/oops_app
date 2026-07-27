@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.zconte.oopsapp.domain.model.CheckpointResult
+import com.zconte.oopsapp.domain.usecase.CheckpointSectionBreakdown
 import com.zconte.oopsapp.ui.components.ExerciseAnswerCard
 import com.zconte.oopsapp.ui.components.ExerciseAnswerState
 import com.zconte.oopsapp.ui.theme.OopsTheme
@@ -49,7 +50,12 @@ fun CheckpointScreen(
     }
 
     if (uiState.isComplete) {
-        CheckpointResultView(result = uiState.result, onContinue = onFinished, modifier = modifier)
+        CheckpointResultView(
+            result = uiState.result,
+            sectionBreakdown = uiState.sectionBreakdown,
+            onContinue = onFinished,
+            modifier = modifier
+        )
         return
     }
 
@@ -172,7 +178,12 @@ private fun CheckpointIntroView(
 }
 
 @Composable
-private fun CheckpointResultView(result: CheckpointResult?, onContinue: () -> Unit, modifier: Modifier = Modifier) {
+private fun CheckpointResultView(
+    result: CheckpointResult?,
+    sectionBreakdown: List<CheckpointSectionBreakdown>,
+    onContinue: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val passed = result?.passed == true
     val extended = OopsTheme.extendedColors
 
@@ -195,6 +206,20 @@ private fun CheckpointResultView(result: CheckpointResult?, onContinue: () -> Un
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onBackground
         )
+        if (!passed && sectionBreakdown.isNotEmpty()) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                sectionBreakdown.forEach { item ->
+                    Text(
+                        text = "${item.section.name}: ${item.correct}/${item.total} (${(item.correct * 100) / item.total}%)",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
+        }
         Spacer(Modifier.weight(1f))
         Button(
             onClick = onContinue,

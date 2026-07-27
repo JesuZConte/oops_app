@@ -3,6 +3,7 @@ package com.zconte.oopsapp.ui.checkpoint
 import androidx.lifecycle.SavedStateHandle
 import com.zconte.oopsapp.domain.model.CheckpointKind
 import com.zconte.oopsapp.domain.model.Exercise
+import com.zconte.oopsapp.domain.model.LearningUnit
 import com.zconte.oopsapp.domain.model.ReviewState
 import com.zconte.oopsapp.domain.model.Section
 import com.zconte.oopsapp.domain.repository.CheckpointRepository
@@ -15,6 +16,7 @@ import com.zconte.oopsapp.domain.usecase.IsCheckpointRetryUnlockedUseCase
 import com.zconte.oopsapp.domain.usecase.MarkUnitProgressUseCase
 import com.zconte.oopsapp.domain.usecase.SubmitAnswerUseCase
 import com.zconte.oopsapp.domain.usecase.UpdateStreakUseCase
+import com.zconte.oopsapp.domain.usecase.GetCheckpointResultBreakdownUseCase
 import com.zconte.oopsapp.domain.util.Clock
 import com.zconte.oopsapp.testutil.FakeCheckpointRepository
 import com.zconte.oopsapp.testutil.FakeClock
@@ -60,7 +62,8 @@ class CheckpointViewModelTest {
         updateStreakUseCase = UpdateStreakUseCase(progressRepository),
         markUnitProgressUseCase = MarkUnitProgressUseCase(exerciseRepository, contentRepository),
         json = json,
-        clock = clock
+        clock = clock,
+        getCheckpointResultBreakdownUseCase = GetCheckpointResultBreakdownUseCase(contentRepository)
     )
 
     @Test
@@ -389,5 +392,39 @@ class CheckpointViewModelTest {
         assertTrue(state.isComplete)
         assertEquals(50, state.result?.scorePct) // 1 correct out of 2 total -- the unanswered one counts against the score
         assertTrue(checkpointRepository.recordedAttempts.first().failedExerciseIds.isEmpty()) // but NOT against the retry gate
+    }
+
+    @Test
+    fun `a failed checkpoint includes a per-section breakdown, a passed one does not`() = runTest {
+        val checkpointRepository = FakeCheckpointRepository()
+        val contentRepository = FakeContentRepository(
+            sections = listOf(Section("s1", "s1", 1, "core")),
+            unitsBySection = mapOf("s1" to listOf(LearningUnit("s1-u1", "s1", "s1-u1", "objective", 1)))
+        )
+        val exerciseRepository = FakeExerciseRepository(
+            exercisesBySection = mapOf(
+                "s1" to listOf(exercise("ex-1", "s1-u1", answer = "42"), exercise("ex-2", "s1-u1", answer = "42"))
+            )
+        )
+        val viewModel = buildViewModel(
+            sectionId = "s1",
+            contentRepository = contentRepository,
+            exerciseRepository = exerciseRepository,
+            progressRepository = FakeProgressRepository(),
+            checkpointRepository = checkpointRepository
+        )
+        viewModel.startCheckpoint()
+
+        viewModel.submitAnswer("wrong")
+        viewModel.nextExercise()
+        viewModel.submitAnswer("wrong")
+        viewModel.nextExercise()
+
+        val state = viewModel.uiState.value
+        assertFalse(state.result?.passed ?: true)
+        assertEquals(1, state.sectionBreakdown.size)
+        assertEquals("s1", state.sectionBreakdown.first().section.id)
+        assertEquals(0, state.sectionBreakdown.first().correct)
+        assertEquals(2, state.sectionBreakdown.first().total)
     }
 }
