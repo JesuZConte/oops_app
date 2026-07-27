@@ -29,6 +29,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.zconte.oopsapp.domain.model.CheckpointStatus
 import com.zconte.oopsapp.domain.model.SectionPath
 import com.zconte.oopsapp.domain.model.UnitCompletionSource
 import com.zconte.oopsapp.domain.model.UnitProgress
@@ -127,8 +128,11 @@ private fun SectionPathBlock(
             )
         }
 
-        if (sectionPath.completed) {
-            CheckpointRow(onClick = { onOpenCheckpoint(sectionPath.section.id) })
+        if (sectionPath.completed && sectionPath.checkpointStatus != CheckpointStatus.SATISFIED) {
+            CheckpointRow(
+                status = sectionPath.checkpointStatus,
+                onClick = { onOpenCheckpoint(sectionPath.section.id) }
+            )
         }
     }
 }
@@ -177,8 +181,17 @@ private fun UnitRow(unitProgress: UnitProgress, onClick: () -> Unit) {
 }
 
 @Composable
-private fun CheckpointRow(onClick: () -> Unit) {
+private fun CheckpointRow(status: CheckpointStatus, onClick: () -> Unit) {
     val extended = OopsTheme.extendedColors
+    val isWarning = status == CheckpointStatus.RETRY_LOCKED
+    val dotColor = if (isWarning) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.tertiary
+    val subtitle = when (status) {
+        CheckpointStatus.PENDING -> "Checkpoint obligatorio"
+        CheckpointStatus.RETRY_LOCKED -> "Repasa lo fallado para reintentar"
+        CheckpointStatus.RETRY_AVAILABLE -> "Reinténtalo ahora"
+        CheckpointStatus.SATISFIED -> "" // unreachable: the call site hides this row when SATISFIED
+    }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -190,18 +203,18 @@ private fun CheckpointRow(onClick: () -> Unit) {
             modifier = Modifier
                 .size(16.dp)
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.tertiary)
+                .background(dotColor)
         )
         Column {
             Text(
                 text = "CHECKPOINT",
                 style = MaterialTheme.typography.labelSmall.copy(fontFamily = PressStart2P),
-                color = MaterialTheme.colorScheme.tertiary
+                color = dotColor
             )
             Text(
-                text = "Repaso opcional de esta seccion",
+                text = subtitle,
                 style = MaterialTheme.typography.bodyMedium,
-                color = extended.lockedText
+                color = if (isWarning) MaterialTheme.colorScheme.error else extended.lockedText
             )
         }
     }
