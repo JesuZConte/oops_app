@@ -32,6 +32,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.zconte.oopsapp.domain.usecase.NextStudyStep
 import com.zconte.oopsapp.ui.components.FunctionalCup
 import com.zconte.oopsapp.ui.components.LanguageEmblem
 import com.zconte.oopsapp.ui.components.ThemedCard
@@ -43,6 +44,7 @@ import com.zconte.oopsapp.ui.theme.SpectrumStripeColors
 @Composable
 fun HomeScreen(
     onStudyClick: () -> Unit,
+    onOpenCheckpoint: (String) -> Unit,
     onProgressClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel()
@@ -168,23 +170,34 @@ fun HomeScreen(
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = "${(uiState.currentSectionProgress * 100).toInt()}% ▶",
+                        text = if (uiState.isCheckpointPending) {
+                            "Checkpoint pendiente ▶"
+                        } else {
+                            "${(uiState.currentSectionProgress * 100).toInt()}% ▶"
+                        },
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 }
-                LinearProgressIndicator(
-                    progress = { uiState.currentSectionProgress },
-                    modifier = Modifier.fillMaxWidth().height(6.dp),
-                    color = MaterialTheme.colorScheme.primary
-                )
+                if (!uiState.isCheckpointPending) {
+                    LinearProgressIndicator(
+                        progress = { uiState.currentSectionProgress },
+                        modifier = Modifier.fillMaxWidth().height(6.dp),
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
         }
 
         Spacer(Modifier.weight(1f))
 
         Button(
-            onClick = onStudyClick,
+            onClick = {
+                when (val step = uiState.nextStudyStep) {
+                    is NextStudyStep.Checkpoint -> onOpenCheckpoint(step.sectionId)
+                    else -> onStudyClick()
+                }
+            },
             enabled = uiState.isReady,
             modifier = Modifier.fillMaxWidth().height(52.dp),
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)

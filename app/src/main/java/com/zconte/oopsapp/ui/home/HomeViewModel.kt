@@ -5,12 +5,16 @@ import androidx.lifecycle.viewModelScope
 import com.zconte.oopsapp.data.content.ContentSeeder
 import com.zconte.oopsapp.domain.repository.ProgressRepository
 import com.zconte.oopsapp.domain.usecase.GetLearningPathUseCase
+import com.zconte.oopsapp.domain.usecase.GetNextStudyStepUseCase
+import com.zconte.oopsapp.domain.usecase.NextStudyStep
+import com.zconte.oopsapp.domain.usecase.summarizeCurrentSection
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
 
 data class HomeUiState(
@@ -18,13 +22,16 @@ data class HomeUiState(
     val xp: Int = 0,
     val isReady: Boolean = false,
     val currentSectionName: String = "",
-    val currentSectionProgress: Float = 0f
+    val currentSectionProgress: Float = 0f,
+    val isCheckpointPending: Boolean = false,
+    val nextStudyStep: NextStudyStep = NextStudyStep.NothingPending
 )
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val progressRepository: ProgressRepository,
     private val getLearningPathUseCase: GetLearningPathUseCase,
+    private val getNextStudyStepUseCase: GetNextStudyStepUseCase,
     private val contentSeeder: ContentSeeder
 ) : ViewModel() {
 
@@ -45,9 +52,8 @@ class HomeViewModel @Inject constructor(
 
     private suspend fun refreshStats() {
         val stats = progressRepository.getUserStats()
-        val sections = getLearningPathUseCase()
-        val currentSection = sections.firstOrNull { !it.completed } ?: sections.lastOrNull()
-        val progress = currentSection?.let { section ->
+        val summary = summarizeCurrentSection(getLearningPathUseCase())
+        val progress = summary.currentSection?.let { section ->
             if (section.units.isEmpty()) 0f else section.units.count { it.completed }.toFloat() / section.units.size
         } ?: 0f
 
@@ -55,8 +61,10 @@ class HomeViewModel @Inject constructor(
             it.copy(
                 streak = stats.streak,
                 xp = stats.xp,
-                currentSectionName = currentSection?.section?.name ?: "",
-                currentSectionProgress = progress
+                currentSectionName = summary.currentSection?.section?.name ?: "",
+                currentSectionProgress = progress,
+                isCheckpointPending = summary.isCheckpointPending,
+                nextStudyStep = getNextStudyStepUseCase(LocalDate.now())
             )
         }
     }

@@ -25,6 +25,7 @@ fun OopsNavHost(
         composable(OopsDestinations.HOME) {
             HomeScreen(
                 onStudyClick = { navController.navigate(OopsDestinations.SESSION) },
+                onOpenCheckpoint = { sectionId -> navController.navigate("checkpoint/$sectionId") },
                 onProgressClick = {
                     navController.navigate(OopsDestinations.PROGRESS) {
                         popUpTo(navController.graph.findStartDestination().id) { saveState = true }
