@@ -65,7 +65,7 @@ class GetTodaySessionUseCaseTest {
         )
         val useCase = GetTodaySessionUseCase(
             exerciseRepository,
-            GetCurrentUnitUseCase(GetLearningPathUseCase(contentRepository, FakeCheckpointRepository()))
+            GetCurrentUnitUseCase(GetLearningPathUseCase(contentRepository, FakeCheckpointRepository(), IsCheckpointRetryUnlockedUseCase(FakeCheckpointRepository(), exerciseRepository)))
         )
 
         val result = useCase(today)
@@ -87,7 +87,7 @@ class GetTodaySessionUseCaseTest {
         )
         val useCase = GetTodaySessionUseCase(
             exerciseRepository,
-            GetCurrentUnitUseCase(GetLearningPathUseCase(contentRepository, FakeCheckpointRepository()))
+            GetCurrentUnitUseCase(GetLearningPathUseCase(contentRepository, FakeCheckpointRepository(), IsCheckpointRetryUnlockedUseCase(FakeCheckpointRepository(), exerciseRepository)))
         )
 
         val result = useCase(today, newExercisesLimit = 2)
@@ -112,7 +112,7 @@ class GetTodaySessionUseCaseTest {
         )
         val useCase = GetTodaySessionUseCase(
             exerciseRepository,
-            GetCurrentUnitUseCase(GetLearningPathUseCase(contentRepository, FakeCheckpointRepository()))
+            GetCurrentUnitUseCase(GetLearningPathUseCase(contentRepository, FakeCheckpointRepository(), IsCheckpointRetryUnlockedUseCase(FakeCheckpointRepository(), exerciseRepository)))
         )
 
         val result = useCase(today)
@@ -133,7 +133,7 @@ class GetTodaySessionUseCaseTest {
         )
         val useCase = GetTodaySessionUseCase(
             exerciseRepository,
-            GetCurrentUnitUseCase(GetLearningPathUseCase(contentRepository, FakeCheckpointRepository()))
+            GetCurrentUnitUseCase(GetLearningPathUseCase(contentRepository, FakeCheckpointRepository(), IsCheckpointRetryUnlockedUseCase(FakeCheckpointRepository(), exerciseRepository)))
         )
 
         val result = useCase(today)
@@ -153,7 +153,7 @@ class GetTodaySessionUseCaseTest {
         )
         val useCase = GetTodaySessionUseCase(
             exerciseRepository,
-            GetCurrentUnitUseCase(GetLearningPathUseCase(contentRepository, FakeCheckpointRepository()))
+            GetCurrentUnitUseCase(GetLearningPathUseCase(contentRepository, FakeCheckpointRepository(), IsCheckpointRetryUnlockedUseCase(FakeCheckpointRepository(), exerciseRepository)))
         )
 
         val result = useCase(today)

@@ -1,12 +1,14 @@
 package com.zconte.oopsapp.domain.usecase
 
 import com.zconte.oopsapp.domain.model.CheckpointKind
+import com.zconte.oopsapp.domain.model.CheckpointStatus
 import com.zconte.oopsapp.domain.model.CompletedUnit
 import com.zconte.oopsapp.domain.model.LearningUnit
 import com.zconte.oopsapp.domain.model.Section
 import com.zconte.oopsapp.domain.model.UnitCompletionSource
 import com.zconte.oopsapp.domain.repository.ContentRepository
 import com.zconte.oopsapp.testutil.FakeCheckpointRepository
+import com.zconte.oopsapp.testutil.FakeExerciseRepository
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -31,6 +33,9 @@ class GetLearningPathUseCaseTest {
     private fun unit(id: String, sectionId: String, order: Int) = LearningUnit(id, sectionId, id, "objective", order)
     private fun played(unitId: String) = CompletedUnit(unitId, UnitCompletionSource.PLAYED)
 
+    private fun retryUnlockedUseCase(checkpointRepository: FakeCheckpointRepository) =
+        IsCheckpointRetryUnlockedUseCase(checkpointRepository, FakeExerciseRepository())
+
     @Test
     fun `first section and its first unit are always unlocked`() = runTest {
         val repository = FakeContentRepositoryForPath(
@@ -38,7 +43,7 @@ class GetLearningPathUseCaseTest {
             unitsBySection = mapOf("s1" to listOf(unit("s1-u1", "s1", 1), unit("s1-u2", "s1", 2))),
             completedUnits = emptyList()
         )
-        val useCase = GetLearningPathUseCase(repository, FakeCheckpointRepository())
+        val useCase = GetLearningPathUseCase(repository, FakeCheckpointRepository(), retryUnlockedUseCase(FakeCheckpointRepository()))
 
         val path = useCase()
 
@@ -54,7 +59,7 @@ class GetLearningPathUseCaseTest {
             unitsBySection = mapOf("s1" to listOf(unit("s1-u1", "s1", 1), unit("s1-u2", "s1", 2))),
             completedUnits = listOf(played("s1-u1"))
         )
-        val useCase = GetLearningPathUseCase(repository, FakeCheckpointRepository())
+        val useCase = GetLearningPathUseCase(repository, FakeCheckpointRepository(), retryUnlockedUseCase(FakeCheckpointRepository()))
 
         val path = useCase()
 
@@ -76,7 +81,7 @@ class GetLearningPathUseCaseTest {
             "s1", CheckpointKind.REVIEW, scorePct = 80, passed = true,
             takenAt = LocalDate.of(2026, 7, 20), failedExerciseIds = emptyList()
         )
-        val useCase = GetLearningPathUseCase(repository, checkpointRepository)
+        val useCase = GetLearningPathUseCase(repository, checkpointRepository, retryUnlockedUseCase(checkpointRepository))
 
         val path = useCase()
 
@@ -96,7 +101,7 @@ class GetLearningPathUseCaseTest {
             ),
             completedUnits = listOf(played("s1-u1"))
         )
-        val useCase = GetLearningPathUseCase(repository, FakeCheckpointRepository())
+        val useCase = GetLearningPathUseCase(repository, FakeCheckpointRepository(), retryUnlockedUseCase(FakeCheckpointRepository()))
 
         val path = useCase()
 
@@ -115,7 +120,7 @@ class GetLearningPathUseCaseTest {
             ),
             completedUnits = listOf(CompletedUnit("s1-u1", UnitCompletionSource.PLACEMENT))
         )
-        val useCase = GetLearningPathUseCase(repository, FakeCheckpointRepository())
+        val useCase = GetLearningPathUseCase(repository, FakeCheckpointRepository(), retryUnlockedUseCase(FakeCheckpointRepository()))
 
         val path = useCase()
 
@@ -136,7 +141,7 @@ class GetLearningPathUseCaseTest {
                 CompletedUnit("s1-u2", UnitCompletionSource.PLAYED)
             )
         )
-        val useCase = GetLearningPathUseCase(repository, FakeCheckpointRepository())
+        val useCase = GetLearningPathUseCase(repository, FakeCheckpointRepository(), retryUnlockedUseCase(FakeCheckpointRepository()))
 
         val path = useCase()
 
@@ -155,7 +160,7 @@ class GetLearningPathUseCaseTest {
             ),
             completedUnits = listOf(played("s1-u1"))
         )
-        val useCase = GetLearningPathUseCase(repository, FakeCheckpointRepository())
+        val useCase = GetLearningPathUseCase(repository, FakeCheckpointRepository(), retryUnlockedUseCase(FakeCheckpointRepository()))
 
         val path = useCase()
 
@@ -169,10 +174,83 @@ class GetLearningPathUseCaseTest {
             unitsBySection = mapOf("s1" to listOf(unit("s1-u1", "s1", 1))),
             completedUnits = listOf(CompletedUnit("s1-u1", UnitCompletionSource.PLACEMENT))
         )
-        val useCase = GetLearningPathUseCase(repository, FakeCheckpointRepository())
+        val useCase = GetLearningPathUseCase(repository, FakeCheckpointRepository(), retryUnlockedUseCase(FakeCheckpointRepository()))
 
         val path = useCase()
 
         assertEquals(UnitCompletionSource.PLACEMENT, path.first().units[0].completedVia)
+    }
+
+    @Test
+    fun `checkpointStatus is PENDING for a section whose units are not yet complete`() = runTest {
+        val repository = FakeContentRepositoryForPath(
+            sections = listOf(section("s1", 1)),
+            unitsBySection = mapOf("s1" to listOf(unit("s1-u1", "s1", 1), unit("s1-u2", "s1", 2))),
+            completedUnits = listOf(played("s1-u1"))
+        )
+        val useCase = GetLearningPathUseCase(repository, FakeCheckpointRepository(), retryUnlockedUseCase(FakeCheckpointRepository()))
+
+        val path = useCase()
+
+        assertEquals(CheckpointStatus.PENDING, path.first().checkpointStatus)
+    }
+
+    @Test
+    fun `checkpointStatus is PENDING for a completed section with no attempt on record`() = runTest {
+        val repository = FakeContentRepositoryForPath(
+            sections = listOf(section("s1", 1)),
+            unitsBySection = mapOf("s1" to listOf(unit("s1-u1", "s1", 1))),
+            completedUnits = listOf(played("s1-u1"))
+        )
+        val useCase = GetLearningPathUseCase(repository, FakeCheckpointRepository(), retryUnlockedUseCase(FakeCheckpointRepository()))
+
+        val path = useCase()
+
+        assertEquals(CheckpointStatus.PENDING, path.first().checkpointStatus)
+    }
+
+    @Test
+    fun `checkpointStatus is RETRY_LOCKED for a failed attempt whose failures were never re-studied`() = runTest {
+        val repository = FakeContentRepositoryForPath(
+            sections = listOf(section("s1", 1)),
+            unitsBySection = mapOf("s1" to listOf(unit("s1-u1", "s1", 1))),
+            completedUnits = listOf(played("s1-u1"))
+        )
+        val checkpointRepository = FakeCheckpointRepository()
+        checkpointRepository.recordAttempt(
+            "s1", CheckpointKind.REVIEW, scorePct = 50, passed = false,
+            takenAt = LocalDate.of(2026, 7, 20), failedExerciseIds = listOf("ex-1")
+        )
+        val useCase = GetLearningPathUseCase(repository, checkpointRepository, retryUnlockedUseCase(checkpointRepository))
+
+        val path = useCase()
+
+        assertEquals(CheckpointStatus.RETRY_LOCKED, path.first().checkpointStatus)
+    }
+
+    @Test
+    fun `checkpointStatus is RETRY_AVAILABLE once every failed exercise was re-studied`() = runTest {
+        val repository = FakeContentRepositoryForPath(
+            sections = listOf(section("s1", 1)),
+            unitsBySection = mapOf("s1" to listOf(unit("s1-u1", "s1", 1))),
+            completedUnits = listOf(played("s1-u1"))
+        )
+        val checkpointRepository = FakeCheckpointRepository()
+        checkpointRepository.recordAttempt(
+            "s1", CheckpointKind.REVIEW, scorePct = 50, passed = false,
+            takenAt = LocalDate.of(2026, 7, 20), failedExerciseIds = listOf("ex-1")
+        )
+        val exerciseRepository = FakeExerciseRepository()
+        exerciseRepository.saveReviewState(
+            com.zconte.oopsapp.domain.model.ReviewState(
+                exerciseId = "ex-1", easeFactor = 2.5, intervalDays = 1, repetitions = 1,
+                dueDate = LocalDate.of(2026, 7, 22), lastReviewedAt = LocalDate.of(2026, 7, 21)
+            )
+        )
+        val useCase = GetLearningPathUseCase(repository, checkpointRepository, IsCheckpointRetryUnlockedUseCase(checkpointRepository, exerciseRepository))
+
+        val path = useCase()
+
+        assertEquals(CheckpointStatus.RETRY_AVAILABLE, path.first().checkpointStatus)
     }
 }

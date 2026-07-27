@@ -13,6 +13,7 @@ import com.zconte.oopsapp.domain.usecase.CompleteCheckpointUseCase
 import com.zconte.oopsapp.domain.usecase.GetLearningPathUseCase
 import com.zconte.oopsapp.domain.usecase.GetPlacementCheckpointSessionUseCase
 import com.zconte.oopsapp.domain.usecase.GetSkippedUnitsUseCase
+import com.zconte.oopsapp.domain.usecase.IsCheckpointRetryUnlockedUseCase
 import com.zconte.oopsapp.domain.usecase.SubmitAnswerUseCase
 import com.zconte.oopsapp.domain.usecase.UpdateStreakUseCase
 import com.zconte.oopsapp.testutil.FakeCheckpointRepository
@@ -52,7 +53,9 @@ class PlacementCheckpointViewModelTest {
         checkpointRepository: CheckpointRepository
     ): PlacementCheckpointViewModel = PlacementCheckpointViewModel(
         savedStateHandle = SavedStateHandle(mapOf("targetUnitId" to targetUnitId)),
-        getSkippedUnitsUseCase = GetSkippedUnitsUseCase(GetLearningPathUseCase(contentRepository, FakeCheckpointRepository())),
+        getSkippedUnitsUseCase = GetSkippedUnitsUseCase(
+            GetLearningPathUseCase(contentRepository, FakeCheckpointRepository(), IsCheckpointRetryUnlockedUseCase(FakeCheckpointRepository(), exerciseRepository))
+        ),
         getPlacementCheckpointSessionUseCase = GetPlacementCheckpointSessionUseCase(exerciseRepository),
         submitAnswerUseCase = SubmitAnswerUseCase(exerciseRepository),
         completeCheckpointUseCase = CompleteCheckpointUseCase(checkpointRepository, contentRepository, exerciseRepository),

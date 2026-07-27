@@ -11,6 +11,7 @@ import com.zconte.oopsapp.domain.usecase.GetCurrentUnitUseCase
 import com.zconte.oopsapp.domain.usecase.GetLearningPathUseCase
 import com.zconte.oopsapp.domain.usecase.GetTodaySessionUseCase
 import com.zconte.oopsapp.domain.usecase.GetUnitSessionUseCase
+import com.zconte.oopsapp.domain.usecase.IsCheckpointRetryUnlockedUseCase
 import com.zconte.oopsapp.domain.usecase.MarkUnitProgressUseCase
 import com.zconte.oopsapp.domain.usecase.SubmitAnswerUseCase
 import com.zconte.oopsapp.domain.usecase.UpdateStreakUseCase
@@ -51,7 +52,12 @@ class SessionViewModelTest {
         progressRepository: ProgressRepository
     ): SessionViewModel = SessionViewModel(
         savedStateHandle = SavedStateHandle(unitId?.let { mapOf("unitId" to it) } ?: emptyMap()),
-        getTodaySessionUseCase = GetTodaySessionUseCase(exerciseRepository, GetCurrentUnitUseCase(GetLearningPathUseCase(contentRepository, FakeCheckpointRepository()))),
+        getTodaySessionUseCase = GetTodaySessionUseCase(
+            exerciseRepository,
+            GetCurrentUnitUseCase(
+                GetLearningPathUseCase(contentRepository, FakeCheckpointRepository(), IsCheckpointRetryUnlockedUseCase(FakeCheckpointRepository(), exerciseRepository))
+            )
+        ),
         getUnitSessionUseCase = GetUnitSessionUseCase(exerciseRepository),
         submitAnswerUseCase = SubmitAnswerUseCase(exerciseRepository),
         updateStreakUseCase = UpdateStreakUseCase(progressRepository),

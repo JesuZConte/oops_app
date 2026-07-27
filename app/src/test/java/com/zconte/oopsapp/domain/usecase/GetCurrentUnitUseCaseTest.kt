@@ -7,6 +7,7 @@ import com.zconte.oopsapp.domain.model.Section
 import com.zconte.oopsapp.domain.model.UnitCompletionSource
 import com.zconte.oopsapp.domain.repository.ContentRepository
 import com.zconte.oopsapp.testutil.FakeCheckpointRepository
+import com.zconte.oopsapp.testutil.FakeExerciseRepository
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -37,7 +38,7 @@ class GetCurrentUnitUseCaseTest {
             unitsBySection = mapOf("s1" to listOf(unit("s1-u1", "s1", 1), unit("s1-u2", "s1", 2))),
             completedUnits = emptyList()
         )
-        val useCase = GetCurrentUnitUseCase(GetLearningPathUseCase(repository, FakeCheckpointRepository()))
+        val useCase = GetCurrentUnitUseCase(GetLearningPathUseCase(repository, FakeCheckpointRepository(), IsCheckpointRetryUnlockedUseCase(FakeCheckpointRepository(), FakeExerciseRepository())))
 
         val current = useCase()
 
@@ -51,7 +52,7 @@ class GetCurrentUnitUseCaseTest {
             unitsBySection = mapOf("s1" to listOf(unit("s1-u1", "s1", 1), unit("s1-u2", "s1", 2))),
             completedUnits = listOf(played("s1-u1"))
         )
-        val useCase = GetCurrentUnitUseCase(GetLearningPathUseCase(repository, FakeCheckpointRepository()))
+        val useCase = GetCurrentUnitUseCase(GetLearningPathUseCase(repository, FakeCheckpointRepository(), IsCheckpointRetryUnlockedUseCase(FakeCheckpointRepository(), FakeExerciseRepository())))
 
         val current = useCase()
 
@@ -73,7 +74,9 @@ class GetCurrentUnitUseCaseTest {
             "s1", CheckpointKind.REVIEW, scorePct = 80, passed = true,
             takenAt = LocalDate.of(2026, 7, 20), failedExerciseIds = emptyList()
         )
-        val useCase = GetCurrentUnitUseCase(GetLearningPathUseCase(repository, checkpointRepository))
+        val useCase = GetCurrentUnitUseCase(
+            GetLearningPathUseCase(repository, checkpointRepository, IsCheckpointRetryUnlockedUseCase(checkpointRepository, FakeExerciseRepository()))
+        )
 
         val current = useCase()
 
@@ -87,7 +90,7 @@ class GetCurrentUnitUseCaseTest {
             unitsBySection = mapOf("s1" to listOf(unit("s1-u1", "s1", 1), unit("s1-u2", "s1", 2))),
             completedUnits = listOf(CompletedUnit("s1-u1", UnitCompletionSource.PLACEMENT))
         )
-        val useCase = GetCurrentUnitUseCase(GetLearningPathUseCase(repository, FakeCheckpointRepository()))
+        val useCase = GetCurrentUnitUseCase(GetLearningPathUseCase(repository, FakeCheckpointRepository(), IsCheckpointRetryUnlockedUseCase(FakeCheckpointRepository(), FakeExerciseRepository())))
 
         val current = useCase()
 
@@ -101,7 +104,7 @@ class GetCurrentUnitUseCaseTest {
             unitsBySection = mapOf("s1" to listOf(unit("s1-u1", "s1", 1))),
             completedUnits = listOf(played("s1-u1"))
         )
-        val useCase = GetCurrentUnitUseCase(GetLearningPathUseCase(repository, FakeCheckpointRepository()))
+        val useCase = GetCurrentUnitUseCase(GetLearningPathUseCase(repository, FakeCheckpointRepository(), IsCheckpointRetryUnlockedUseCase(FakeCheckpointRepository(), FakeExerciseRepository())))
 
         val current = useCase()
 

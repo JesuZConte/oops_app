@@ -1,6 +1,7 @@
 package com.zconte.oopsapp.domain.usecase
 
 import com.zconte.oopsapp.domain.model.CheckpointKind
+import com.zconte.oopsapp.domain.model.CheckpointStatus
 import com.zconte.oopsapp.domain.model.SectionPath
 import com.zconte.oopsapp.domain.model.UnitCompletionSource
 import com.zconte.oopsapp.domain.model.UnitProgress
@@ -10,7 +11,8 @@ import javax.inject.Inject
 
 class GetLearningPathUseCase @Inject constructor(
     private val contentRepository: ContentRepository,
-    private val checkpointRepository: CheckpointRepository
+    private val checkpointRepository: CheckpointRepository,
+    private val isCheckpointRetryUnlockedUseCase: IsCheckpointRetryUnlockedUseCase
 ) {
     suspend operator fun invoke(): List<SectionPath> {
         val sections = contentRepository.getSections().sortedBy { it.orderIndex }
@@ -35,9 +37,22 @@ class GetLearningPathUseCase @Inject constructor(
                 checkpointRepository.hasApprovedAttempt(section.id, CheckpointKind.REVIEW) ||
                     unitProgress.all { it.completedVia == UnitCompletionSource.PLACEMENT }
                 )
+            val checkpointStatus = computeCheckpointStatus(section.id, sectionComplete, checkpointSatisfied)
             previousSectionFullyDone = checkpointSatisfied
 
-            SectionPath(section, sectionUnlocked, unitProgress, sectionComplete, checkpointSatisfied)
+            SectionPath(section, sectionUnlocked, unitProgress, sectionComplete, checkpointSatisfied, checkpointStatus)
         }
+    }
+
+    private suspend fun computeCheckpointStatus(
+        sectionId: String,
+        sectionComplete: Boolean,
+        checkpointSatisfied: Boolean
+    ): CheckpointStatus = when {
+        checkpointSatisfied -> CheckpointStatus.SATISFIED
+        !sectionComplete -> CheckpointStatus.PENDING
+        checkpointRepository.getLatestFailedAttempt(sectionId, CheckpointKind.REVIEW) == null -> CheckpointStatus.PENDING
+        isCheckpointRetryUnlockedUseCase(sectionId, CheckpointKind.REVIEW) -> CheckpointStatus.RETRY_AVAILABLE
+        else -> CheckpointStatus.RETRY_LOCKED
     }
 }

@@ -6,6 +6,7 @@ import com.zconte.oopsapp.domain.model.Section
 import com.zconte.oopsapp.domain.model.UnitCompletionSource
 import com.zconte.oopsapp.domain.repository.ContentRepository
 import com.zconte.oopsapp.testutil.FakeCheckpointRepository
+import com.zconte.oopsapp.testutil.FakeExerciseRepository
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -39,7 +40,7 @@ class GetSkippedUnitsUseCaseTest {
             ),
             completedUnits = emptyList()
         )
-        val useCase = GetSkippedUnitsUseCase(GetLearningPathUseCase(repository, FakeCheckpointRepository()))
+        val useCase = GetSkippedUnitsUseCase(GetLearningPathUseCase(repository, FakeCheckpointRepository(), IsCheckpointRetryUnlockedUseCase(FakeCheckpointRepository(), FakeExerciseRepository())))
 
         val result = useCase("s1-u3")
 
@@ -57,7 +58,7 @@ class GetSkippedUnitsUseCaseTest {
             ),
             completedUnits = listOf(played("s1-u1"))
         )
-        val useCase = GetSkippedUnitsUseCase(GetLearningPathUseCase(repository, FakeCheckpointRepository()))
+        val useCase = GetSkippedUnitsUseCase(GetLearningPathUseCase(repository, FakeCheckpointRepository(), IsCheckpointRetryUnlockedUseCase(FakeCheckpointRepository(), FakeExerciseRepository())))
 
         val result = useCase("s2-u2")
 
@@ -75,7 +76,7 @@ class GetSkippedUnitsUseCaseTest {
             ),
             completedUnits = emptyList()
         )
-        val useCase = GetSkippedUnitsUseCase(GetLearningPathUseCase(repository, FakeCheckpointRepository()))
+        val useCase = GetSkippedUnitsUseCase(GetLearningPathUseCase(repository, FakeCheckpointRepository(), IsCheckpointRetryUnlockedUseCase(FakeCheckpointRepository(), FakeExerciseRepository())))
 
         val result = useCase("s3-u1")
 
@@ -89,7 +90,7 @@ class GetSkippedUnitsUseCaseTest {
             unitsBySection = mapOf("s1" to listOf(unit("s1-u1", "s1", 1), unit("s1-u2", "s1", 2))),
             completedUnits = listOf(played("s1-u1"))
         )
-        val useCase = GetSkippedUnitsUseCase(GetLearningPathUseCase(repository, FakeCheckpointRepository()))
+        val useCase = GetSkippedUnitsUseCase(GetLearningPathUseCase(repository, FakeCheckpointRepository(), IsCheckpointRetryUnlockedUseCase(FakeCheckpointRepository(), FakeExerciseRepository())))
 
         val result = useCase("s1-u2")
 
@@ -103,7 +104,7 @@ class GetSkippedUnitsUseCaseTest {
             unitsBySection = mapOf("s1" to listOf(unit("s1-u1", "s1", 1))),
             completedUnits = emptyList()
         )
-        val useCase = GetSkippedUnitsUseCase(GetLearningPathUseCase(repository, FakeCheckpointRepository()))
+        val useCase = GetSkippedUnitsUseCase(GetLearningPathUseCase(repository, FakeCheckpointRepository(), IsCheckpointRetryUnlockedUseCase(FakeCheckpointRepository(), FakeExerciseRepository())))
 
         val result = useCase("does-not-exist")
 
