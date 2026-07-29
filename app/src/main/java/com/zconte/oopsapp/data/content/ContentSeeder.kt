@@ -9,7 +9,7 @@ import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 private const val CONTENT_VERSION_KEY = "content_version"
-private const val CURRENT_CONTENT_VERSION = "5"
+private const val CURRENT_CONTENT_VERSION = "6"
 
 class ContentSeeder @Inject constructor(
     private val contentLoader: ContentLoader,
@@ -23,7 +23,8 @@ class ContentSeeder @Inject constructor(
         "content/java-fundamentals.json",
         "content/generics-collections.json",
         "content/streams.json",
-        "content/exception-handling.json"
+        "content/exception-handling.json",
+        "content/concurrency.json"
     )
 
     suspend fun seedIfNeeded() {
