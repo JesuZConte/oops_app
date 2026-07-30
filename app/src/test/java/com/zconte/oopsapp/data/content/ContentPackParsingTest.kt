@@ -158,4 +158,59 @@ class ContentPackParsingTest {
 
         assertEquals(emptyList<String>(), pack.units.first().exercises.first().lines)
     }
+
+    @Test
+    fun `unit summary parses text and optional code`() {
+        val raw = """
+            {
+              "sectionId": "java-streams",
+              "name": "Streams y lambdas",
+              "orderIndex": 2,
+              "examVersion": "java21",
+              "units": [
+                {
+                  "unitId": "streams-creation",
+                  "name": "Creacion de streams",
+                  "certObjective": "streams-lambdas",
+                  "orderIndex": 0,
+                  "summary": {
+                    "text": "Un Stream se crea a partir de una fuente de datos.",
+                    "code": "lista.stream()"
+                  },
+                  "exercises": []
+                }
+              ]
+            }
+        """.trimIndent()
+
+        val pack = json.decodeFromString(ContentPack.serializer(), raw)
+
+        assertEquals("Un Stream se crea a partir de una fuente de datos.", pack.units.first().summary?.text)
+        assertEquals("lista.stream()", pack.units.first().summary?.code)
+    }
+
+    @Test
+    fun `unit without a summary field parses with a null summary`() {
+        val raw = """
+            {
+              "sectionId": "java-streams",
+              "name": "Streams y lambdas",
+              "orderIndex": 2,
+              "examVersion": "java21",
+              "units": [
+                {
+                  "unitId": "streams-creation",
+                  "name": "Creacion de streams",
+                  "certObjective": "streams-lambdas",
+                  "orderIndex": 0,
+                  "exercises": []
+                }
+              ]
+            }
+        """.trimIndent()
+
+        val pack = json.decodeFromString(ContentPack.serializer(), raw)
+
+        assertEquals(null, pack.units.first().summary)
+    }
 }
