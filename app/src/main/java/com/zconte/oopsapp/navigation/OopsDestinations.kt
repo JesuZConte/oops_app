@@ -4,6 +4,7 @@ object OopsDestinations {
     const val HOME = "home"
     const val SESSION = "session"
     const val UNIT_SESSION = "unit_session/{unitId}"
+    const val UNIT_SUMMARY = "unit_summary/{unitId}"
     const val CHECKPOINT = "checkpoint/{sectionId}"
     const val PLACEMENT_CHECKPOINT = "placement_checkpoint/{targetUnitId}"
     const val PROGRESS = "progress"

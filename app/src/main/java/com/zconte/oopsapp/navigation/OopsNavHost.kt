@@ -15,6 +15,7 @@ import com.zconte.oopsapp.ui.home.HomeScreen
 import com.zconte.oopsapp.ui.progress.ProgressScreen
 import com.zconte.oopsapp.ui.session.SessionScreen
 import com.zconte.oopsapp.ui.settings.SettingsScreen
+import com.zconte.oopsapp.ui.summary.UnitSummaryScreen
 
 @Composable
 fun OopsNavHost(
@@ -49,6 +50,18 @@ fun OopsNavHost(
             )
         }
         composable(
+            route = OopsDestinations.UNIT_SUMMARY,
+            arguments = listOf(navArgument("unitId") { type = NavType.StringType })
+        ) {
+            UnitSummaryScreen(
+                onStartUnit = { unitId ->
+                    navController.navigate("unit_session/$unitId") {
+                        popUpTo(OopsDestinations.PROGRESS)
+                    }
+                }
+            )
+        }
+        composable(
             route = OopsDestinations.CHECKPOINT,
             arguments = listOf(navArgument("sectionId") { type = NavType.StringType })
         ) {
@@ -74,7 +87,8 @@ fun OopsNavHost(
             ProgressScreen(
                 onPlayUnit = { unitId -> navController.navigate("unit_session/$unitId") },
                 onOpenCheckpoint = { sectionId -> navController.navigate("checkpoint/$sectionId") },
-                onOpenPlacementCheckpoint = { targetUnitId -> navController.navigate("placement_checkpoint/$targetUnitId") }
+                onOpenPlacementCheckpoint = { targetUnitId -> navController.navigate("placement_checkpoint/$targetUnitId") },
+                onOpenSummary = { unitId -> navController.navigate("unit_summary/$unitId") }
             )
         }
         composable(OopsDestinations.SETTINGS) {

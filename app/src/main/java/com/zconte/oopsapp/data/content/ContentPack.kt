@@ -13,10 +13,17 @@ data class ContentPack(
 )
 
 @Serializable
+data class UnitSummaryPack(
+    val text: String,
+    val code: String? = null
+)
+
+@Serializable
 data class UnitPack(
     val unitId: String,
     val name: String,
     val certObjective: String,
     val orderIndex: Int,
+    val summary: UnitSummaryPack? = null,
     val exercises: List<ExerciseContent>
 )

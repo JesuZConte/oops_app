@@ -9,6 +9,10 @@
       "name": "Generics",
       "certObjective": "generics-collections",
       "orderIndex": 1,
+      "summary": {
+        "text": "Los Generics permiten escribir clases y metodos que trabajan con cualquier tipo, sin perder seguridad de tipos en tiempo de compilacion (a diferencia de usar Object, que obliga a castear y puede fallar en runtime). Un wildcard como <? extends Number> dice que el tipo puede ser Number o cualquier subclase, util cuando solo necesitas leer valores.",
+        "code": "class Caja<T> {\n    private T contenido;\n\n    void guardar(T valor) {\n        contenido = valor;\n    }\n\n    T obtener() {\n        return contenido;\n    }\n}"
+      },
       "exercises": [
         {
           "id": "gencol-generics-01",
@@ -74,6 +78,10 @@
       "name": "Listas y Sets",
       "certObjective": "generics-collections",
       "orderIndex": 2,
+      "summary": {
+        "text": "Una List mantiene el orden de insercion y permite duplicados; un Set no garantiza orden (salvo LinkedHashSet o TreeSet) y nunca permite duplicados. ArrayList es mejor para acceso aleatorio por indice; LinkedList conviene cuando insertas o eliminas mucho en los extremos, porque no necesita desplazar elementos.",
+        "code": "List<String> nombres = new ArrayList<>();\nnombres.add(\"Ana\");\nnombres.add(\"Ana\");\n\nSet<String> unicos = new HashSet<>(nombres);"
+      },
       "exercises": [
         {
           "id": "gencol-listssets-01",
@@ -139,6 +147,10 @@
       "name": "Maps y Deques",
       "certObjective": "generics-collections",
       "orderIndex": 3,
+      "summary": {
+        "text": "Un Map guarda pares clave-valor, sin duplicar claves. HashMap no garantiza orden; TreeMap mantiene las claves ordenadas automaticamente. Un Deque (double-ended queue) permite agregar y quitar elementos tanto al inicio como al final, algo que una List soporta pero de forma menos eficiente y menos explicita.",
+        "code": "Map<String, Integer> edades = new TreeMap<>();\nedades.put(\"Ana\", 30);\n\nDeque<String> pila = new ArrayDeque<>();\npila.addFirst(\"primero\");"
+      },
       "exercises": [
         {
           "id": "gencol-mapsdeques-01",
@@ -204,6 +216,10 @@
       "name": "Comparadores y colecciones inmutables",
       "certObjective": "generics-collections",
       "orderIndex": 4,
+      "summary": {
+        "text": "Comparable define un orden natural dentro de la propia clase (metodo compareTo); Comparator define un orden externo y reutilizable, util cuando necesitas varias formas distintas de ordenar el mismo tipo. List.of(...) y sus equivalentes para Set y Map crean colecciones inmutables: cualquier intento de modificarlas lanza UnsupportedOperationException.",
+        "code": "List<String> nombres = new ArrayList<>(List.of(\"Beto\", \"Ana\"));\nnombres.sort(Comparator.naturalOrder());\n\nList<String> fija = List.of(\"Ana\", \"Beto\");"
+      },
       "exercises": [
         {
           "id": "gencol-comparators-01",

@@ -1,5 +1,7 @@
 package com.zconte.oopsapp.data.repository
 
+import com.zconte.oopsapp.data.content.ContentLoader
+import com.zconte.oopsapp.data.content.ContentPackRegistry
 import com.zconte.oopsapp.data.local.dao.SectionDao
 import com.zconte.oopsapp.data.local.dao.UnitDao
 import com.zconte.oopsapp.data.local.dao.UnitProgressDao
@@ -9,6 +11,7 @@ import com.zconte.oopsapp.data.local.entity.UnitProgressEntity
 import com.zconte.oopsapp.domain.model.CompletedUnit
 import com.zconte.oopsapp.domain.model.LearningUnit
 import com.zconte.oopsapp.domain.model.Section
+import com.zconte.oopsapp.domain.model.UnitSummary
 import com.zconte.oopsapp.domain.repository.ContentRepository
 import java.time.LocalDate
 import javax.inject.Inject
@@ -16,7 +19,8 @@ import javax.inject.Inject
 class ContentRepositoryImpl @Inject constructor(
     private val sectionDao: SectionDao,
     private val unitDao: UnitDao,
-    private val unitProgressDao: UnitProgressDao
+    private val unitProgressDao: UnitProgressDao,
+    private val contentLoader: ContentLoader
 ) : ContentRepository {
 
     override suspend fun getSections(): List<Section> =
@@ -37,6 +41,16 @@ class ContentRepositoryImpl @Inject constructor(
                 completedVia = via
             )
         )
+    }
+
+    override suspend fun getUnitSummary(unitId: String): UnitSummary? {
+        for (assetPath in ContentPackRegistry.assetPaths) {
+            val pack = contentLoader.loadPack(assetPath)
+            val unitPack = pack.units.firstOrNull { it.unitId == unitId } ?: continue
+            val summaryPack = unitPack.summary ?: return null
+            return UnitSummary(unitName = unitPack.name, text = summaryPack.text, code = summaryPack.code)
+        }
+        return null
     }
 }
 

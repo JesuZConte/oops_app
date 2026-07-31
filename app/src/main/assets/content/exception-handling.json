@@ -9,6 +9,10 @@
       "name": "Jerarquia de excepciones",
       "certObjective": "exception-handling",
       "orderIndex": 1,
+      "summary": {
+        "text": "Throwable es la superclase de todo lo que se puede lanzar en Java: se divide en Exception y Error. Las excepciones checked (que extienden Exception directamente) obligan a declararlas o capturarlas en tiempo de compilacion; las unchecked (que extienden RuntimeException) no lo exigen, porque suelen representar errores de programacion. Error representa problemas graves del entorno, como OutOfMemoryError, que normalmente no se capturan.",
+        "code": "class MiExcepcionChecked extends Exception {\n    MiExcepcionChecked(String mensaje) {\n        super(mensaje);\n    }\n}"
+      },
       "exercises": [
         {
           "id": "excep-jerarquia-01",
@@ -72,6 +76,10 @@
       "name": "Try-catch-finally y multi-catch",
       "certObjective": "exception-handling",
       "orderIndex": 2,
+      "summary": {
+        "text": "Un bloque try puede tener varios catch, o un multi-catch (catch (IOException | SQLException e)) cuando quieres manejar varios tipos igual, siempre que ninguno sea subtipo del otro. finally se ejecuta siempre, haya o no excepcion, salvo que el programa termine antes con System.exit().",
+        "code": "try {\n    leerArchivo();\n} catch (IOException | SQLException e) {\n    System.out.println(\"Error: \" + e.getMessage());\n} finally {\n    System.out.println(\"Limpieza\");\n}"
+      },
       "exercises": [
         {
           "id": "excep-trycatch-01",
@@ -136,6 +144,10 @@
       "name": "Try-with-resources",
       "certObjective": "exception-handling",
       "orderIndex": 3,
+      "summary": {
+        "text": "try-with-resources cierra automaticamente cualquier recurso que implemente AutoCloseable al salir del bloque try, sin necesitar un finally manual. Si tanto el bloque try como el close() automatico lanzan una excepcion, la del try es la que se propaga; la del close() queda registrada como suppressed.",
+        "code": "try (BufferedReader lector = new BufferedReader(new FileReader(\"datos.txt\"))) {\n    System.out.println(lector.readLine());\n}"
+      },
       "exercises": [
         {
           "id": "excep-twr-01",
@@ -190,6 +202,10 @@
       "name": "Excepciones personalizadas y encadenamiento",
       "certObjective": "exception-handling",
       "orderIndex": 4,
+      "summary": {
+        "text": "Conviene crear una excepcion personalizada cuando el llamador necesita distinguir tu error especifico de otros errores genericos, o cuando quieres agregar datos propios al error. Al envolver una excepcion de bajo nivel en una de mas alto nivel, pasala como causa (throw new MiExcepcion(mensaje, original)) para no perder la traza original.",
+        "code": "class SaldoInsuficienteException extends RuntimeException {\n    SaldoInsuficienteException(String mensaje, Throwable causa) {\n        super(mensaje, causa);\n    }\n}"
+      },
       "exercises": [
         {
           "id": "excep-personalizadas-01",

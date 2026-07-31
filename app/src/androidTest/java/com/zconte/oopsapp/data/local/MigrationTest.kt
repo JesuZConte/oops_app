@@ -4,7 +4,7 @@ import android.database.sqlite.SQLiteDatabase
 import androidx.room.Room
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.zconte.oopsapp.data.content.ContentLoader
+import com.zconte.oopsapp.data.content.AssetContentLoader
 import com.zconte.oopsapp.data.content.ContentSeeder
 import com.zconte.oopsapp.data.local.entity.CheckpointAttemptFailureEntity
 import kotlinx.coroutines.runBlocking
@@ -67,7 +67,7 @@ class MigrationTest {
             runBlocking {
                 val json = Json { ignoreUnknownKeys = true }
                 val seeder = ContentSeeder(
-                    contentLoader = ContentLoader(context, json),
+                    contentLoader = AssetContentLoader(context, json),
                     sectionDao = db.sectionDao(),
                     unitDao = db.unitDao(),
                     exerciseDao = db.exerciseDao(),

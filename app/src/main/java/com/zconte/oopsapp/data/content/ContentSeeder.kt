@@ -19,14 +19,6 @@ class ContentSeeder @Inject constructor(
     private val contentMetaDao: ContentMetaDao,
     private val json: Json
 ) {
-    private val packAssetPaths = listOf(
-        "content/java-fundamentals.json",
-        "content/generics-collections.json",
-        "content/streams.json",
-        "content/exception-handling.json",
-        "content/concurrency.json"
-    )
-
     suspend fun seedIfNeeded() {
         val seededVersion = contentMetaDao.get(CONTENT_VERSION_KEY)?.value
         if (seededVersion == CURRENT_CONTENT_VERSION) return
@@ -35,7 +27,7 @@ class ContentSeeder @Inject constructor(
         unitDao.clearAll()
         exerciseDao.clearAll()
 
-        packAssetPaths.forEach { assetPath ->
+        ContentPackRegistry.assetPaths.forEach { assetPath ->
             val pack = contentLoader.loadPack(assetPath)
             val entities = pack.toEntities(json)
             sectionDao.insertAll(listOf(entities.section))

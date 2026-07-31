@@ -3,6 +3,7 @@ package com.zconte.oopsapp.domain.repository
 import com.zconte.oopsapp.domain.model.CompletedUnit
 import com.zconte.oopsapp.domain.model.LearningUnit
 import com.zconte.oopsapp.domain.model.Section
+import com.zconte.oopsapp.domain.model.UnitSummary
 import java.time.LocalDate
 
 interface ContentRepository {
@@ -10,4 +11,5 @@ interface ContentRepository {
     suspend fun getUnitsBySection(sectionId: String): List<LearningUnit>
     suspend fun getCompletedUnits(): List<CompletedUnit>
     suspend fun markUnitCompleted(unitId: String, completedAt: LocalDate, via: String)
+    suspend fun getUnitSummary(unitId: String): UnitSummary?
 }

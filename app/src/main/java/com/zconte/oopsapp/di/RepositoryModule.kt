@@ -1,5 +1,7 @@
 package com.zconte.oopsapp.di
 
+import com.zconte.oopsapp.data.content.AssetContentLoader
+import com.zconte.oopsapp.data.content.ContentLoader
 import com.zconte.oopsapp.data.repository.CheckpointRepositoryImpl
 import com.zconte.oopsapp.data.repository.ContentRepositoryImpl
 import com.zconte.oopsapp.data.repository.ExerciseRepositoryImpl
@@ -37,4 +39,7 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindClock(impl: SystemClock): Clock
+
+    @Binds
+    abstract fun bindContentLoader(impl: AssetContentLoader): ContentLoader
 }
