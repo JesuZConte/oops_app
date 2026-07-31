@@ -87,7 +87,8 @@ fun OopsNavHost(
             ProgressScreen(
                 onPlayUnit = { unitId -> navController.navigate("unit_session/$unitId") },
                 onOpenCheckpoint = { sectionId -> navController.navigate("checkpoint/$sectionId") },
-                onOpenPlacementCheckpoint = { targetUnitId -> navController.navigate("placement_checkpoint/$targetUnitId") }
+                onOpenPlacementCheckpoint = { targetUnitId -> navController.navigate("placement_checkpoint/$targetUnitId") },
+                onOpenSummary = { unitId -> navController.navigate("unit_summary/$unitId") }
             )
         }
         composable(OopsDestinations.SETTINGS) {

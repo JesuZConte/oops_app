@@ -43,6 +43,7 @@ fun ProgressScreen(
     onPlayUnit: (String) -> Unit,
     onOpenCheckpoint: (String) -> Unit,
     onOpenPlacementCheckpoint: (String) -> Unit,
+    onOpenSummary: (String) -> Unit,
     viewModel: ProgressViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -92,7 +93,8 @@ fun ProgressScreen(
                     sectionPath = sectionPath,
                     onPlayUnit = onPlayUnit,
                     onOpenCheckpoint = onOpenCheckpoint,
-                    onOpenPlacementCheckpoint = onOpenPlacementCheckpoint
+                    onOpenPlacementCheckpoint = onOpenPlacementCheckpoint,
+                    onOpenSummary = onOpenSummary
                 )
             }
         }
@@ -104,7 +106,8 @@ private fun SectionPathBlock(
     sectionPath: SectionPath,
     onPlayUnit: (String) -> Unit,
     onOpenCheckpoint: (String) -> Unit,
-    onOpenPlacementCheckpoint: (String) -> Unit
+    onOpenPlacementCheckpoint: (String) -> Unit,
+    onOpenSummary: (String) -> Unit
 ) {
     val extended = OopsTheme.extendedColors
 
@@ -124,7 +127,8 @@ private fun SectionPathBlock(
                     } else {
                         onOpenPlacementCheckpoint(unitProgress.unit.id)
                     }
-                }
+                },
+                onOpenSummary = onOpenSummary
             )
         }
 
@@ -138,7 +142,7 @@ private fun SectionPathBlock(
 }
 
 @Composable
-private fun UnitRow(unitProgress: UnitProgress, onClick: () -> Unit) {
+private fun UnitRow(unitProgress: UnitProgress, onClick: () -> Unit, onOpenSummary: (String) -> Unit) {
     val extended = OopsTheme.extendedColors
     val playable = unitProgress.unlocked || unitProgress.completed
     val dotColor = when {
@@ -160,7 +164,7 @@ private fun UnitRow(unitProgress: UnitProgress, onClick: () -> Unit) {
                 .clip(CircleShape)
                 .background(if (playable) dotColor else extended.lockedBackground)
         )
-        Column {
+        Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = unitProgress.unit.name,
                 style = MaterialTheme.typography.titleMedium,
@@ -175,6 +179,14 @@ private fun UnitRow(unitProgress: UnitProgress, onClick: () -> Unit) {
                 },
                 style = MaterialTheme.typography.bodyMedium,
                 color = extended.lockedText
+            )
+        }
+        if (playable) {
+            Text(
+                text = "Ver resumen",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.clickable { onOpenSummary(unitProgress.unit.id) }
             )
         }
     }
