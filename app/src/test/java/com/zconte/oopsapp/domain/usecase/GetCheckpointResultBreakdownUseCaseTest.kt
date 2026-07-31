@@ -3,6 +3,7 @@ package com.zconte.oopsapp.domain.usecase
 import com.zconte.oopsapp.domain.model.Exercise
 import com.zconte.oopsapp.domain.model.LearningUnit
 import com.zconte.oopsapp.domain.model.Section
+import com.zconte.oopsapp.domain.model.UnitSummary
 import com.zconte.oopsapp.domain.repository.ContentRepository
 import com.zconte.oopsapp.domain.model.CompletedUnit
 import kotlinx.coroutines.test.runTest
@@ -18,6 +19,7 @@ private class FakeContentRepositoryForBreakdown(
     override suspend fun getUnitsBySection(sectionId: String): List<LearningUnit> = unitsBySection[sectionId] ?: emptyList()
     override suspend fun getCompletedUnits(): List<CompletedUnit> = emptyList()
     override suspend fun markUnitCompleted(unitId: String, completedAt: LocalDate, via: String) {}
+    override suspend fun getUnitSummary(unitId: String): UnitSummary? = null
 }
 
 class GetCheckpointResultBreakdownUseCaseTest {

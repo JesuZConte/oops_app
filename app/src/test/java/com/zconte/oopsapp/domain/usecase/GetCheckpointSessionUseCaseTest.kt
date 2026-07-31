@@ -5,6 +5,7 @@ import com.zconte.oopsapp.domain.model.Exercise
 import com.zconte.oopsapp.domain.model.LearningUnit
 import com.zconte.oopsapp.domain.model.ReviewState
 import com.zconte.oopsapp.domain.model.Section
+import com.zconte.oopsapp.domain.model.UnitSummary
 import com.zconte.oopsapp.domain.repository.ContentRepository
 import com.zconte.oopsapp.domain.repository.ExerciseRepository
 import kotlinx.coroutines.test.runTest
@@ -32,6 +33,7 @@ private class FakeContentRepositoryForCheckpoint(
     override suspend fun getUnitsBySection(sectionId: String): List<LearningUnit> = emptyList()
     override suspend fun getCompletedUnits(): List<CompletedUnit> = emptyList()
     override suspend fun markUnitCompleted(unitId: String, completedAt: LocalDate, via: String) {}
+    override suspend fun getUnitSummary(unitId: String): UnitSummary? = null
 }
 
 class GetCheckpointSessionUseCaseTest {

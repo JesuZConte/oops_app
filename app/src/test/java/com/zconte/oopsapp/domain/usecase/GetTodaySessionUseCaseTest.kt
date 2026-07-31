@@ -5,6 +5,7 @@ import com.zconte.oopsapp.domain.model.Exercise
 import com.zconte.oopsapp.domain.model.LearningUnit
 import com.zconte.oopsapp.domain.model.ReviewState
 import com.zconte.oopsapp.domain.model.Section
+import com.zconte.oopsapp.domain.model.UnitSummary
 import com.zconte.oopsapp.domain.repository.ContentRepository
 import com.zconte.oopsapp.domain.repository.ExerciseRepository
 import com.zconte.oopsapp.testutil.FakeCheckpointRepository
@@ -22,6 +23,7 @@ private class FakeContentRepositoryForTodaySession(
     override suspend fun getUnitsBySection(sectionId: String): List<LearningUnit> = unitsBySection[sectionId] ?: emptyList()
     override suspend fun getCompletedUnits(): List<CompletedUnit> = completedUnits
     override suspend fun markUnitCompleted(unitId: String, completedAt: LocalDate, via: String) {}
+    override suspend fun getUnitSummary(unitId: String): UnitSummary? = null
 }
 
 private class FakeExerciseRepositoryForSession(

@@ -8,6 +8,7 @@ import com.zconte.oopsapp.domain.model.LearningUnit
 import com.zconte.oopsapp.domain.model.ReviewState
 import com.zconte.oopsapp.domain.model.Section
 import com.zconte.oopsapp.domain.model.UnitCompletionSource
+import com.zconte.oopsapp.domain.model.UnitSummary
 import com.zconte.oopsapp.domain.repository.CheckpointRepository
 import com.zconte.oopsapp.domain.repository.ContentRepository
 import com.zconte.oopsapp.domain.repository.ExerciseRepository
@@ -53,6 +54,7 @@ private class FakeContentRepositoryForComplete : ContentRepository {
     override suspend fun markUnitCompleted(unitId: String, completedAt: LocalDate, via: String) {
         markedComplete.add(unitId to via)
     }
+    override suspend fun getUnitSummary(unitId: String): UnitSummary? = null
 }
 
 private class FakeExerciseRepositoryForComplete(
