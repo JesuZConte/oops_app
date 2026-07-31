@@ -15,6 +15,7 @@ import com.zconte.oopsapp.ui.home.HomeScreen
 import com.zconte.oopsapp.ui.progress.ProgressScreen
 import com.zconte.oopsapp.ui.session.SessionScreen
 import com.zconte.oopsapp.ui.settings.SettingsScreen
+import com.zconte.oopsapp.ui.summary.UnitSummaryScreen
 
 @Composable
 fun OopsNavHost(
@@ -46,6 +47,18 @@ fun OopsNavHost(
         ) {
             SessionScreen(
                 onSessionComplete = { navController.popBackStack() }
+            )
+        }
+        composable(
+            route = OopsDestinations.UNIT_SUMMARY,
+            arguments = listOf(navArgument("unitId") { type = NavType.StringType })
+        ) {
+            UnitSummaryScreen(
+                onStartUnit = { unitId ->
+                    navController.navigate("unit_session/$unitId") {
+                        popUpTo(OopsDestinations.PROGRESS)
+                    }
+                }
             )
         }
         composable(
