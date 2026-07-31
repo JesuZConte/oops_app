@@ -1,5 +1,6 @@
 package com.zconte.oopsapp.ui.summary
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,6 +25,7 @@ import com.zconte.oopsapp.ui.components.CodeBlock
 @Composable
 fun UnitSummaryScreen(
     onStartUnit: (String) -> Unit,
+    onBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: UnitSummaryViewModel = hiltViewModel()
 ) {
@@ -36,6 +38,14 @@ fun UnitSummaryScreen(
             .systemBarsPadding()
             .padding(24.dp)
     ) {
+        Text(
+            text = "‹ Volver",
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier
+                .clickable(onClick = onBack)
+                .padding(bottom = 16.dp)
+        )
         Column(
             modifier = Modifier
                 .weight(1f)

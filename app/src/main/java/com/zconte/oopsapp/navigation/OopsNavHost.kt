@@ -58,7 +58,8 @@ fun OopsNavHost(
                     navController.navigate("unit_session/$unitId") {
                         popUpTo(OopsDestinations.PROGRESS)
                     }
-                }
+                },
+                onBack = { navController.popBackStack() }
             )
         }
         composable(
