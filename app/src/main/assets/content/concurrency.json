@@ -9,6 +9,10 @@
       "name": "Threads y ciclo de vida",
       "certObjective": "concurrency",
       "orderIndex": 1,
+      "summary": {
+        "text": "Llamar start() en un Thread crea un hilo nuevo y ejecuta run() en el; llamar run() directamente solo ejecuta ese codigo en el hilo actual, sin concurrencia real. Thread.sleep() pone al hilo en estado TIMED_WAITING sin liberar los locks que tenga. Un hilo que intenta entrar a un bloque synchronized ocupado por otro queda BLOCKED hasta que el otro lo libera.",
+        "code": "Thread hilo = new Thread(() -> System.out.println(\"trabajando\"));\nhilo.start();\nhilo.join();"
+      },
       "exercises": [
         {
           "id": "conc-threads-01",
@@ -72,6 +76,10 @@
       "name": "Executors y thread pools",
       "certObjective": "concurrency",
       "orderIndex": 2,
+      "summary": {
+        "text": "Un ExecutorService administra un pool de hilos reutilizables, evitando el costo de crear un hilo nuevo por cada tarea. execute() no devuelve nada; submit() devuelve un Future, util cuando la tarea es un Callable que retorna un valor o puede lanzar una excepcion. shutdown() deja terminar las tareas en curso antes de cerrar; shutdownNow() intenta interrumpirlas de inmediato.",
+        "code": "ExecutorService pool = Executors.newFixedThreadPool(4);\nFuture<Integer> resultado = pool.submit(() -> 42);\npool.shutdown();"
+      },
       "exercises": [
         {
           "id": "conc-executors-01",
@@ -136,6 +144,10 @@
       "name": "Sincronizacion",
       "certObjective": "concurrency",
       "orderIndex": 3,
+      "summary": {
+        "text": "Una race condition ocurre cuando varios hilos leen y modifican el mismo dato compartido sin coordinacion, y el resultado final depende del orden en que se intercalen. La palabra clave synchronized asegura que solo un hilo a la vez ejecute ese metodo o bloque. ReentrantLock ofrece lo mismo pero de forma explicita, con la ventaja de poder intentar el lock con timeout; siempre se libera en un finally.",
+        "code": "private final ReentrantLock lock = new ReentrantLock();\n\nvoid incrementar() {\n    lock.lock();\n    try {\n        contador++;\n    } finally {\n        lock.unlock();\n    }\n}"
+      },
       "exercises": [
         {
           "id": "conc-sync-01",
@@ -201,6 +213,10 @@
       "name": "Virtual threads y colecciones concurrentes",
       "certObjective": "concurrency",
       "orderIndex": 4,
+      "summary": {
+        "text": "Un virtual thread (Java 21) es un hilo liviano administrado por la JVM, no por el sistema operativo, lo que permite crear miles sin agotar recursos. Executors.newVirtualThreadPerTaskExecutor() crea un virtual thread nuevo por cada tarea enviada. Cuando varios hilos acceden al mismo Map, ConcurrentHashMap evita corrupcion de datos sin bloquear todo el mapa como haria sincronizar un HashMap manualmente; AtomicInteger permite incrementar un contador de forma segura entre hilos sin necesitar synchronized.",
+        "code": "try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {\n    executor.submit(() -> System.out.println(\"tarea liviana\"));\n}"
+      },
       "exercises": [
         {
           "id": "conc-vt-01",

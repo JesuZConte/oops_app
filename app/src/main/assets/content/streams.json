@@ -9,6 +9,10 @@
       "name": "Creacion de streams",
       "certObjective": "streams-lambdas",
       "orderIndex": 1,
+      "summary": {
+        "text": "Un Stream se crea a partir de una fuente de datos, como una List (con .stream()) o un rango de numeros (con IntStream.range). Un Stream no almacena datos ni los modifica: describe una secuencia de operaciones que se ejecutan solo cuando llega una operacion terminal.",
+        "code": "List<Integer> numeros = List.of(1, 2, 3);\nnumeros.stream();\n\nIntStream.range(1, 10);"
+      },
       "exercises": [
         {
           "id": "streams-20",
@@ -45,6 +49,10 @@
       "name": "Operaciones intermedias",
       "certObjective": "streams-lambdas",
       "orderIndex": 2,
+      "summary": {
+        "text": "Las operaciones intermedias transforman un Stream en otro Stream y son perezosas (lazy): no hacen nada hasta que llega una operacion terminal. filter selecciona elementos, map los transforma, distinct quita duplicados, sorted ordena, limit y skip recortan la secuencia, y flatMap aplana un Stream de streams (o de listas) en un unico Stream.",
+        "code": "lista.stream()\n    .filter(n -> n % 2 == 0)\n    .map(n -> n * 2)\n    .distinct()\n    .sorted()\n    .limit(5);"
+      },
       "exercises": [
         {
           "id": "streams-02",
@@ -131,6 +139,10 @@
       "name": "Operaciones terminales",
       "certObjective": "streams-lambdas",
       "orderIndex": 3,
+      "summary": {
+        "text": "Las operaciones terminales cierran el Stream y producen un resultado: collect junta los elementos en una coleccion, count los cuenta, reduce los combina en un unico valor con un acumulador. anyMatch, allMatch y noneMatch verifican condiciones sobre los elementos, y min/max obtienen el extremo segun un Comparator.",
+        "code": "long total = lista.stream()\n    .filter(n -> n > 0)\n    .count();\n\nboolean hayNegativos = lista.stream().anyMatch(n -> n < 0);"
+      },
       "exercises": [
         {
           "id": "streams-01",
@@ -237,6 +249,10 @@
       "name": "Collectors avanzados",
       "certObjective": "streams-lambdas",
       "orderIndex": 4,
+      "summary": {
+        "text": "Collectors ofrece formas listas para usar al acumular un Stream con collect(). Collectors.joining() une los elementos en un String con un separador. Collectors.groupingBy() agrupa los elementos segun una propiedad derivada, devolviendo un Map donde cada clave apunta a la lista de elementos de ese grupo.",
+        "code": "String unidos = palabras.stream()\n    .collect(Collectors.joining(\", \"));\n\nMap<Integer, List<String>> porLongitud = palabras.stream()\n    .collect(Collectors.groupingBy(String::length));"
+      },
       "exercises": [
         {
           "id": "streams-14",
