@@ -136,13 +136,14 @@ class GetCheckpointSessionUseCaseTest {
     @Test
     fun `worked_example cards are never sampled into a checkpoint`() = runTest {
         val currentPool = listOf(Exercise("s1-intro", "s1-unit", "worked_example", "{}", 1)) +
-            (1..15).map { exercise("s1-ex-$it", "s1-unit") }
+            (1..3).map { exercise("s1-ex-$it", "s1-unit") }
         val exerciseRepository = FakeExerciseRepositoryForCheckpoint(bySection = mapOf("s1" to currentPool))
         val contentRepository = FakeContentRepositoryForCheckpoint(listOf(section("s1", 1)))
         val useCase = GetCheckpointSessionUseCase(exerciseRepository, contentRepository)
 
         val result = useCase("s1", today)
 
+        assertEquals(3, result.size)
         assertTrue(result.none { it.id == "s1-intro" })
     }
 }
