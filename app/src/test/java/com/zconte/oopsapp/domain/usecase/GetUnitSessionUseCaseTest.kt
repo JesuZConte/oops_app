@@ -32,4 +32,16 @@ class GetUnitSessionUseCaseTest {
 
         assertEquals(listOf("ex-1", "ex-2"), result.map { it.id })
     }
+
+    @Test
+    fun `worked_example cards are excluded from a unit replay session`() = runTest {
+        val intro = Exercise("intro-1", "unit-1", "worked_example", "{}", 1)
+        val solo = Exercise("solo-1", "unit-1", "fill_blank", "{}", 1)
+        val repository = FakeExerciseRepositoryForUnitSession(mapOf("unit-1" to listOf(intro, solo)))
+        val useCase = GetUnitSessionUseCase(repository)
+
+        val result = useCase("unit-1")
+
+        assertEquals(listOf("solo-1"), result.map { it.id })
+    }
 }

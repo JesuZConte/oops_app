@@ -4,6 +4,7 @@ import com.zconte.oopsapp.domain.model.CheckpointKind
 import com.zconte.oopsapp.domain.model.CheckpointResult
 import com.zconte.oopsapp.domain.model.ReviewState
 import com.zconte.oopsapp.domain.model.UnitCompletionSource
+import com.zconte.oopsapp.domain.model.answerableOnly
 import com.zconte.oopsapp.domain.repository.CheckpointRepository
 import com.zconte.oopsapp.domain.repository.ContentRepository
 import com.zconte.oopsapp.domain.repository.ExerciseRepository
@@ -51,7 +52,7 @@ class CompleteCheckpointUseCase @Inject constructor(
     private suspend fun unlockSkippedUnits(skippedUnitIds: List<String>, today: LocalDate) {
         skippedUnitIds.forEach { unitId ->
             contentRepository.markUnitCompleted(unitId, today, UnitCompletionSource.PLACEMENT)
-            exerciseRepository.getExercisesByUnit(unitId).forEach { exercise ->
+            exerciseRepository.getExercisesByUnit(unitId).answerableOnly().forEach { exercise ->
                 if (exerciseRepository.getReviewState(exercise.id) == null) {
                     exerciseRepository.saveReviewState(
                         ReviewState(

@@ -1,6 +1,7 @@
 package com.zconte.oopsapp.domain.usecase
 
 import com.zconte.oopsapp.domain.model.Exercise
+import com.zconte.oopsapp.domain.model.answerableOnly
 import com.zconte.oopsapp.domain.repository.ContentRepository
 import com.zconte.oopsapp.domain.repository.ExerciseRepository
 import java.time.LocalDate
@@ -29,8 +30,10 @@ class GetCheckpointSessionUseCase @Inject constructor(
 
         val targetSize = checkpointSize(sectionsTraversed = currentIndex + 1)
 
-        val currentPool = exerciseRepository.getExercisesBySection(sectionId)
-        val priorPool = sections.take(currentIndex).flatMap { exerciseRepository.getExercisesBySection(it.id) }
+        val currentPool = exerciseRepository.getExercisesBySection(sectionId).answerableOnly()
+        val priorPool = sections.take(currentIndex)
+            .flatMap { exerciseRepository.getExercisesBySection(it.id) }
+            .answerableOnly()
 
         val priorTargetSize = (targetSize / 2).coerceAtMost(priorPool.size)
         val currentTargetSize = (targetSize - priorTargetSize).coerceAtMost(currentPool.size)

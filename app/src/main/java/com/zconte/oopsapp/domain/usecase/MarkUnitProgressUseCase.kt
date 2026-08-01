@@ -1,6 +1,7 @@
 package com.zconte.oopsapp.domain.usecase
 
 import com.zconte.oopsapp.domain.model.UnitCompletionSource
+import com.zconte.oopsapp.domain.model.answerableOnly
 import com.zconte.oopsapp.domain.repository.ContentRepository
 import com.zconte.oopsapp.domain.repository.ExerciseRepository
 import java.time.LocalDate
@@ -11,7 +12,7 @@ class MarkUnitProgressUseCase @Inject constructor(
     private val contentRepository: ContentRepository
 ) {
     suspend operator fun invoke(unitId: String, today: LocalDate) {
-        val exercises = exerciseRepository.getExercisesByUnit(unitId)
+        val exercises = exerciseRepository.getExercisesByUnit(unitId).answerableOnly()
         // Content authoring must ensure every unit has at least one exercise: a unit with zero
         // exercises can never satisfy the "all answered" check below, so it (and any sequenced
         // gating that depends on its completion) would be permanently stuck.
