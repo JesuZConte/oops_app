@@ -50,7 +50,15 @@ class GetTodaySessionUseCaseTest {
 
     private val today = LocalDate.of(2026, 7, 15)
 
-    private fun exercise(id: String, unitId: String = "s1-u1") = Exercise(id, unitId, "fill_blank", "{}", 1)
+    private fun exercise(
+        id: String,
+        unitId: String = "s1-u1",
+        type: String = "fill_blank",
+        conceptId: String? = null,
+        role: String? = null,
+        pathOrder: Int? = null,
+        dependsOn: List<String> = emptyList()
+    ) = Exercise(id, unitId, type, "{}", 1, "core", conceptId, role, pathOrder, dependsOn)
     private fun section(id: String, order: Int) = Section(id, id, order, "core")
     private fun unit(id: String, sectionId: String, order: Int) = LearningUnit(id, sectionId, id, "objective", order)
 
@@ -161,5 +169,118 @@ class GetTodaySessionUseCaseTest {
         val result = useCase(today)
 
         assertEquals(listOf("due-1"), result.map { it.id })
+    }
+
+    private fun currentUnitUseCase(
+        contentRepository: FakeContentRepositoryForTodaySession,
+        exerciseRepository: ExerciseRepository
+    ) = GetCurrentUnitUseCase(
+        GetLearningPathUseCase(
+            contentRepository, FakeCheckpointRepository(),
+            IsCheckpointRetryUnlockedUseCase(FakeCheckpointRepository(), exerciseRepository)
+        )
+    )
+
+    @Test
+    fun `phase A orders new ladder exercises by pathOrder`() = runTest {
+        val contentRepository = FakeContentRepositoryForTodaySession(
+            sections = listOf(section("s1", 1)),
+            unitsBySection = mapOf("s1" to listOf(unit("s1-u1", "s1", 1))),
+            completedUnits = emptyList()
+        )
+        val exerciseRepository = FakeExerciseRepositoryForSession(
+            exercisesByUnit = mapOf(
+                "s1-u1" to listOf(
+                    exercise("gb-solo", conceptId = "gb", role = "solo", pathOrder = 2),
+                    exercise("gb-intro", type = "worked_example", conceptId = "gb", role = "intro", pathOrder = 0),
+                    exercise("gb-guided", conceptId = "gb", role = "guided", pathOrder = 1)
+                )
+            )
+        )
+        val useCase = GetTodaySessionUseCase(exerciseRepository, currentUnitUseCase(contentRepository, exerciseRepository))
+
+        val result = useCase(today)
+
+        assertEquals(listOf("gb-intro", "gb-guided", "gb-solo"), result.map { it.id })
+    }
+
+    @Test
+    fun `a born concept is dropped from phase A including its intro`() = runTest {
+        val contentRepository = FakeContentRepositoryForTodaySession(
+            sections = listOf(section("s1", 1)),
+            unitsBySection = mapOf("s1" to listOf(unit("s1-u1", "s1", 1))),
+            completedUnits = emptyList()
+        )
+        // gb-solo is answered => concept "gb" is born => the whole gb ladder (intro included) is dropped.
+        val exerciseRepository = FakeExerciseRepositoryForSession(
+            exercisesByUnit = mapOf(
+                "s1-u1" to listOf(
+                    exercise("gb-intro", type = "worked_example", conceptId = "gb", role = "intro", pathOrder = 0),
+                    exercise("gb-guided", conceptId = "gb", role = "guided", pathOrder = 1),
+                    exercise("gb-solo", conceptId = "gb", role = "solo", pathOrder = 2),
+                    exercise("pb-intro", type = "worked_example", conceptId = "pb", role = "intro", pathOrder = 3),
+                    exercise("pb-solo", conceptId = "pb", role = "solo", pathOrder = 4)
+                )
+            ),
+            answeredIds = setOf("gb-solo")
+        )
+        val useCase = GetTodaySessionUseCase(exerciseRepository, currentUnitUseCase(contentRepository, exerciseRepository))
+
+        val result = useCase(today)
+
+        assertEquals(listOf("pb-intro", "pb-solo"), result.map { it.id })
+    }
+
+    @Test
+    fun `a composition concept is gated until all its dependencies are born`() = runTest {
+        val contentRepository = FakeContentRepositoryForTodaySession(
+            sections = listOf(section("s1", 1)),
+            unitsBySection = mapOf("s1" to listOf(unit("s1-u1", "s1", 1))),
+            completedUnits = emptyList()
+        )
+        // "gb" is born; "pb" is NOT. Composition "combo" depends on both => must be skipped.
+        val exerciseRepository = FakeExerciseRepositoryForSession(
+            exercisesByUnit = mapOf(
+                "s1-u1" to listOf(
+                    exercise("gb-solo", conceptId = "gb", role = "solo", pathOrder = 2),
+                    exercise("pb-solo", conceptId = "pb", role = "solo", pathOrder = 4),
+                    exercise("combo-solo", conceptId = "combo", role = "solo", pathOrder = 8,
+                        dependsOn = listOf("gb", "pb"))
+                )
+            ),
+            answeredIds = setOf("gb-solo")
+        )
+        val useCase = GetTodaySessionUseCase(exerciseRepository, currentUnitUseCase(contentRepository, exerciseRepository))
+
+        val result = useCase(today)
+
+        // gb is born (dropped); pb is offered; combo is gated out because pb is not born yet.
+        assertEquals(listOf("pb-solo"), result.map { it.id })
+    }
+
+    @Test
+    fun `a composition concept appears once all dependencies are born`() = runTest {
+        val contentRepository = FakeContentRepositoryForTodaySession(
+            sections = listOf(section("s1", 1)),
+            unitsBySection = mapOf("s1" to listOf(unit("s1-u1", "s1", 1))),
+            completedUnits = emptyList()
+        )
+        val exerciseRepository = FakeExerciseRepositoryForSession(
+            exercisesByUnit = mapOf(
+                "s1-u1" to listOf(
+                    exercise("gb-solo", conceptId = "gb", role = "solo", pathOrder = 2),
+                    exercise("pb-solo", conceptId = "pb", role = "solo", pathOrder = 4),
+                    exercise("combo-solo", conceptId = "combo", role = "solo", pathOrder = 8,
+                        dependsOn = listOf("gb", "pb"))
+                )
+            ),
+            answeredIds = setOf("gb-solo", "pb-solo")
+        )
+        val useCase = GetTodaySessionUseCase(exerciseRepository, currentUnitUseCase(contentRepository, exerciseRepository))
+
+        val result = useCase(today)
+
+        // both deps born => gb & pb dropped, only the composition remains.
+        assertEquals(listOf("combo-solo"), result.map { it.id })
     }
 }
