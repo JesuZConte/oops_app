@@ -213,4 +213,102 @@ class ContentPackParsingTest {
 
         assertEquals(null, pack.units.first().summary)
     }
+
+    @Test
+    fun `exercise parses ladder fields conceptId role pathOrder dependsOn`() {
+        val raw = """
+            {
+              "sectionId": "java-streams",
+              "name": "Streams y lambdas",
+              "orderIndex": 2,
+              "examVersion": "java21",
+              "units": [
+                {
+                  "unitId": "streams-collectors",
+                  "name": "Collectors avanzados",
+                  "certObjective": "streams-lambdas",
+                  "orderIndex": 4,
+                  "exercises": [
+                    {
+                      "id": "gb-solo",
+                      "type": "fill_blank",
+                      "difficulty": 3,
+                      "prompt": "Agrupa por longitud:",
+                      "code": "stream.collect(Collectors._____(String::length))",
+                      "answer": "groupingBy",
+                      "explanation": "groupingBy agrupa en un Map.",
+                      "conceptId": "collectors-groupingby",
+                      "role": "solo",
+                      "pathOrder": 2
+                    },
+                    {
+                      "id": "combo-solo",
+                      "type": "fill_blank",
+                      "difficulty": 4,
+                      "prompt": "Particiona y agrupa:",
+                      "code": "...",
+                      "answer": "x",
+                      "explanation": "composicion.",
+                      "conceptId": "collectors-partition-then-group",
+                      "role": "solo",
+                      "pathOrder": 8,
+                      "dependsOn": ["collectors-groupingby", "collectors-partitioningby"]
+                    }
+                  ]
+                }
+              ]
+            }
+        """.trimIndent()
+
+        val pack = json.decodeFromString(ContentPack.serializer(), raw)
+        val exercises = pack.units.first().exercises
+
+        assertEquals("collectors-groupingby", exercises[0].conceptId)
+        assertEquals("solo", exercises[0].role)
+        assertEquals(2, exercises[0].pathOrder)
+        assertEquals(emptyList<String>(), exercises[0].dependsOn)
+        assertEquals(
+            listOf("collectors-groupingby", "collectors-partitioningby"),
+            exercises[1].dependsOn
+        )
+    }
+
+    @Test
+    fun `legacy exercise without ladder fields parses with null defaults`() {
+        val raw = """
+            {
+              "sectionId": "java-streams",
+              "name": "Streams y lambdas",
+              "orderIndex": 2,
+              "examVersion": "java21",
+              "units": [
+                {
+                  "unitId": "streams-terminal",
+                  "name": "Operaciones terminales",
+                  "certObjective": "streams-lambdas",
+                  "orderIndex": 1,
+                  "exercises": [
+                    {
+                      "id": "legacy-01",
+                      "type": "mcq",
+                      "difficulty": 1,
+                      "prompt": "Que metodo crea un Stream desde una List?",
+                      "answer": "stream",
+                      "distractors": ["toStream", "asStream", "of"],
+                      "explanation": "List.stream() crea el Stream."
+                    }
+                  ]
+                }
+              ]
+            }
+        """.trimIndent()
+
+        val pack = json.decodeFromString(ContentPack.serializer(), raw)
+        val ex = pack.units.first().exercises.first()
+
+        assertEquals(null, ex.conceptId)
+        assertEquals(null, ex.role)
+        assertEquals(null, ex.pathOrder)
+        assertEquals(emptyList<String>(), ex.dependsOn)
+    }
 }
