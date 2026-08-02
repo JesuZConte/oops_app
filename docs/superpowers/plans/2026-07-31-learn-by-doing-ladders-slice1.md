@@ -1089,14 +1089,16 @@ git commit -m "content: re-author streams-collectors as first-exposure ladders"
 
 ---
 
+> **Amendment (post-implementation, final review):** `CURRENT_CONTENT_VERSION` bump added to `ContentSeeder.kt` (was missed in the original Task 6 scope) so this slice's content actually reaches an existing install. Manual QA step 4 rewritten below to test that path directly (in-place upgrade) instead of a reinstall, which would have destroyed the very `ReviewState` step 4 needs to verify.
+
 ## Manual QA (on device, after all tasks)
 
-The engine only re-seeds content on a **fresh install** (the seeder runs once). To exercise the "learning from scratch" path, uninstall/reinstall or clear app data first.
+The engine re-seeds content when `ContentSeeder.CURRENT_CONTENT_VERSION` changes (bumped to `"7"` for this slice) — this fires on a fresh install, AND on an in-place app upgrade over an existing install (the common real-world path: existing `review_state`/`unit_progress` rows survive, only section/unit/exercise content rows are replaced). Two distinct scenarios below exercise the two paths.
 
 1. **Clean install → ladder from scratch.** Reach `streams-collectors` in Ver Ruta. In "Estudiar Hoy", the groupingBy concept appears as: worked-example intro (code + explanation + CONTINUAR, no scoring) → guided mcq (with hint, 2 options) → solo fill_blank. No penalty on the intro.
 2. **Composition gating.** The interview-case composition (`collectors-partition-then-group`) does **not** appear until both `groupingBy` and `partitioningBy` have been answered at least once; after that, it appears.
 3. **Born concept drops its intro.** After answering a concept's solo, re-entering "Estudiar Hoy" does not show that concept's worked-example intro again.
-4. **Grandfather (existing progress).** On an install that already had `streams-19` answered before this change, the `collectors-groupingby` intro/guided are skipped (the concept is already born) — progress is not reset.
+4. **Grandfather (in-place upgrade, existing progress).** Install the previous build (content version 6), answer `streams-19` (groupingBy's exercise under the old, non-ladder content), then install this build (content version 7) over it **without clearing app data**. Confirm the re-seed happens (Ver Ruta shows the new ladder content) and `streams-19`'s prior `ReviewState` is preserved (it does not reset to a fresh due date) — and confirm the `collectors-groupingby` intro/guided are skipped (the concept is already born from the old answer), so the player is not sent back through scaffolding they already earned past.
 5. **`worked_example` never schedules a review.** An intro card advances with CONTINUAR and never shows a correct/incorrect result.
 
 ## Out of scope for this plan (tracked)
