@@ -28,12 +28,16 @@ class GetTodaySessionUseCase @Inject constructor(
     }
 
     /**
-     * Phase-A selection. A concept is "born" once any of its real (non-intro)
-     * exercises has been answered; born concepts are dropped entirely (intro
-     * card included). Composition concepts (non-empty dependsOn) are gated
-     * until all their dependency concepts are born. Legacy exercises
-     * (conceptId == null) keep today's behavior: offered when unanswered.
-     * Results are ordered by pathOrder (legacy/null last, original order kept).
+     * Phase-A selection. A concept is "born" once its solo/practice exercise(s)
+     * have been answered -- answering only a guided step does NOT count, so a
+     * player who answers a guided step and quits still gets the concept's solo
+     * step (and, harmlessly, its intro card) offered again next session, rather
+     * than losing it. Born concepts are dropped entirely (intro included).
+     * Composition concepts (non-empty dependsOn) are gated until all their
+     * dependency concepts are born. Already-answered exercises are never
+     * re-offered as "new" regardless of role. Legacy exercises (conceptId ==
+     * null) keep today's behavior: offered when unanswered. Results are
+     * ordered by pathOrder (legacy/null last, original order kept).
      */
     private fun selectPathExercises(
         unitExercises: List<Exercise>,
@@ -41,17 +45,18 @@ class GetTodaySessionUseCase @Inject constructor(
         limit: Int
     ): List<Exercise> {
         val bornConceptIds = unitExercises
-            .filter { it.conceptId != null && it.role != ExerciseRole.INTRO && it.id in answeredIds }
+            .filter {
+                it.conceptId != null &&
+                    (it.role == ExerciseRole.SOLO || it.role == ExerciseRole.PRACTICE) &&
+                    it.id in answeredIds
+            }
             .mapNotNull { it.conceptId }
             .toSet()
 
         val candidates = unitExercises.filter { ex ->
+            if (ex.id in answeredIds) return@filter false
             val concept = ex.conceptId
-            if (concept == null) {
-                ex.id !in answeredIds
-            } else {
-                concept !in bornConceptIds && ex.dependsOn.all { it in bornConceptIds }
-            }
+            concept == null || (concept !in bornConceptIds && ex.dependsOn.all { it in bornConceptIds })
         }
 
         return candidates

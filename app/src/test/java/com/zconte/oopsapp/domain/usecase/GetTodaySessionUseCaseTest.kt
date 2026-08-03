@@ -283,4 +283,30 @@ class GetTodaySessionUseCaseTest {
         // both deps born => gb & pb dropped, only the composition remains.
         assertEquals(listOf("combo-solo"), result.map { it.id })
     }
+
+    @Test
+    fun `answering only the guided step does not born the concept - solo (and intro) remain offered`() = runTest {
+        val contentRepository = FakeContentRepositoryForTodaySession(
+            sections = listOf(section("s1", 1)),
+            unitsBySection = mapOf("s1" to listOf(unit("s1-u1", "s1", 1))),
+            completedUnits = emptyList()
+        )
+        val exerciseRepository = FakeExerciseRepositoryForSession(
+            exercisesByUnit = mapOf(
+                "s1-u1" to listOf(
+                    exercise("gb-intro", type = "worked_example", conceptId = "gb", role = "intro", pathOrder = 0),
+                    exercise("gb-guided", conceptId = "gb", role = "guided", pathOrder = 1),
+                    exercise("gb-solo", conceptId = "gb", role = "solo", pathOrder = 2)
+                )
+            ),
+            answeredIds = setOf("gb-guided")
+        )
+        val useCase = GetTodaySessionUseCase(exerciseRepository, currentUnitUseCase(contentRepository, exerciseRepository))
+
+        val result = useCase(today)
+
+        // gb-guided itself is answered, so it is not re-offered; the concept is
+        // NOT born yet (guided alone doesn't count), so its intro and solo remain.
+        assertEquals(listOf("gb-intro", "gb-solo"), result.map { it.id })
+    }
 }

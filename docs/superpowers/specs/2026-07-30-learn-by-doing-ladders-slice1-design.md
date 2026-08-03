@@ -101,9 +101,12 @@ through a ladder, it enters the SRS pool directly as today.
   item ("mastered"). A `guided` step may reappear in review; because it is
   easy, it is mastered quickly and self-retires. This is acceptable and avoids
   the migration.
-- **A concept is "born"** for the player the first time **any** of its real
-  (`guided`/`solo`/`practice`) exercises gets a `ReviewState`. Same condition
-  the grandfathering in §5 uses.
+- **A concept is "born"** for the player the first time its **`solo` or
+  `practice`** exercise(s) get a `ReviewState` — answering only a `guided` step
+  does **not** count. This guarantees that if a player answers a `guided` step
+  and quits mid-ladder, the next session still offers the pending `solo` step
+  (and, harmlessly, re-shows the intro card) rather than silently orphaning
+  it. Same condition the grandfathering in §5 uses.
 
 Implementation: `SubmitAnswerUseCase` is unchanged for `guided`/`solo`/
 `practice`/legacy (normal SM-2). The `intro` card never routes through
@@ -120,13 +123,18 @@ New: `due (Phase B) + pathNext (Phase A)` where `pathNext` respects the ladder:
 
 1. **Phase B (review):** `getDueExercises(today)` — unchanged.
 2. **Phase A (Path):** group the current unit's exercises by `conceptId`; a
-   concept is **born** when any of its real (non-`intro`) exercises has a
-   `ReviewState` (via `getAnsweredExerciseIds`). Drop **all** exercises of born
-   concepts — the `intro` card included (this is why the filter must be
-   *concept-born*, not *exercise-answered*: the `intro` is never tracked, so an
-   answered-based filter would keep it forever). From the remaining unborn
-   concepts, sort by `pathOrder` and take the first **K** (`newExercisesLimit`,
-   the existing per-session cap — see the note below on the per-day cap).
+   concept is **born** when its `solo`/`practice` exercise(s) have a
+   `ReviewState` (via `getAnsweredExerciseIds`) — a `guided`-only answer does
+   **not** born the concept, so the pending `solo` step is still offered next
+   session if the player quit right after `guided`. Drop **all** exercises of
+   born concepts — the `intro` card included (this is why the filter must be
+   *concept-born*, not merely *exercise-answered*: the `intro` is never
+   tracked, so an answered-based filter would keep it forever). Individually
+   answered exercises (e.g. an already-answered `guided` step of an unborn
+   concept) are still excluded from re-offering on their own. From the
+   remaining unborn concepts, sort by `pathOrder` and take the first **K**
+   (`newExercisesLimit`, the existing per-session cap — see the note below on
+   the per-day cap).
    - A **composition** concept (its exercises carry a non-empty `dependsOn`) is
      **skipped** until **all** its `dependsOn` conceptIds are born. This way the
      composed problem appears only once you master the pieces.
@@ -161,9 +169,10 @@ re-authoring that unit as ladders, he must **not** be sent back through the
 `intro` card (or the early `guided` steps) of concepts he already practiced.
 
 **Grandfather rule:** a concept is considered **"already born"** for the player
-if a `ReviewState` exists for any of its real (`guided`/`solo`/`practice`)
-exercises (or for a legacy exercise now mapped to that concept). For an
-already-born concept, Phase A skips it entirely — including its `intro` card.
+if a `ReviewState` exists for its `solo`/`practice` exercise(s) specifically
+(not `guided` alone) — or for a legacy exercise now mapped to that concept.
+For an already-born concept, Phase A skips it entirely — including its
+`intro` card.
 
 - The existing `streams-collectors` exercises are **tagged** with their
   `conceptId`/`role` (the existing ones become the `solo`/`practice` of their
@@ -283,3 +292,4 @@ SM-2 submissions already covered).
 | Composition | First-class via `dependsOn`, gated in Phase A | 2026-07-30 |
 | Pilot unit | `streams-collectors` (the interview case) | 2026-07-30 |
 | Retrofit of remaining 18 units | Out of scope (slice 2+) | 2026-07-30 |
+| "Born" definition corrected | Solo/practice only, not guided — closes an orphaned-solo edge case found in final review | 2026-08-02 |
