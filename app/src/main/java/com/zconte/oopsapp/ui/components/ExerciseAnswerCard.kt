@@ -59,6 +59,18 @@ fun ExerciseAnswerCard(
     modifier: Modifier = Modifier
 ) {
     val exercise = state.exercise
+
+    if (exercise.type == ExerciseType.WORKED_EXAMPLE) {
+        WorkedExampleCard(
+            exercise = exercise,
+            currentIndex = state.currentIndex,
+            totalExercises = state.totalExercises,
+            onNext = onNext,
+            modifier = modifier
+        )
+        return
+    }
+
     var answer by remember(exercise.id) { mutableStateOf("") }
     var selectedOption by remember(exercise.id) { mutableStateOf<String?>(null) }
     val mcqOptions = remember(exercise.id) {
@@ -197,6 +209,35 @@ fun ExerciseAnswerCard(
             ) {
                 Text("SIGUIENTE", style = MaterialTheme.typography.titleMedium)
             }
+        }
+    }
+}
+
+@Composable
+private fun WorkedExampleCard(
+    exercise: ExerciseContent,
+    currentIndex: Int,
+    totalExercises: Int,
+    onNext: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Text(
+            text = "Ejemplo $currentIndex de $totalExercises",
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(text = exercise.prompt, style = MaterialTheme.typography.titleMedium)
+        exercise.code?.let { code ->
+            CodeBlock(code = code, filledAnswer = null, modifier = Modifier.fillMaxWidth())
+        }
+        Text(text = exercise.explanation, style = MaterialTheme.typography.bodyMedium)
+        Button(
+            onClick = onNext,
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+        ) {
+            Text("CONTINUAR")
         }
     }
 }

@@ -83,4 +83,19 @@ class GetPlacementCheckpointSessionUseCaseTest {
 
         assertTrue(result.isEmpty())
     }
+
+    @Test
+    fun `worked_example cards are never sampled as placement questions`() = runTest {
+        val pool = listOf(
+            Exercise("u1-intro", "u1", "worked_example", "{}", 1),
+            Exercise("u1-q1", "u1", "mcq", "{}", 1),
+            Exercise("u1-q2", "u1", "mcq", "{}", 1)
+        )
+        val repository = FakeExerciseRepositoryForPlacementSession(mapOf("u1" to pool))
+        val useCase = GetPlacementCheckpointSessionUseCase(repository)
+
+        val result = useCase(listOf("u1"))
+
+        assertTrue(result.none { it.id == "u1-intro" })
+    }
 }

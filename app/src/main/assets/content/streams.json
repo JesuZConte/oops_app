@@ -255,14 +255,29 @@
       },
       "exercises": [
         {
-          "id": "streams-14",
-          "type": "fill_blank",
+          "id": "collectors-gb-intro",
+          "type": "worked_example",
           "difficulty": 2,
-          "prompt": "Une los elementos del stream en un String separado por coma:",
-          "code": "stream.collect(Collectors._____(\", \"))",
-          "answer": "joining",
-          "distractors": ["toList", "toSet", "groupingBy"],
-          "explanation": "Collectors.joining() concatena Strings con el separador dado."
+          "prompt": "Agrupar una lista por una propiedad con Collectors.groupingBy",
+          "code": "Map<String, List<User>> porDepto = users.stream()\n    .collect(Collectors.groupingBy(User::getDepartment));\n// { \"Ventas\": [ana, luis], \"IT\": [sofia] }",
+          "answer": "ok",
+          "explanation": "groupingBy devuelve un Map: cada clave es el criterio y su valor es la lista de elementos de ese grupo.",
+          "conceptId": "collectors-groupingby",
+          "role": "intro",
+          "pathOrder": 0
+        },
+        {
+          "id": "collectors-gb-guided",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Completa el metodo para agrupar por departamento (pista: agrupar -> grouping...):",
+          "code": "users.stream().collect(Collectors._____(User::getDepartment))",
+          "answer": "groupingBy",
+          "distractors": ["partitioningBy"],
+          "explanation": "groupingBy agrupa por una clave derivada; partitioningBy solo divide en true/false.",
+          "conceptId": "collectors-groupingby",
+          "role": "guided",
+          "pathOrder": 1
         },
         {
           "id": "streams-19",
@@ -272,7 +287,92 @@
           "code": "stream.collect(Collectors._____(String::length))",
           "answer": "groupingBy",
           "distractors": ["joining", "toMap", "partitioningBy"],
-          "explanation": "Collectors.groupingBy() agrupa elementos en un Map segun la funcion clasificadora."
+          "explanation": "Collectors.groupingBy() agrupa elementos en un Map segun la funcion clasificadora.",
+          "conceptId": "collectors-groupingby",
+          "role": "solo",
+          "pathOrder": 2
+        },
+        {
+          "id": "collectors-pb-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "Dividir en dos grupos con Collectors.partitioningBy",
+          "code": "Map<Boolean, List<User>> porSueldo = users.stream()\n    .collect(Collectors.partitioningBy(u -> u.getSalary() > 1000));\n// { false: [...], true: [...] }",
+          "answer": "ok",
+          "explanation": "partitioningBy recibe un predicado y devuelve un Map con exactamente dos claves: false y true.",
+          "conceptId": "collectors-partitioningby",
+          "role": "intro",
+          "pathOrder": 3
+        },
+        {
+          "id": "collectors-pb-guided",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Completa el metodo para dividir por un predicado (pista: dividir en 2 -> partitioning...):",
+          "code": "users.stream().collect(Collectors._____(u -> u.getSalary() > 1000))",
+          "answer": "partitioningBy",
+          "distractors": ["groupingBy"],
+          "explanation": "partitioningBy divide en true/false; groupingBy agruparia por el valor devuelto.",
+          "conceptId": "collectors-partitioningby",
+          "role": "guided",
+          "pathOrder": 4
+        },
+        {
+          "id": "collectors-pb-solo",
+          "type": "fill_blank",
+          "difficulty": 3,
+          "prompt": "Divide los numeros en pares e impares:",
+          "code": "numeros.stream().collect(Collectors._____(n -> n % 2 == 0))",
+          "answer": "partitioningBy",
+          "distractors": ["groupingBy", "toMap", "joining"],
+          "explanation": "partitioningBy(predicado) devuelve un Map<Boolean, List<...>> con las claves false y true.",
+          "conceptId": "collectors-partitioningby",
+          "role": "solo",
+          "pathOrder": 5
+        },
+        {
+          "id": "collectors-combo-intro",
+          "type": "worked_example",
+          "difficulty": 4,
+          "prompt": "Combinar particion y agrupacion (el caso de la entrevista)",
+          "code": "users.stream().collect(\n    Collectors.partitioningBy(u -> u.getSalary() > X,\n        Collectors.groupingBy(User::getDepartment)));",
+          "answer": "ok",
+          "explanation": "partitioningBy acepta un segundo Collector aguas abajo: primero divide por sueldo y dentro de cada mitad agrupa por departamento.",
+          "conceptId": "collectors-partition-then-group",
+          "role": "intro",
+          "pathOrder": 6,
+          "dependsOn": ["collectors-groupingby", "collectors-partitioningby"]
+        },
+        {
+          "id": "collectors-combo-solo",
+          "type": "parsons",
+          "difficulty": 4,
+          "prompt": "Ordena las lineas: divide por sueldo (> X) y dentro de cada grupo agrupa por departamento:",
+          "lines": [
+            "users.stream().collect(",
+            "Collectors.partitioningBy(u -> u.getSalary() > X,",
+            "Collectors.groupingBy(User::getDepartment)));"
+          ],
+          "answer": "users.stream().collect(\nCollectors.partitioningBy(u -> u.getSalary() > X,\nCollectors.groupingBy(User::getDepartment)));",
+          "code": "users.stream().collect(\nCollectors.partitioningBy(u -> u.getSalary() > X,\nCollectors.groupingBy(User::getDepartment)));",
+          "explanation": "partitioningBy con un groupingBy aguas abajo particiona y luego agrupa dentro de cada particion.",
+          "conceptId": "collectors-partition-then-group",
+          "role": "solo",
+          "pathOrder": 7,
+          "dependsOn": ["collectors-groupingby", "collectors-partitioningby"]
+        },
+        {
+          "id": "streams-14",
+          "type": "fill_blank",
+          "difficulty": 2,
+          "prompt": "Une los elementos del stream en un String separado por coma:",
+          "code": "stream.collect(Collectors._____(\", \"))",
+          "answer": "joining",
+          "distractors": ["toList", "toSet", "groupingBy"],
+          "explanation": "Collectors.joining() concatena Strings con el separador dado.",
+          "conceptId": "collectors-joining",
+          "role": "solo",
+          "pathOrder": 8
         },
         {
           "id": "streams-parsons-02",
@@ -282,7 +382,10 @@
           "lines": ["palabras.stream()", ".map(String::toUpperCase)", ".collect(Collectors.toList())"],
           "answer": "palabras.stream()\n.map(String::toUpperCase)\n.collect(Collectors.toList())",
           "code": "palabras.stream()\n.map(String::toUpperCase)\n.collect(Collectors.toList())",
-          "explanation": "map() transforma cada elemento y collect(Collectors.toList()) los acumula en una lista nueva."
+          "explanation": "map() transforma cada elemento y collect(Collectors.toList()) los acumula en una lista nueva.",
+          "conceptId": "collectors-tolist",
+          "role": "solo",
+          "pathOrder": 9
         }
       ]
     }

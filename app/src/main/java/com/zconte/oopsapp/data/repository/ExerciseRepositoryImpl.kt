@@ -5,24 +5,27 @@ import com.zconte.oopsapp.data.local.dao.ReviewStateDao
 import com.zconte.oopsapp.data.local.entity.ExerciseEntity
 import com.zconte.oopsapp.data.local.entity.ReviewStateEntity
 import com.zconte.oopsapp.domain.model.Exercise
+import com.zconte.oopsapp.domain.model.ExerciseContent
 import com.zconte.oopsapp.domain.model.ReviewState
 import com.zconte.oopsapp.domain.repository.ExerciseRepository
 import java.time.LocalDate
 import javax.inject.Inject
+import kotlinx.serialization.json.Json
 
 class ExerciseRepositoryImpl @Inject constructor(
     private val exerciseDao: ExerciseDao,
-    private val reviewStateDao: ReviewStateDao
+    private val reviewStateDao: ReviewStateDao,
+    private val json: Json
 ) : ExerciseRepository {
 
     override suspend fun getDueExercises(today: LocalDate, limit: Int): List<Exercise> =
-        exerciseDao.getDue(today.toEpochDay()).take(limit).map { it.toDomain() }
+        exerciseDao.getDue(today.toEpochDay()).take(limit).map { it.toDomain(json) }
 
     override suspend fun getExercisesByUnit(unitId: String): List<Exercise> =
-        exerciseDao.getByUnit(unitId).map { it.toDomain() }
+        exerciseDao.getByUnit(unitId).map { it.toDomain(json) }
 
     override suspend fun getExercisesBySection(sectionId: String): List<Exercise> =
-        exerciseDao.getBySection(sectionId).map { it.toDomain() }
+        exerciseDao.getBySection(sectionId).map { it.toDomain(json) }
 
     override suspend fun getReviewState(exerciseId: String): ReviewState? =
         reviewStateDao.getByExerciseId(exerciseId)?.toDomain()
@@ -35,9 +38,21 @@ class ExerciseRepositoryImpl @Inject constructor(
         if (exerciseIds.isEmpty()) emptyList() else reviewStateDao.getExistingIds(exerciseIds)
 }
 
-private fun ExerciseEntity.toDomain() = Exercise(
-    id = id, unitId = unitId, type = type, payload = payload, difficulty = difficulty, examVersion = examVersion
-)
+internal fun ExerciseEntity.toDomain(json: Json): Exercise {
+    val content = json.decodeFromString(ExerciseContent.serializer(), payload)
+    return Exercise(
+        id = id,
+        unitId = unitId,
+        type = type,
+        payload = payload,
+        difficulty = difficulty,
+        examVersion = examVersion,
+        conceptId = content.conceptId,
+        role = content.role,
+        pathOrder = content.pathOrder,
+        dependsOn = content.dependsOn
+    )
+}
 
 private fun ReviewStateEntity.toDomain() = ReviewState(
     exerciseId = exerciseId,

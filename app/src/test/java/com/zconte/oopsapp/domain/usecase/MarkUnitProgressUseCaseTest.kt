@@ -73,4 +73,23 @@ class MarkUnitProgressUseCaseTest {
 
         assertTrue(contentRepository.markedComplete.isEmpty())
     }
+
+    @Test
+    fun `worked_example cards are excluded from the completion check`() = runTest {
+        val exerciseRepository = FakeExerciseRepositoryForUnitProgress(
+            exercisesByUnit = mapOf(
+                "unit-1" to listOf(
+                    Exercise("intro-1", "unit-1", "worked_example", "{}", 1),
+                    exercise("solo-1")
+                )
+            ),
+            answeredIds = setOf("solo-1") // the intro is never answered
+        )
+        val contentRepository = FakeContentRepositoryForUnitProgress()
+        val useCase = MarkUnitProgressUseCase(exerciseRepository, contentRepository)
+
+        useCase("unit-1", today)
+
+        assertEquals(listOf("unit-1"), contentRepository.markedComplete)
+    }
 }

@@ -12,5 +12,10 @@ data class ExerciseContent(
     val answer: String,
     val distractors: List<String> = emptyList(),
     val lines: List<String> = emptyList(),
-    val explanation: String
+    val explanation: String,
+    // Ladder metadata (payload-only; all optional so legacy content still parses):
+    val conceptId: String? = null,
+    val role: String? = null,
+    val pathOrder: Int? = null,
+    val dependsOn: List<String> = emptyList()
 )
