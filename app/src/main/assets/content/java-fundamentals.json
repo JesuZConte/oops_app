@@ -1434,6 +1434,21 @@
           "pathOrder": 2
         },
         {
+          "id": "fund-enum-metodos-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "Todo enum trae automaticamente los metodos values() y valueOf()",
+          "code": "enum Dia { LUNES, MARTES, MIERCOLES; }\nDia[] todos = Dia.values();\nDia elegido = Dia.valueOf(\"MARTES\");",
+          "answer": "ok",
+          "explanation": "El compilador genera values() (array con todas las constantes, en orden de declaracion) y valueOf(String) (busca una constante por su nombre exacto) automaticamente para todo enum, sin que el programador tenga que escribirlos.",
+          "conceptId": "enum-metodos",
+          "role": "intro",
+          "pathOrder": 3,
+          "dependsOn": [
+            "enum-basico"
+          ]
+        },
+        {
           "id": "fund-enum-values",
           "type": "mcq",
           "difficulty": 2,
@@ -1447,7 +1462,7 @@
           "explanation": "values() es un metodo generado automaticamente por el compilador para todo enum; devuelve un array ordenado segun la declaracion.",
           "conceptId": "enum-metodos",
           "role": "guided",
-          "pathOrder": 3,
+          "pathOrder": 4,
           "dependsOn": [
             "enum-basico"
           ]
@@ -1462,7 +1477,7 @@
           "explanation": "valueOf(String) busca la constante cuyo nombre coincide exactamente (sensible a mayusculas) y la devuelve; System.out.println(d) imprime el nombre de la constante.",
           "conceptId": "enum-metodos",
           "role": "solo",
-          "pathOrder": 4,
+          "pathOrder": 5,
           "dependsOn": [
             "enum-basico"
           ]
@@ -1477,7 +1492,7 @@
           "explanation": "Cada constante llama al constructor con los argumentos indicados entre parentesis, en el momento en que el enum se carga; masa queda fijo para cada constante.",
           "conceptId": "enum-constructor",
           "role": "intro",
-          "pathOrder": 5,
+          "pathOrder": 6,
           "dependsOn": [
             "enum-basico"
           ]
@@ -1496,7 +1511,7 @@
           "explanation": "Las constantes de un enum son las unicas instancias posibles; permitir un constructor public/protected implicaria poder crear instancias adicionales con new desde afuera, lo cual el lenguaje prohibe explicitamente.",
           "conceptId": "enum-constructor",
           "role": "guided",
-          "pathOrder": 6,
+          "pathOrder": 7,
           "dependsOn": [
             "enum-basico"
           ]
@@ -1516,7 +1531,7 @@
           "explanation": "this.masa = masa asigna el argumento del constructor al campo de instancia masa, igual que en cualquier clase normal.",
           "conceptId": "enum-constructor",
           "role": "solo",
-          "pathOrder": 7,
+          "pathOrder": 8,
           "dependsOn": [
             "enum-basico"
           ]
