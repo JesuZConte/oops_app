@@ -521,6 +521,19 @@ Add these 3 units as the new last elements of `java-fundamentals.json`'s
           "pathOrder": 2
         },
         {
+          "id": "fund-enum-metodos-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "Todo enum trae automaticamente los metodos values() y valueOf()",
+          "code": "enum Dia { LUNES, MARTES, MIERCOLES; }\nDia[] todos = Dia.values();\nDia elegido = Dia.valueOf(\"MARTES\");",
+          "answer": "ok",
+          "explanation": "El compilador genera values() (array con todas las constantes, en orden de declaracion) y valueOf(String) (busca una constante por su nombre exacto) automaticamente para todo enum, sin que el programador tenga que escribirlos.",
+          "conceptId": "enum-metodos",
+          "role": "intro",
+          "pathOrder": 3,
+          "dependsOn": ["enum-basico"]
+        },
+        {
           "id": "fund-enum-values",
           "type": "mcq",
           "difficulty": 2,
@@ -530,7 +543,7 @@ Add these 3 units as the new last elements of `java-fundamentals.json`'s
           "explanation": "values() es un metodo generado automaticamente por el compilador para todo enum; devuelve un array ordenado segun la declaracion.",
           "conceptId": "enum-metodos",
           "role": "guided",
-          "pathOrder": 3,
+          "pathOrder": 4,
           "dependsOn": ["enum-basico"]
         },
         {
@@ -543,7 +556,7 @@ Add these 3 units as the new last elements of `java-fundamentals.json`'s
           "explanation": "valueOf(String) busca la constante cuyo nombre coincide exactamente (sensible a mayusculas) y la devuelve; System.out.println(d) imprime el nombre de la constante.",
           "conceptId": "enum-metodos",
           "role": "solo",
-          "pathOrder": 4,
+          "pathOrder": 5,
           "dependsOn": ["enum-basico"]
         },
         {
@@ -556,7 +569,7 @@ Add these 3 units as the new last elements of `java-fundamentals.json`'s
           "explanation": "Cada constante llama al constructor con los argumentos indicados entre parentesis, en el momento en que el enum se carga; masa queda fijo para cada constante.",
           "conceptId": "enum-constructor",
           "role": "intro",
-          "pathOrder": 5,
+          "pathOrder": 6,
           "dependsOn": ["enum-basico"]
         },
         {
@@ -569,7 +582,7 @@ Add these 3 units as the new last elements of `java-fundamentals.json`'s
           "explanation": "Las constantes de un enum son las unicas instancias posibles; permitir un constructor public/protected implicaria poder crear instancias adicionales con new desde afuera, lo cual el lenguaje prohibe explicitamente.",
           "conceptId": "enum-constructor",
           "role": "guided",
-          "pathOrder": 6,
+          "pathOrder": 7,
           "dependsOn": ["enum-basico"]
         },
         {
@@ -583,7 +596,7 @@ Add these 3 units as the new last elements of `java-fundamentals.json`'s
           "explanation": "this.masa = masa asigna el argumento del constructor al campo de instancia masa, igual que en cualquier clase normal.",
           "conceptId": "enum-constructor",
           "role": "solo",
-          "pathOrder": 7,
+          "pathOrder": 8,
           "dependsOn": ["enum-basico"]
         },
         {
@@ -661,6 +674,39 @@ git add app/src/main/assets/content/java-fundamentals.json \
         app/src/main/java/com/zconte/oopsapp/data/content/ContentSeeder.kt
 git commit -m "content: retrofit Estructura de una clase + add OOP-core units to Fundamentos de Java (sub-cycle 2)"
 ```
+
+---
+
+## Post-review corrections (applied after this plan was executed)
+
+Two rounds of review found real issues in the JSON shown above. The steps
+above are left as a historical record of what was dispatched; the actual
+merged content differs as follows:
+
+1. **`enum-metodos` gained an intro exercise** (`fund-enum-metodos-intro`,
+   `worked_example`, `pathOrder: 3`) that Step 2's JSON above doesn't show —
+   the task-review found the concept had `guided`+`solo` but no `intro`,
+   inconsistent with every other concept; Luis chose strict consistency.
+   `fund-enum-values`/`fund-enum-valueof`/`fund-enum-constructor-*` all
+   shifted `pathOrder` by +1 from what's shown above.
+2. **Steps 1a/1c/1d/1f are wrong — do not add `conceptId`/`role`/`pathOrder`
+   to `fund-class-01`, `fund-class-03`, `fund-class-04`, or `fund-class-06`.**
+   The final whole-branch review found that giving the concept
+   `encapsulacion-getter-setter` four terminal-role (`solo`/`practice`)
+   exercises is a real bug: `GetTodaySessionUseCase` marks a concept "born"
+   the moment ANY ONE terminal-role exercise is answered, permanently
+   excluding that concept's other unanswered exercises — a fresh install
+   could get stranded partway through this unit. Only Steps 1b/1g stand
+   (`fund-class-02` as the sole `solo` for `constructor-basico`,
+   `fund-parsons-01` as the sole `solo` for `encapsulacion-getter-setter`);
+   `fund-class-01`/`03`/`04`/`06` stay plain, exactly like `fund-class-05`.
+   A regression test for this behavior was added to
+   `GetTodaySessionUseCaseTest.kt`. **Lesson for future retrofit cycles:**
+   never give a single concept more than one `solo`/`practice`-role
+   exercise.
+
+Final exercise count after both corrections: 11 units, 99 exercises (not
+the 98 in Step 5 above).
 
 ---
 
