@@ -20,10 +20,16 @@ with no external material can learn every topic from scratch inside the app and
 arrive ready to sit the **Oracle Certified Professional: Java SE 21 Developer
 certification (exam 1Z0-830)**.
 
+The exam is the **floor, not the ceiling**: the Path covers 100% of the real
+1Z0-830 objectives as its mandatory core, plus extra sections explicitly
+marked as "beyond the exam" (JDBC, Annotations, Security, modern Java 22-25)
+because they carry real interview value even though Oracle doesn't test them.
+See `docs/adrs/2026-08-04-1z0-830-roadmap-correction.md`.
+
 The guiding analogy is Duolingo → IELTS: following the full Path takes you to a
-real level without studying anywhere else; the exam is the final validation.
-In the future the same engine scales to other syllabi (Algorithms, Spring Boot,
-Design Patterns, other languages).
+real level without studying anywhere else; the exam is a milestone along the
+way, not the finish line. In the future the same engine scales to other
+syllabi (Algorithms, Spring Boot, Design Patterns, other languages).
 
 The exam is taken with no IDE, no compiler, and no documentation, so training
 **active recall** and **composition** of the Java API is exactly the skill the
@@ -88,10 +94,13 @@ real exam objective (`certObjective`); progress is grouped by those objectives
 to show *readiness*. Checkpoints are cumulative, unaided assessments that gate
 progression.
 
-Reference domains (1Z0-830, Java SE 21): Language fundamentals & OOP · Generics
-& collections · Streams & lambdas · Exception handling · Concurrency (virtual
-threads) · Modules · JDBC & NIO.2 · Java 21 features (records, sealed classes,
-pattern matching, text blocks).
+Reference domains, core (1Z0-830, Java SE 21, verified against the real exam
+objectives — see `docs/adrs/2026-08-04-1z0-830-roadmap-correction.md`):
+Java fundamentals (data types, control flow, OOP) · Generics & collections
+(incl. arrays) · Streams & lambdas · Exception handling · Concurrency (virtual
+threads) · Modules & packaging · I/O & NIO.2 · Localization · Java 21 features
+(records, sealed classes, pattern matching, text blocks). Extra, beyond the
+exam: JDBC · Annotations · Security · modern Java 22-25.
 
 Graduation feature (future): an adaptive, Duolingo-Test-style mock that
 estimates real readiness to sit the certification.
@@ -104,7 +113,10 @@ estimates real readiness to sit the certification.
 - **Section/Unit/Checkpoint structure:**
   `docs/adrs/2026-07-20-content-structure-sections-checkpoints.md`.
 - **Content and phase roadmap:**
-  `docs/specs/2026-07-20-fase2-content-roadmap.md`.
+  `docs/adrs/2026-08-04-1z0-830-roadmap-correction.md` (current section list,
+  supersedes the section list in `docs/adrs/2026-07-20-content-structure-sections-checkpoints.md`)
+  and `docs/adrs/2026-08-04-ladders-content-retrofit-policy.md` (retrofit
+  execution order for the 5 already-shipped sections).
 - **Data model, SM-2 engine, pack format:** the code is the source
   (`domain/srs/`, `data/local/`, `data/content/`) plus the specs in
   `docs/superpowers/specs/`.
