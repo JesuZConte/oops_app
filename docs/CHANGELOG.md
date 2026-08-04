@@ -1,5 +1,42 @@
 # Changelog
 
+## 2026-08-04 — Giro de visión (Path autosuficiente) + escaleras "aprender haciendo" (slice 1)
+
+Ronda de brainstorming (`docs/adrs/2026-07-30-self-teaching-path-vision.md`) que redefine la premisa del producto: Oops! deja de ser un "compañero de práctica" que asume que el jugador tiene el libro de referencia al lado, y pasa a ser un **Path autosuficiente estilo Duolingo** — enseña cada tema desde cero dentro de la app, con el examen OCP Java SE 21 (1Z0-830) como meta final. `docs/specs/PROJECT-OOPS.md` se reescribió como una constitución corta y durable (propósito, filosofía, restricciones duras, no-objetivos, punteros a ADRs/specs vigentes), eliminando el detalle técnico obsoleto que arrastraba desde Fase 1.
+
+Implementado vía `docs/superpowers/plans/2026-07-31-learn-by-doing-ladders-slice1.md` (6 tareas, subagent-driven-development en worktree aislado), a partir del spec `docs/superpowers/specs/2026-07-30-learn-by-doing-ladders-slice1-design.md`. Prueba el motor completo end-to-end en una sola unidad piloto (`streams-collectors`).
+
+- **Escaleras de primera exposición**: cada concepto nuevo gana un tipo de ejercicio `worked_example` (tarjeta didáctica no rastreada, sin puntaje ni `ReviewState`) que se muestra una vez antes de sus ejercicios `guided`/`solo` normales. Todo viaja dentro del `payload` JSON existente (`conceptId`, `role`, `pathOrder`, `dependsOn`) — sin migración de Room.
+- **Sesión diaria en dos fases**: `GetTodaySessionUseCase` pasa de "vencidos + N nuevos al azar" a "vencidos (Fase B, SRS sin cambios) + próximos pasos del Path en `pathOrder` (Fase A)". Un concepto se filtra de la Fase A completo (incluida su intro) una vez "nacido".
+- **Composición como ciudadana de primera clase**: un concepto puede declarar `dependsOn` sobre otros conceptos: no aparece hasta que todas sus dependencias nacieron. La unidad piloto incluye el caso de entrevista real que motivó todo el giro de visión (separar usuarios por sueldo y agrupar por departamento, combinando `partitioningBy` + `groupingBy`).
+- **Grandfather**: los ids de ejercicio existentes de `streams-collectors` (`streams-14`, `streams-19`, `streams-parsons-02`) se preservaron intactos al re-autorar la unidad, para que el progreso SM-2 real de Luis sobre esos ejercicios no se perdiera.
+
+### Decisiones de diseño resueltas durante la implementación
+
+- **Modelo de "nacido" simplificado dos veces**: la primera vuelta reemplazó la idea original (`intro`/`guided` "consumidos pero nunca agendados", irrepresentable sin tocar Room) por "solo el `intro` es especial; `guided`/`solo` son ejercicios SRS normales". La revisión final de rama encontró que esto igual dejaba un caso huérfano: responder solo el `guided` de un concepto y salir a mitad de escalera marcaba el concepto "nacido" y el `solo` pendiente quedaba inalcanzable (sin `ReviewState`, invisible en ambas fases). Se corrigió redefiniendo "nacido" a exigir específicamente `solo`/`practice` — decisión tomada explícitamente por Luis entre dos alternativas presentadas.
+- **Metadata de escalera "payload-only"**: se descartó un `ConceptPack` a nivel de unidad (propuesta original del spec) en favor de que todos los campos de escalera vivan en `ExerciseContent`, evitando agregar un método a `ContentRepository` que hubiera roto la compilación de todos los fakes de test existentes.
+
+### Bugs encontrados y corregidos
+
+- La revisión final de rama encontró que `ContentSeeder.CURRENT_CONTENT_VERSION` nunca se subió durante la implementación — sin ese bump, el contenido nuevo de escaleras nunca se re-sembraría en una instalación existente (como la de Luis), dejando el feature invisible en producción pese a estar "terminado". Corregido antes de mergear.
+- Un subagente implementador (Tarea 1) commiteó directo al checkout de `main` pese a una instrucción explícita de verificación previa al commit — la instrucción en prosa no fue suficiente por sí sola. Se recuperó vía `git cherry-pick` sin pérdida de trabajo, y las tareas siguientes (2 en adelante) se reforzaron con reglas mecánicas (`git -C <ruta absoluta>` obligatorio en cada comando) que no volvieron a fallar.
+- Un test nuevo de checkpoint (`GetCheckpointSessionUseCaseTest`) usaba una muestra aleatoria (`shuffled().take()`) sobre un pool grande, dándole solo ~50% de probabilidad real de detectar una regresión — corregido a un pool pequeño y determinista.
+
+### QA en dispositivo real
+
+Instalación in-place sobre el dispositivo de Luis (preservando datos reales, ejercitando el camino de actualización con contenido versión 6→7). Confirmado en vivo: arranque sin crashes, progreso real preservado (racha/XP/unidades completas), filtro de tarjetas `worked_example` correcto contra contenido real (7/10 en repetición de unidad), y renderizado correcto de un ejercicio `guided` nuevo. La tarjeta `worked_example` en sí no se pudo observar en vivo — bloqueada por los checkpoints obligatorios pendientes del dispositivo real, cuyo timeout de seguridad se disparó varias veces durante los intentos (confirmando que esa función pre-existente funciona, a costa de tiempo real de sesión). Luis aceptó la evidencia recolectada como suficiente sin seguir persiguiendo esa observación puntual.
+
+### Estado del repo
+
+Mergeado a `main` local (`1286fb6`) y pusheado a `https://github.com/JesuZConte/oops_app`. `.gitignore` corregido en la misma tanda para excluir `.idea/` y `.claude/` completos (antes solo unos pocos archivos sueltos de `.idea` estaban listados, sin cubrir el directorio real que aparecía sin trackear).
+
+### Próximo paso natural
+
+- **Rebanada 1b**: tope de material nuevo *por día* (hoy el tope es por sesión) + estado "por hoy no hay nada nuevo, vuelve mañana" — requiere diseñar un mecanismo de fecha-de-nacimiento de concepto que no existe todavía.
+- **Rebanada 2+**: re-autorar las 18 unidades restantes como escaleras, sección por sección, al ritmo de contenido habitual.
+- Ver en vivo la tarjeta `worked_example` cuando surja naturalmente en el uso diario de Luis (o forzando el escenario en un dispositivo/perfil de prueba aparte).
+- Idea diferida, no comprometida: un "check" visual al llegar a 3 aciertos de un ejercicio (mencionado por Luis durante el brainstorming, separable del motor de escaleras).
+
 ## 2026-07-21 — Fase 2.1: Secciones, Unidades y Checkpoint de repaso
 
 Implementado vía `docs/superpowers/plans/2026-07-20-fase2-1-sections-units-checkpoints.md` (11 tareas, subagent-driven-development), a partir del ADR `docs/adrs/2026-07-20-content-structure-sections-checkpoints.md` y el spec `docs/specs/2026-07-20-fase2-1-foundation-spec.md`. Reemplaza el modelo plano `Topic → Exercise` por una jerarquía **Sección → Unidad → Ejercicio** estilo Duolingo, probada end-to-end con dos secciones reales.
