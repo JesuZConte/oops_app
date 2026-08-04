@@ -154,10 +154,7 @@
             "Un campo estatico de la clase",
             "Un tipo de bucle"
           ],
-          "explanation": "El constructor se ejecuta al crear una instancia con new y suele inicializar los fields.",
-          "conceptId": "constructor-basico",
-          "role": "practice",
-          "pathOrder": 2
+          "explanation": "El constructor se ejecuta al crear una instancia con new y suele inicializar los fields."
         },
         {
           "id": "fund-class-02",
@@ -216,10 +213,7 @@
             "Un constructor",
             "Un field"
           ],
-          "explanation": "Devuelve el valor de un field sin modificarlo: es un getter.",
-          "conceptId": "encapsulacion-getter-setter",
-          "role": "practice",
-          "pathOrder": 6
+          "explanation": "Devuelve el valor de un field sin modificarlo: es un getter."
         },
         {
           "id": "fund-class-04",
@@ -233,10 +227,7 @@
             "Un constructor",
             "Un field"
           ],
-          "explanation": "Recibe un valor y lo asigna a un field: es un setter.",
-          "conceptId": "encapsulacion-getter-setter",
-          "role": "practice",
-          "pathOrder": 7
+          "explanation": "Recibe un valor y lo asigna a un field: es un setter."
         },
         {
           "id": "fund-class-05",
@@ -259,10 +250,7 @@
           "code": "public class Persona {\n    private String _____;\n}",
           "answer": "nombre",
           "distractors": [],
-          "explanation": "Los fields se declaran con un tipo y un identificador dentro del cuerpo de la clase.",
-          "conceptId": "encapsulacion-getter-setter",
-          "role": "practice",
-          "pathOrder": 8
+          "explanation": "Los fields se declaran con un tipo y un identificador dentro del cuerpo de la clase."
         },
         {
           "id": "fund-parsons-01",

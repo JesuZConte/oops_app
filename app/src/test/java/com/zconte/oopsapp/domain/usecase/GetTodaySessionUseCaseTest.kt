@@ -309,4 +309,31 @@ class GetTodaySessionUseCaseTest {
         // NOT born yet (guided alone doesn't count), so its intro and solo remain.
         assertEquals(listOf("gb-intro", "gb-solo"), result.map { it.id })
     }
+
+    @Test
+    fun `answering one terminal role excludes the concept's other unanswered terminal exercise`() = runTest {
+        val contentRepository = FakeContentRepositoryForTodaySession(
+            sections = listOf(section("s1", 1)),
+            unitsBySection = mapOf("s1" to listOf(unit("s1-u1", "s1", 1))),
+            completedUnits = emptyList()
+        )
+        // "gb" has two terminal-role exercises: gb-practice and gb-solo. Answering
+        // just gb-practice already marks the concept "born", so gb-solo - never
+        // shown or answered - is stranded out of future candidate lists. This is
+        // the current (buggy) engine behavior; this test documents/guards it.
+        val exerciseRepository = FakeExerciseRepositoryForSession(
+            exercisesByUnit = mapOf(
+                "s1-u1" to listOf(
+                    exercise("gb-practice", conceptId = "gb", role = "practice", pathOrder = 1),
+                    exercise("gb-solo", conceptId = "gb", role = "solo", pathOrder = 2)
+                )
+            ),
+            answeredIds = setOf("gb-practice")
+        )
+        val useCase = GetTodaySessionUseCase(exerciseRepository, currentUnitUseCase(contentRepository, exerciseRepository))
+
+        val result = useCase(today)
+
+        assertEquals(emptyList<String>(), result.map { it.id })
+    }
 }
