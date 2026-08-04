@@ -20,7 +20,11 @@
           "difficulty": 1,
           "prompt": "Que significa JVM?",
           "answer": "Java Virtual Machine",
-          "distractors": ["Java Verified Method", "Java Variable Manager", "Java Visual Machine"],
+          "distractors": [
+            "Java Verified Method",
+            "Java Variable Manager",
+            "Java Visual Machine"
+          ],
           "explanation": "La JVM (Java Virtual Machine) es el programa que ejecuta el bytecode Java, independiente del sistema operativo."
         },
         {
@@ -29,7 +33,11 @@
           "difficulty": 1,
           "prompt": "Que transforma el codigo fuente .java en bytecode .class?",
           "answer": "El compilador (javac)",
-          "distractors": ["La JVM", "El JRE", "El sistema operativo"],
+          "distractors": [
+            "La JVM",
+            "El JRE",
+            "El sistema operativo"
+          ],
           "explanation": "javac es el compilador que traduce codigo fuente Java a bytecode."
         },
         {
@@ -39,7 +47,11 @@
           "prompt": "Compila Main.java desde la terminal:",
           "code": "_____ Main.java",
           "answer": "javac",
-          "distractors": ["java", "jar", "jshell"],
+          "distractors": [
+            "java",
+            "jar",
+            "jshell"
+          ],
           "explanation": "javac Main.java genera Main.class con el bytecode."
         },
         {
@@ -49,7 +61,11 @@
           "prompt": "Ejecuta la clase compilada Main:",
           "code": "_____ Main",
           "answer": "java",
-          "distractors": ["javac", "jar", "jshell"],
+          "distractors": [
+            "javac",
+            "jar",
+            "jshell"
+          ],
           "explanation": "El comando java arranca la JVM y ejecuta la clase indicada."
         },
         {
@@ -58,7 +74,11 @@
           "difficulty": 2,
           "prompt": "Que incluye el JDK que el JRE no incluye?",
           "answer": "Herramientas de desarrollo (como el compilador)",
-          "distractors": ["La JVM", "Las librerias estandar", "El recolector de basura"],
+          "distractors": [
+            "La JVM",
+            "Las librerias estandar",
+            "El recolector de basura"
+          ],
           "explanation": "El JDK (Java Development Kit) es el JRE mas herramientas de desarrollo (javac, jshell, etc.). El JRE (Java Runtime Environment) solo permite ejecutar, no compilar."
         },
         {
@@ -67,7 +87,11 @@
           "difficulty": 2,
           "prompt": "Java es un lenguaje...",
           "answer": "Compilado a bytecode e interpretado/JIT por la JVM",
-          "distractors": ["Puramente interpretado, sin compilacion", "Compilado directo a codigo maquina nativo", "Que no necesita ningun runtime"],
+          "distractors": [
+            "Puramente interpretado, sin compilacion",
+            "Compilado directo a codigo maquina nativo",
+            "Que no necesita ningun runtime"
+          ],
           "explanation": "Java compila a bytecode intermedio; la JVM lo interpreta y ademas compila en caliente partes del codigo a codigo nativo en tiempo de ejecucion (JIT)."
         },
         {
@@ -92,13 +116,48 @@
       },
       "exercises": [
         {
+          "id": "fund-constructor-intro",
+          "type": "worked_example",
+          "difficulty": 1,
+          "prompt": "El constructor inicializa un objeto nuevo al crearlo con new",
+          "code": "public class Persona {\n    private String nombre;\n\n    public Persona(String nombre) {\n        this.nombre = nombre;\n    }\n}",
+          "answer": "ok",
+          "explanation": "El constructor tiene el mismo nombre que la clase, no declara tipo de retorno, y se ejecuta automaticamente al usar new Persona(...).",
+          "conceptId": "constructor-basico",
+          "role": "intro",
+          "pathOrder": 0
+        },
+        {
+          "id": "fund-constructor-guided",
+          "type": "mcq",
+          "difficulty": 1,
+          "prompt": "Que caracteristica distingue a un constructor de un metodo normal?",
+          "answer": "No declara tipo de retorno y tiene el mismo nombre que la clase",
+          "distractors": [
+            "Siempre debe ser private",
+            "Debe llamarse init",
+            "No puede recibir parametros"
+          ],
+          "explanation": "Un constructor se identifica por dos reglas: mismo nombre que la clase, y sin tipo de retorno (ni siquiera void).",
+          "conceptId": "constructor-basico",
+          "role": "guided",
+          "pathOrder": 1
+        },
+        {
           "id": "fund-class-01",
           "type": "mcq",
           "difficulty": 1,
           "prompt": "Que es un constructor?",
           "answer": "Un metodo especial que inicializa un objeto nuevo",
-          "distractors": ["Un metodo que devuelve un valor obligatoriamente", "Un campo estatico de la clase", "Un tipo de bucle"],
-          "explanation": "El constructor se ejecuta al crear una instancia con new y suele inicializar los fields."
+          "distractors": [
+            "Un metodo que devuelve un valor obligatoriamente",
+            "Un campo estatico de la clase",
+            "Un tipo de bucle"
+          ],
+          "explanation": "El constructor se ejecuta al crear una instancia con new y suele inicializar los fields.",
+          "conceptId": "constructor-basico",
+          "role": "practice",
+          "pathOrder": 2
         },
         {
           "id": "fund-class-02",
@@ -107,8 +166,43 @@
           "prompt": "Que es este bloque de codigo?",
           "code": "public Persona(String nombre) {\n    this.nombre = nombre;\n}",
           "answer": "Un constructor",
-          "distractors": ["Un getter", "Un setter", "Un metodo estatico"],
-          "explanation": "Tiene el mismo nombre que la clase y no declara tipo de retorno: es un constructor."
+          "distractors": [
+            "Un getter",
+            "Un setter",
+            "Un metodo estatico"
+          ],
+          "explanation": "Tiene el mismo nombre que la clase y no declara tipo de retorno: es un constructor.",
+          "conceptId": "constructor-basico",
+          "role": "solo",
+          "pathOrder": 3
+        },
+        {
+          "id": "fund-encapsulacion-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "Encapsulacion: campos privados, acceso controlado via getters y setters",
+          "code": "private String nombre;\n\npublic String getNombre() {\n    return nombre;\n}\n\npublic void setNombre(String nombre) {\n    this.nombre = nombre;\n}",
+          "answer": "ok",
+          "explanation": "El field es private (nadie fuera de la clase lo toca directo); el getter expone el valor de forma controlada y el setter permite modificarlo, pudiendo agregar validacion.",
+          "conceptId": "encapsulacion-getter-setter",
+          "role": "intro",
+          "pathOrder": 4
+        },
+        {
+          "id": "fund-encapsulacion-guided",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Por que se declara un field como private en vez de public?",
+          "answer": "Para controlar el acceso: el objeto decide como se lee y modifica su propio estado, en vez de exponerlo directamente",
+          "distractors": [
+            "Porque los fields public no compilan",
+            "Porque private hace que el codigo corra mas rapido",
+            "No hay ninguna razon real, es solo convencion sin efecto"
+          ],
+          "explanation": "Encapsular con private mas getters/setters deja la puerta abierta a agregar validacion o logica despues, sin romper el resto del codigo que ya usa esos metodos.",
+          "conceptId": "encapsulacion-getter-setter",
+          "role": "guided",
+          "pathOrder": 5
         },
         {
           "id": "fund-class-03",
@@ -117,8 +211,15 @@
           "prompt": "Que es este metodo?",
           "code": "public String getNombre() {\n    return nombre;\n}",
           "answer": "Un getter",
-          "distractors": ["Un setter", "Un constructor", "Un field"],
-          "explanation": "Devuelve el valor de un field sin modificarlo: es un getter."
+          "distractors": [
+            "Un setter",
+            "Un constructor",
+            "Un field"
+          ],
+          "explanation": "Devuelve el valor de un field sin modificarlo: es un getter.",
+          "conceptId": "encapsulacion-getter-setter",
+          "role": "practice",
+          "pathOrder": 6
         },
         {
           "id": "fund-class-04",
@@ -127,8 +228,15 @@
           "prompt": "Que es este metodo?",
           "code": "public void setNombre(String nombre) {\n    this.nombre = nombre;\n}",
           "answer": "Un setter",
-          "distractors": ["Un getter", "Un constructor", "Un field"],
-          "explanation": "Recibe un valor y lo asigna a un field: es un setter."
+          "distractors": [
+            "Un getter",
+            "Un constructor",
+            "Un field"
+          ],
+          "explanation": "Recibe un valor y lo asigna a un field: es un setter.",
+          "conceptId": "encapsulacion-getter-setter",
+          "role": "practice",
+          "pathOrder": 7
         },
         {
           "id": "fund-class-05",
@@ -136,7 +244,11 @@
           "difficulty": 3,
           "prompt": "Puede un archivo .java contener mas de una clase de nivel superior?",
           "answer": "Si, pero solo una puede ser public y debe coincidir con el nombre del archivo",
-          "distractors": ["No, nunca mas de una clase por archivo", "Si, todas pueden ser public", "No, el nombre del archivo no importa"],
+          "distractors": [
+            "No, nunca mas de una clase por archivo",
+            "Si, todas pueden ser public",
+            "No, el nombre del archivo no importa"
+          ],
           "explanation": "Un archivo puede tener varias clases top-level, pero como maximo una public, y su nombre debe coincidir con el del archivo."
         },
         {
@@ -147,17 +259,27 @@
           "code": "public class Persona {\n    private String _____;\n}",
           "answer": "nombre",
           "distractors": [],
-          "explanation": "Los fields se declaran con un tipo y un identificador dentro del cuerpo de la clase."
+          "explanation": "Los fields se declaran con un tipo y un identificador dentro del cuerpo de la clase.",
+          "conceptId": "encapsulacion-getter-setter",
+          "role": "practice",
+          "pathOrder": 8
         },
         {
           "id": "fund-parsons-01",
           "type": "parsons",
           "difficulty": 1,
           "prompt": "Ordena las lineas para formar el getter del field nombre:",
-          "lines": ["public String getNombre() {", "    return nombre;", "}"],
+          "lines": [
+            "public String getNombre() {",
+            "    return nombre;",
+            "}"
+          ],
           "answer": "public String getNombre() {\n    return nombre;\n}",
           "code": "public String getNombre() {\n    return nombre;\n}",
-          "explanation": "Un getter declara el tipo de retorno y su nombre, contiene un return con el valor del field, y cierra con la llave correspondiente."
+          "explanation": "Un getter declara el tipo de retorno y su nombre, contiene un return con el valor del field, y cierra con la llave correspondiente.",
+          "conceptId": "encapsulacion-getter-setter",
+          "role": "solo",
+          "pathOrder": 9
         }
       ]
     },
@@ -177,7 +299,11 @@
           "difficulty": 2,
           "prompt": "Cual es la firma correcta del metodo main?",
           "answer": "public static void main(String[] args)",
-          "distractors": ["public void main(String[] args)", "static void main(String args)", "public static int main(String[] args)"],
+          "distractors": [
+            "public void main(String[] args)",
+            "static void main(String args)",
+            "public static int main(String[] args)"
+          ],
           "explanation": "main debe ser public, static, sin retorno (void), y recibir un arreglo de String."
         },
         {
@@ -186,7 +312,11 @@
           "difficulty": 1,
           "prompt": "Cual de estos es un tipo primitivo en Java?",
           "answer": "int",
-          "distractors": ["String", "Integer", "ArrayList"],
+          "distractors": [
+            "String",
+            "Integer",
+            "ArrayList"
+          ],
           "explanation": "int es primitivo; String, Integer y ArrayList son tipos de referencia (clases)."
         },
         {
@@ -205,7 +335,11 @@
           "difficulty": 2,
           "prompt": "Que diferencia hay entre int e Integer?",
           "answer": "int es primitivo, Integer es un objeto que lo envuelve (wrapper)",
-          "distractors": ["No hay diferencia", "Integer es primitivo e int es un objeto", "int solo existe en versiones antiguas de Java"],
+          "distractors": [
+            "No hay diferencia",
+            "Integer es primitivo e int es un objeto",
+            "int solo existe en versiones antiguas de Java"
+          ],
           "explanation": "Integer es la clase wrapper de int, permite valores null y se usa en colecciones genericas."
         },
         {
@@ -214,7 +348,11 @@
           "difficulty": 3,
           "prompt": "Por que el metodo main es static?",
           "answer": "Porque la JVM lo invoca sin crear antes una instancia de la clase",
-          "distractors": ["Porque todos los metodos en Java son static", "Porque main no puede acceder a fields", "Porque static hace que el metodo sea mas rapido"],
+          "distractors": [
+            "Porque todos los metodos en Java son static",
+            "Porque main no puede acceder a fields",
+            "Porque static hace que el metodo sea mas rapido"
+          ],
           "explanation": "static permite invocar main directamente sobre la clase, sin necesidad de instanciarla primero."
         },
         {
@@ -222,7 +360,13 @@
           "type": "parsons",
           "difficulty": 1,
           "prompt": "Ordena las lineas para formar una clase Main que imprime Hola:",
-          "lines": ["public class Main {", "    public static void main(String[] args) {", "        System.out.println(\"Hola\");", "    }", "}"],
+          "lines": [
+            "public class Main {",
+            "    public static void main(String[] args) {",
+            "        System.out.println(\"Hola\");",
+            "    }",
+            "}"
+          ],
           "answer": "public class Main {\n    public static void main(String[] args) {\n        System.out.println(\"Hola\");\n    }\n}",
           "code": "public class Main {\n    public static void main(String[] args) {\n        System.out.println(\"Hola\");\n    }\n}",
           "explanation": "La clase contiene el metodo main, que contiene la instruccion a ejecutar; las llaves de apertura y cierre definen el anidamiento."
@@ -266,7 +410,11 @@
           "difficulty": 1,
           "prompt": "Cual es la clase wrapper del primitivo boolean?",
           "answer": "Boolean",
-          "distractors": ["Bool", "Flag", "Bit"],
+          "distractors": [
+            "Bool",
+            "Flag",
+            "Bit"
+          ],
           "explanation": "Cada primitivo tiene un wrapper con el mismo nombre en mayuscula, salvo int->Integer y char->Character.",
           "conceptId": "primitivos-wrappers",
           "role": "guided",
@@ -279,7 +427,11 @@
           "prompt": "Cual es la clase wrapper correcta para declarar 'precio' como objeto, en vez de primitivo?",
           "code": "_____ precio = 9.99;",
           "answer": "Double",
-          "distractors": ["Float", "Number", "DoubleValue"],
+          "distractors": [
+            "Float",
+            "Number",
+            "DoubleValue"
+          ],
           "explanation": "Double (con mayuscula inicial) es la clase wrapper de double; Float y Number son wrappers de otros tipos primitivos, y DoubleValue no existe en Java.",
           "conceptId": "primitivos-wrappers",
           "role": "solo",
@@ -303,7 +455,11 @@
           "difficulty": 2,
           "prompt": "Que ocurre al ejecutar 'Integer x = 5;'?",
           "answer": "Autoboxing: el compilador convierte el int 5 a un objeto Integer",
-          "distractors": ["Error de compilacion, no se puede asignar int a Integer", "Se convierte 5 a String primero", "Se crea un array de un elemento"],
+          "distractors": [
+            "Error de compilacion, no se puede asignar int a Integer",
+            "Se convierte 5 a String primero",
+            "Se crea un array de un elemento"
+          ],
           "explanation": "Java autoboxea automaticamente el primitivo al wrapper equivalente cuando el contexto lo requiere.",
           "conceptId": "autoboxing",
           "role": "guided",
@@ -345,7 +501,11 @@
           "difficulty": 2,
           "prompt": "Una consultora IT grande te pregunta: por que Java tiene primitivos y wrappers en vez de un solo tipo numerico?",
           "answer": "Los primitivos dan mejor rendimiento al evitar el overhead de crear objetos; los wrappers existen porque los generics (como List<T>) solo aceptan objetos, no primitivos",
-          "distractors": ["Es un error de diseno heredado que nunca se corrigio", "Los wrappers son mas rapidos que los primitivos en cualquier caso", "Los primitivos fueron eliminados en versiones recientes de Java"],
+          "distractors": [
+            "Es un error de diseno heredado que nunca se corrigio",
+            "Los wrappers son mas rapidos que los primitivos en cualquier caso",
+            "Los primitivos fueron eliminados en versiones recientes de Java"
+          ],
           "explanation": "Es un balance deliberado: primitivos para eficiencia en operaciones numericas simples, wrappers cuando Java exige un objeto (colecciones, generics)."
         }
       ]
@@ -378,7 +538,11 @@
           "difficulty": 2,
           "prompt": "Que hay que hacer para que 's.concat(\" mundo\")' realmente cambie el valor de s?",
           "answer": "Reasignar el resultado: s = s.concat(\" mundo\");",
-          "distractors": ["Nada, concat() modifica s automaticamente", "Llamar a s.mutable() antes", "Usar concat() dos veces seguidas"],
+          "distractors": [
+            "Nada, concat() modifica s automaticamente",
+            "Llamar a s.mutable() antes",
+            "Usar concat() dos veces seguidas"
+          ],
           "explanation": "Como String es inmutable, hay que capturar el resultado reasignando la variable; de lo contrario el String nuevo se descarta.",
           "conceptId": "string-inmutable",
           "role": "guided",
@@ -414,7 +578,11 @@
           "difficulty": 2,
           "prompt": "Por que conviene usar StringBuilder en vez de String dentro de un loop que concatena muchas veces?",
           "answer": "Porque String crearia un objeto nuevo en cada concatenacion, mientras StringBuilder modifica el mismo objeto",
-          "distractors": ["Porque String no permite concatenar dentro de un loop", "Porque StringBuilder es inmutable y mas seguro", "No hay diferencia real de rendimiento"],
+          "distractors": [
+            "Porque String no permite concatenar dentro de un loop",
+            "Porque StringBuilder es inmutable y mas seguro",
+            "No hay diferencia real de rendimiento"
+          ],
           "explanation": "Cada concatenacion de String descarta un objeto intermedio; StringBuilder evita ese costo reutilizando el mismo buffer.",
           "conceptId": "stringbuilder",
           "role": "guided",
@@ -427,7 +595,11 @@
           "prompt": "Completa para invertir el contenido del StringBuilder:",
           "code": "StringBuilder sb = new StringBuilder(\"abc\");\nsb._____();\nSystem.out.println(sb); // cba",
           "answer": "reverse",
-          "distractors": ["invert", "flip", "toReverse"],
+          "distractors": [
+            "invert",
+            "flip",
+            "toReverse"
+          ],
           "explanation": "reverse() invierte el orden de los caracteres del StringBuilder in-place.",
           "conceptId": "stringbuilder",
           "role": "solo",
@@ -448,7 +620,11 @@
           "difficulty": 3,
           "prompt": "Una empresa de servicios financieros te pregunta: que problema de rendimiento evita usar StringBuilder en vez de += dentro de un loop de miles de iteraciones?",
           "answer": "Evita crear miles de objetos String intermedios descartables, ya que += con String crea un objeto nuevo en cada iteracion",
-          "distractors": ["Evita que el programa se quede sin memoria de forma inmediata en cualquier caso", "Hace que el codigo compile mas rapido", "String += no compila dentro de un loop"],
+          "distractors": [
+            "Evita que el programa se quede sin memoria de forma inmediata en cualquier caso",
+            "Hace que el codigo compile mas rapido",
+            "String += no compila dentro de un loop"
+          ],
           "explanation": "Cada += sobre un String genera un objeto descartado inmediatamente; en un loop grande esto genera mucha basura para el garbage collector. StringBuilder evita ese costo modificando el mismo buffer."
         }
       ]
@@ -481,7 +657,11 @@
           "difficulty": 1,
           "prompt": "Que clase usarias para guardar solo la hora de una alarma, sin fecha?",
           "answer": "LocalTime",
-          "distractors": ["LocalDate", "Instant", "Duration"],
+          "distractors": [
+            "LocalDate",
+            "Instant",
+            "Duration"
+          ],
           "explanation": "LocalTime representa exclusivamente una hora del dia, sin fecha ni zona horaria.",
           "conceptId": "local-date-time",
           "role": "guided",
@@ -494,7 +674,11 @@
           "prompt": "Crea una fecha para el 25 de diciembre de 2026:",
           "code": "LocalDate cumple = LocalDate._____(2026, 12, 25);",
           "answer": "of",
-          "distractors": ["now", "create", "parse"],
+          "distractors": [
+            "now",
+            "create",
+            "parse"
+          ],
           "explanation": "LocalDate.of(anio, mes, dia) construye una fecha especifica; now() devuelve la fecha actual.",
           "conceptId": "local-date-time",
           "role": "solo",
@@ -518,7 +702,11 @@
           "difficulty": 2,
           "prompt": "Necesitas calcular cuantos dias faltan hasta una fecha futura. Que clase usas?",
           "answer": "Period",
-          "distractors": ["Duration", "Instant", "LocalTime"],
+          "distractors": [
+            "Duration",
+            "Instant",
+            "LocalTime"
+          ],
           "explanation": "Period trabaja con unidades de calendario (anios/meses/dias); Duration trabaja con unidades de tiempo exacto (horas/minutos/segundos). Ojo: Period.between() da anios/meses/dias por separado, no un total de dias; para el total de dias se usa ChronoUnit.DAYS.between().",
           "conceptId": "duration-period",
           "role": "guided",
@@ -542,7 +730,11 @@
           "difficulty": 3,
           "prompt": "Cual es la diferencia principal entre Instant y ZonedDateTime?",
           "answer": "Instant es un punto exacto en UTC sin zona horaria; ZonedDateTime agrega una zona horaria especifica, relevante para horario de verano",
-          "distractors": ["No hay diferencia, son alias de la misma clase", "Instant incluye zona horaria y ZonedDateTime no", "ZonedDateTime no puede representar fechas pasadas"],
+          "distractors": [
+            "No hay diferencia, son alias de la misma clase",
+            "Instant incluye zona horaria y ZonedDateTime no",
+            "ZonedDateTime no puede representar fechas pasadas"
+          ],
           "explanation": "Instant marca un momento absoluto en la linea de tiempo (como un timestamp UTC); ZonedDateTime interpreta ese momento en una zona horaria concreta, incluyendo ajustes por horario de verano."
         },
         {
@@ -551,7 +743,11 @@
           "difficulty": 3,
           "prompt": "Una consultora IT grande te pregunta: por que no conviene guardar solo un LocalDateTime para programar una reunion internacional?",
           "answer": "Porque LocalDateTime no tiene zona horaria: el mismo valor se interpreta distinto segun donde este cada participante",
-          "distractors": ["Porque LocalDateTime no permite fechas futuras", "Porque LocalDateTime es mas lento que Date", "No hay ningun problema, LocalDateTime alcanza siempre"],
+          "distractors": [
+            "Porque LocalDateTime no permite fechas futuras",
+            "Porque LocalDateTime es mas lento que Date",
+            "No hay ningun problema, LocalDateTime alcanza siempre"
+          ],
           "explanation": "Sin zona horaria, un LocalDateTime es ambiguo entre paises; para eventos que involucran distintas zonas horarias conviene ZonedDateTime o Instant."
         }
       ]
@@ -584,7 +780,11 @@
           "difficulty": 2,
           "prompt": "Que pasa si un switch statement clasico no tiene break en un case que coincide?",
           "answer": "La ejecucion continua (fall-through) hacia el siguiente case, sin evaluar su condicion",
-          "distractors": ["El programa no compila", "Se lanza una excepcion en tiempo de ejecucion", "Se ejecuta solo el case que coincidio, igual que con break"],
+          "distractors": [
+            "El programa no compila",
+            "Se lanza una excepcion en tiempo de ejecucion",
+            "Se ejecuta solo el case que coincidio, igual que con break"
+          ],
           "explanation": "Fall-through es el comportamiento por defecto del switch clasico: sin break, sigue ejecutando el codigo de los case siguientes.",
           "conceptId": "switch-statement",
           "role": "guided",
@@ -613,7 +813,9 @@
           "conceptId": "switch-expression",
           "role": "intro",
           "pathOrder": 3,
-          "dependsOn": ["switch-statement"]
+          "dependsOn": [
+            "switch-statement"
+          ]
         },
         {
           "id": "fund-switchexpr-guided",
@@ -621,12 +823,18 @@
           "difficulty": 2,
           "prompt": "Que palabra clave se usa dentro de un bloque { } de switch expression para devolver un valor?",
           "answer": "yield",
-          "distractors": ["return", "break", "give"],
+          "distractors": [
+            "return",
+            "break",
+            "give"
+          ],
           "explanation": "yield devuelve el valor del bloque del case actual; return terminaria el metodo entero, no solo el switch.",
           "conceptId": "switch-expression",
           "role": "guided",
           "pathOrder": 4,
-          "dependsOn": ["switch-statement"]
+          "dependsOn": [
+            "switch-statement"
+          ]
         },
         {
           "id": "fund-switchexpr-solo",
@@ -635,12 +843,18 @@
           "prompt": "Completa el switch expression para que devuelva un valor calculado en un bloque:",
           "code": "int puntos = switch (nivel) {\n    case 1 -> 10;\n    case 2 -> {\n        int extra = 5;\n        _____ 20 + extra;\n    }\n    default -> 0;\n};",
           "answer": "yield",
-          "distractors": ["return", "break", "value"],
+          "distractors": [
+            "return",
+            "break",
+            "value"
+          ],
           "explanation": "Dentro de un bloque { } de un case, yield es obligatorio para devolver el valor del switch expression.",
           "conceptId": "switch-expression",
           "role": "solo",
           "pathOrder": 5,
-          "dependsOn": ["switch-statement"]
+          "dependsOn": [
+            "switch-statement"
+          ]
         },
         {
           "id": "fund-cond-ifelse",
@@ -657,7 +871,11 @@
           "difficulty": 3,
           "prompt": "Una empresa de servicios financieros te pregunta: por que preferir switch expression sobre if/else encadenados cuando comparas un mismo valor contra muchas opciones?",
           "answer": "Es mas legible, evita el riesgo de fall-through del switch clasico, y el compilador puede verificar exhaustividad en algunos casos (como con enums o sealed types)",
-          "distractors": ["Porque if/else no puede comparar mas de dos valores", "Porque switch expression es la unica forma de comparar enteros en Java", "No hay ninguna ventaja real, es solo preferencia de estilo"],
+          "distractors": [
+            "Porque if/else no puede comparar mas de dos valores",
+            "Porque switch expression es la unica forma de comparar enteros en Java",
+            "No hay ninguna ventaja real, es solo preferencia de estilo"
+          ],
           "explanation": "Ademas de la legibilidad, el switch expression moderno evita bugs de fall-through y, en combinacion con sealed classes/pattern matching, permite verificacion de exhaustividad en tiempo de compilacion."
         }
       ]
@@ -690,7 +908,11 @@
           "difficulty": 1,
           "prompt": "Que tipo de loop garantiza que el cuerpo se ejecute al menos una vez, incluso si la condicion es falsa desde el inicio?",
           "answer": "do-while",
-          "distractors": ["while", "for", "enhanced for"],
+          "distractors": [
+            "while",
+            "for",
+            "enhanced for"
+          ],
           "explanation": "do-while evalua la condicion despues de ejecutar el cuerpo, asi que la primera ejecucion ocurre siempre.",
           "conceptId": "while-dowhile",
           "role": "guided",
@@ -726,7 +948,11 @@
           "difficulty": 2,
           "prompt": "Por que no se puede usar enhanced for para saltar de a 2 elementos?",
           "answer": "Porque el enhanced for no expone ningun indice ni contador, solo entrega cada elemento en orden",
-          "distractors": ["Si se puede, usando la variable del for-each como indice", "Porque enhanced for no funciona con arrays", "Porque enhanced for siempre recorre en orden inverso"],
+          "distractors": [
+            "Si se puede, usando la variable del for-each como indice",
+            "Porque enhanced for no funciona con arrays",
+            "Porque enhanced for siempre recorre en orden inverso"
+          ],
           "explanation": "El enhanced for oculta el mecanismo de iteracion; para controlar el paso o el indice hay que usar el for clasico.",
           "conceptId": "for-enhanced-for",
           "role": "guided",
@@ -739,7 +965,11 @@
           "prompt": "Completa el for clasico para recorrer de 0 a 4:",
           "code": "for (int i = 0; i _____ 5; i++) {\n    System.out.println(i);\n}",
           "answer": "<",
-          "distractors": ["<=", "!=", ">"],
+          "distractors": [
+            "<=",
+            "!=",
+            ">"
+          ],
           "explanation": "i < 5 recorre 0,1,2,3,4 (5 vueltas); i <= 5 recorreria una vuelta de mas (hasta 5).",
           "conceptId": "for-enhanced-for",
           "role": "solo",
@@ -760,8 +990,549 @@
           "difficulty": 3,
           "prompt": "Una consultora IT grande te pregunta: para que sirve una etiqueta (label) como 'outer:' antes de un loop?",
           "answer": "Permite que un break o continue dentro de un loop anidado afecte al loop externo etiquetado, en vez de solo al mas interno",
-          "distractors": ["Es solo un comentario, no tiene efecto en la ejecucion", "Convierte el loop en un metodo separado", "Hace que el loop se ejecute en paralelo"],
+          "distractors": [
+            "Es solo un comentario, no tiene efecto en la ejecucion",
+            "Convierte el loop en un metodo separado",
+            "Hace que el loop se ejecute en paralelo"
+          ],
           "explanation": "Sin etiqueta, break/continue solo afectan al loop mas interno donde aparecen; con una etiqueta (break outer; / continue outer;) se puede controlar un loop exterior especifico desde dentro de uno anidado."
+        }
+      ]
+    },
+    {
+      "unitId": "fund-herencia-polimorfismo",
+      "name": "Herencia y polimorfismo",
+      "certObjective": "language-basics",
+      "orderIndex": 9,
+      "summary": {
+        "text": "La herencia permite que una clase (subclase) reutilice y extienda el comportamiento de otra (superclase) con extends. super llama al constructor o metodos de la superclase. @Override marca que un metodo redefine uno heredado - el compilador verifica que la firma coincida exactamente. Una clase abstract no se puede instanciar directamente; sirve como base que obliga a sus subclases concretas a implementar sus metodos abstractos.",
+        "code": "public abstract class Animal {\n    abstract String sonido();\n}\n\npublic class Perro extends Animal {\n    @Override\n    String sonido() {\n        return \"Guau\";\n    }\n}"
+      },
+      "exercises": [
+        {
+          "id": "fund-herencia-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "extends permite que una clase reutilice el comportamiento de otra",
+          "code": "public class Animal {\n    String nombre;\n    void moverse() { System.out.println(\"Me muevo\"); }\n}\n\npublic class Perro extends Animal {\n    void ladrar() { System.out.println(\"Guau\"); }\n}",
+          "answer": "ok",
+          "explanation": "Perro hereda nombre y moverse() de Animal automaticamente, y agrega su propio metodo ladrar(). Java solo permite herencia simple: una clase extends de una sola superclase.",
+          "conceptId": "herencia-extends",
+          "role": "intro",
+          "pathOrder": 0
+        },
+        {
+          "id": "fund-herencia-guided",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Cuantas clases puede extender directamente una clase en Java?",
+          "answer": "Una sola (herencia simple)",
+          "distractors": [
+            "Hasta 3, si son abstractas",
+            "Tantas como interfaces implemente",
+            "No hay limite"
+          ],
+          "explanation": "Java no soporta herencia multiple de clases (a diferencia de interfaces); extends solo acepta una superclase.",
+          "conceptId": "herencia-extends",
+          "role": "guided",
+          "pathOrder": 1
+        },
+        {
+          "id": "fund-herencia-solo",
+          "type": "predict_output",
+          "difficulty": 2,
+          "prompt": "Que imprime este codigo?",
+          "code": "class Animal {\n    void sonido() { System.out.println(\"..\"); }\n}\nclass Gato extends Animal {\n}\npublic class Main {\n    public static void main(String[] args) {\n        Gato g = new Gato();\n        g.sonido();\n    }\n}",
+          "answer": "..",
+          "explanation": "Gato no redefine sonido(), asi que hereda la implementacion de Animal sin cambios.",
+          "conceptId": "herencia-extends",
+          "role": "solo",
+          "pathOrder": 2
+        },
+        {
+          "id": "fund-super-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "super() llama al constructor de la superclase",
+          "code": "class Animal {\n    String nombre;\n    Animal(String nombre) { this.nombre = nombre; }\n}\nclass Perro extends Animal {\n    Perro(String nombre) {\n        super(nombre);\n    }\n}",
+          "answer": "ok",
+          "explanation": "super(nombre) delega al constructor de Animal para inicializar el campo heredado; si no se llama explicitamente, Java intenta llamar al constructor sin argumentos de la superclase.",
+          "conceptId": "super-constructor",
+          "role": "intro",
+          "pathOrder": 3,
+          "dependsOn": [
+            "herencia-extends"
+          ]
+        },
+        {
+          "id": "fund-super-guided",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Que pasa si Perro no llama a super(nombre) y Animal no tiene un constructor sin argumentos?",
+          "answer": "El codigo no compila: Java exige llamar a un constructor valido de la superclase",
+          "distractors": [
+            "nombre queda como null automaticamente",
+            "Se lanza una excepcion en tiempo de ejecucion",
+            "Java genera un constructor vacio automaticamente para Animal"
+          ],
+          "explanation": "Si la superclase no tiene un constructor sin argumentos, la subclase esta obligada a llamar explicitamente a uno de los constructores existentes con super(...).",
+          "conceptId": "super-constructor",
+          "role": "guided",
+          "pathOrder": 4,
+          "dependsOn": [
+            "herencia-extends"
+          ]
+        },
+        {
+          "id": "fund-super-solo",
+          "type": "predict_output",
+          "difficulty": 3,
+          "prompt": "Que imprime este codigo?",
+          "code": "class Animal {\n    String nombre;\n    Animal(String nombre) {\n        this.nombre = nombre;\n        System.out.println(\"Animal creado: \" + nombre);\n    }\n}\nclass Perro extends Animal {\n    Perro(String nombre) {\n        super(nombre);\n        System.out.println(\"Perro creado\");\n    }\n}\npublic class Main {\n    public static void main(String[] args) {\n        new Perro(\"Rex\");\n    }\n}",
+          "answer": "Animal creado: Rex\nPerro creado",
+          "explanation": "super(nombre) ejecuta primero el constructor de Animal (que imprime su linea), y luego continua la ejecucion del constructor de Perro.",
+          "conceptId": "super-constructor",
+          "role": "solo",
+          "pathOrder": 5,
+          "dependsOn": [
+            "herencia-extends"
+          ]
+        },
+        {
+          "id": "fund-override-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "@Override redefine un metodo heredado; la firma debe coincidir exactamente",
+          "code": "class Animal {\n    String sonido() { return \"...\"; }\n}\nclass Perro extends Animal {\n    @Override\n    String sonido() { return \"Guau\"; }\n}",
+          "answer": "ok",
+          "explanation": "@Override no es obligatorio pero es buena practica: si la firma no coincide con ningun metodo de la superclase, el compilador marca error en vez de crear silenciosamente un metodo nuevo sin relacion.",
+          "conceptId": "polimorfismo-override",
+          "role": "intro",
+          "pathOrder": 6,
+          "dependsOn": [
+            "herencia-extends"
+          ]
+        },
+        {
+          "id": "fund-override-guided",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Que hace @Override si el metodo no coincide con ningun metodo de la superclase?",
+          "answer": "El compilador marca un error, en vez de compilar un metodo nuevo sin relacion",
+          "distractors": [
+            "Nada, @Override es solo un comentario sin efecto en el compilador",
+            "Se ejecuta el metodo de la superclase de todas formas",
+            "Convierte el metodo en abstracto automaticamente"
+          ],
+          "explanation": "@Override activa una verificacion del compilador: si la firma no coincide exactamente con un metodo heredado, es un error de compilacion - evita bugs por firmas mal escritas.",
+          "conceptId": "polimorfismo-override",
+          "role": "guided",
+          "pathOrder": 7,
+          "dependsOn": [
+            "herencia-extends"
+          ]
+        },
+        {
+          "id": "fund-override-solo",
+          "type": "predict_output",
+          "difficulty": 3,
+          "prompt": "Que imprime este codigo?",
+          "code": "class Animal {\n    String sonido() { return \"...\"; }\n}\nclass Gato extends Animal {\n    @Override\n    String sonido() { return \"Miau\"; }\n}\npublic class Main {\n    public static void main(String[] args) {\n        Animal a = new Gato();\n        System.out.println(a.sonido());\n    }\n}",
+          "answer": "Miau",
+          "explanation": "Aunque la variable a es de tipo Animal, el objeto real es un Gato; en tiempo de ejecucion Java llama a la version sobreescrita (polimorfismo) segun el tipo real del objeto, no el tipo declarado.",
+          "conceptId": "polimorfismo-override",
+          "role": "solo",
+          "pathOrder": 8,
+          "dependsOn": [
+            "herencia-extends"
+          ]
+        },
+        {
+          "id": "fund-abstract-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "Una clase abstract no se puede instanciar directamente",
+          "code": "abstract class Animal {\n    abstract String sonido();\n}\nclass Perro extends Animal {\n    @Override\n    String sonido() { return \"Guau\"; }\n}\n// new Animal(); ERROR: no se puede instanciar\nAnimal a = new Perro(); // OK",
+          "answer": "ok",
+          "explanation": "abstract marca que la clase es incompleta a proposito: sirve de base, y sus subclases concretas deben implementar los metodos abstract que declara.",
+          "conceptId": "clases-abstractas",
+          "role": "intro",
+          "pathOrder": 9,
+          "dependsOn": [
+            "herencia-extends"
+          ]
+        },
+        {
+          "id": "fund-abstract-guided",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Que debe hacer una subclase concreta (no abstracta) de una clase abstract?",
+          "answer": "Implementar todos los metodos abstract heredados que no haya implementado ninguna superclase intermedia",
+          "distractors": [
+            "Nada especial, los metodos abstract ya tienen implementacion por defecto",
+            "Declararse tambien como abstract obligatoriamente",
+            "Sobreescribir el constructor de la superclase"
+          ],
+          "explanation": "Un metodo abstract no tiene cuerpo; cualquier subclase que quiera ser instanciable (no abstracta) esta obligada a proveerle una implementacion.",
+          "conceptId": "clases-abstractas",
+          "role": "guided",
+          "pathOrder": 10,
+          "dependsOn": [
+            "herencia-extends"
+          ]
+        },
+        {
+          "id": "fund-abstract-solo",
+          "type": "fill_blank",
+          "difficulty": 2,
+          "prompt": "Declara la clase Animal como abstracta:",
+          "code": "public _____ class Animal {\n    abstract String sonido();\n}",
+          "answer": "abstract",
+          "distractors": [
+            "final",
+            "static",
+            "interface"
+          ],
+          "explanation": "abstract permite declarar metodos sin cuerpo (abstract String sonido();) y evita que la clase se instancie directamente.",
+          "conceptId": "clases-abstractas",
+          "role": "solo",
+          "pathOrder": 11,
+          "dependsOn": [
+            "herencia-extends"
+          ]
+        },
+        {
+          "id": "fund-herencia-interview",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Una consultora IT grande te pregunta: por que Java no permite herencia multiple de clases?",
+          "answer": "Para evitar ambiguedades como el problema del diamante (dos superclases con un metodo del mismo nombre y firma pero implementaciones distintas)",
+          "distractors": [
+            "Por una limitacion tecnica de la JVM que nunca se pudo resolver",
+            "Porque ninguna clase necesita heredar de mas de una superclase en la practica",
+            "Java si permite herencia multiple de clases, solo que es poco usada"
+          ],
+          "explanation": "El problema del diamante hace ambiguo que implementacion heredar cuando dos superclases definen el mismo metodo; Java lo evita permitiendo herencia simple de clases (pero herencia multiple de interfaces, donde default methods tienen reglas explicitas de resolucion de conflicto)."
+        }
+      ]
+    },
+    {
+      "unitId": "fund-clases-especiales",
+      "name": "Clases especiales",
+      "certObjective": "language-basics",
+      "orderIndex": 10,
+      "summary": {
+        "text": "Una clase final no puede ser heredada - util para tipos inmutables o utilitarios que no deben extenderse. Una inner class (no estatica) vive dentro de otra clase y tiene acceso a sus miembros de instancia; una nested static class es basicamente una clase normal empaquetada dentro de otra, sin acceso implicito a instancias externas. Una anonymous class define e instancia una subclase o implementacion de interfaz en un solo paso, sin nombre, util para implementaciones de un solo uso.",
+        "code": "final class Constantes { }\n\nclass Exterior {\n    class Interna { }          // inner class\n    static class Anidada { }  // nested static class\n}"
+      },
+      "exercises": [
+        {
+          "id": "fund-final-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "final en una clase impide que se herede",
+          "code": "public final class Constantes {\n    static final double PI = 3.14159;\n}\n// class Otra extends Constantes { } ERROR: no se puede extender",
+          "answer": "ok",
+          "explanation": "final en una clase evita que cualquier otra clase la extienda con extends; se usa para tipos que deben quedar cerrados a modificacion por herencia, como String en la propia biblioteca estandar de Java.",
+          "conceptId": "final-classes",
+          "role": "intro",
+          "pathOrder": 0
+        },
+        {
+          "id": "fund-final-guided",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Que pasa si intentas escribir 'class Otra extends Constantes' cuando Constantes es final?",
+          "answer": "El codigo no compila",
+          "distractors": [
+            "Compila pero lanza una excepcion al ejecutar",
+            "Compila y funciona normalmente, final solo es una sugerencia",
+            "Solo falla si Constantes tiene metodos abstractos"
+          ],
+          "explanation": "final en una clase es una restriccion verificada en tiempo de compilacion, no una sugerencia - el compilador rechaza cualquier intento de extenderla.",
+          "conceptId": "final-classes",
+          "role": "guided",
+          "pathOrder": 1
+        },
+        {
+          "id": "fund-final-solo",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Por que la clase String es final en Java?",
+          "answer": "Para garantizar que su comportamiento (inmutabilidad, hashing usado en HashMap, etc.) no pueda ser alterado por una subclase",
+          "distractors": [
+            "Porque String no tiene metodos que se puedan sobreescribir",
+            "Es una limitacion tecnica de la JVM sin relacion con el diseno",
+            "Para que ocupe menos memoria en tiempo de ejecucion"
+          ],
+          "explanation": "Si String pudiera extenderse, una subclase podria romper garantias de las que depende medio el ecosistema Java (inmutabilidad, cache de hashCode, seguridad); final la protege.",
+          "conceptId": "final-classes",
+          "role": "solo",
+          "pathOrder": 2
+        },
+        {
+          "id": "fund-nested-intro",
+          "type": "worked_example",
+          "difficulty": 3,
+          "prompt": "Una inner class (no static) tiene acceso a los miembros de instancia de su clase externa",
+          "code": "class Exterior {\n    private int valor = 10;\n\n    class Interna {\n        void mostrar() {\n            System.out.println(valor);\n        }\n    }\n}\nExterior ext = new Exterior();\nExterior.Interna in = ext.new Interna();",
+          "answer": "ok",
+          "explanation": "Una inner class necesita una instancia de la clase externa para existir (por eso 'ext.new Interna()'), y por eso puede acceder directamente a sus fields de instancia, incluso privados.",
+          "conceptId": "nested-inner-classes",
+          "role": "intro",
+          "pathOrder": 3
+        },
+        {
+          "id": "fund-nested-guided",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "En que se diferencia una nested static class de una inner class (no static)?",
+          "answer": "La nested static class no necesita una instancia de la clase externa y no tiene acceso implicito a sus miembros de instancia",
+          "distractors": [
+            "No hay ninguna diferencia real entre ambas",
+            "La nested static class no puede tener metodos propios",
+            "Solo la inner class puede declararse dentro de otra clase"
+          ],
+          "explanation": "static en una clase anidada la desconecta de las instancias de la clase externa - se comporta casi como una clase de nivel superior, solo que empaquetada dentro de otra por organizacion.",
+          "conceptId": "nested-inner-classes",
+          "role": "guided",
+          "pathOrder": 4
+        },
+        {
+          "id": "fund-nested-solo",
+          "type": "fill_blank",
+          "difficulty": 2,
+          "prompt": "Declara Anidada como una clase anidada estatica dentro de Exterior:",
+          "code": "class Exterior {\n    _____ class Anidada {\n    }\n}",
+          "answer": "static",
+          "distractors": [
+            "final",
+            "abstract",
+            "private"
+          ],
+          "explanation": "static en una clase anidada la independiza de instancias de la clase externa.",
+          "conceptId": "nested-inner-classes",
+          "role": "solo",
+          "pathOrder": 5
+        },
+        {
+          "id": "fund-anonima-intro",
+          "type": "worked_example",
+          "difficulty": 3,
+          "prompt": "Una anonymous class define e instancia una implementacion en un solo paso, sin nombre",
+          "code": "Runnable tarea = new Runnable() {\n    @Override\n    public void run() {\n        System.out.println(\"Ejecutando\");\n    }\n};\ntarea.run();",
+          "answer": "ok",
+          "explanation": "new Runnable() { ... } crea, en el mismo lugar, una subclase sin nombre que implementa Runnable y la instancia inmediatamente - util cuando la implementacion se usa una sola vez y no merece su propia clase con nombre.",
+          "conceptId": "anonymous-classes",
+          "role": "intro",
+          "pathOrder": 6,
+          "dependsOn": [
+            "nested-inner-classes"
+          ]
+        },
+        {
+          "id": "fund-anonima-guided",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Cuando conviene usar una anonymous class en vez de una clase con nombre?",
+          "answer": "Cuando la implementacion se usa una sola vez y no tiene sentido darle un nombre ni reutilizarla",
+          "distractors": [
+            "Siempre, es mas eficiente en tiempo de ejecucion que una clase con nombre",
+            "Nunca, Java la desaconseja desde versiones recientes",
+            "Solo cuando la interfaz tiene mas de un metodo abstracto"
+          ],
+          "explanation": "Una anonymous class agrega ruido si se reutiliza o crece en complejidad; su valor esta en implementaciones cortas y de un solo uso, en el lugar donde se necesitan.",
+          "conceptId": "anonymous-classes",
+          "role": "guided",
+          "pathOrder": 7,
+          "dependsOn": [
+            "nested-inner-classes"
+          ]
+        },
+        {
+          "id": "fund-anonima-solo",
+          "type": "predict_output",
+          "difficulty": 3,
+          "prompt": "Que imprime este codigo?",
+          "code": "interface Saludo {\n    String mensaje();\n}\nSaludo s = new Saludo() {\n    @Override\n    public String mensaje() {\n        return \"Hola anonima\";\n    }\n};\nSystem.out.println(s.mensaje());",
+          "answer": "Hola anonima",
+          "explanation": "La anonymous class implementa Saludo en el lugar de la instanciacion; s.mensaje() llama a esa implementacion definida ahi mismo.",
+          "conceptId": "anonymous-classes",
+          "role": "solo",
+          "pathOrder": 8,
+          "dependsOn": [
+            "nested-inner-classes"
+          ]
+        },
+        {
+          "id": "fund-especiales-interview",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Una empresa de servicios financieros te pregunta: que ventaja practica tiene una inner class sobre una clase de nivel superior para modelar, por ejemplo, un iterador de una coleccion propia?",
+          "answer": "El iterador puede acceder directamente al estado interno de la coleccion (sus fields privados) sin necesitar getters publicos adicionales",
+          "distractors": [
+            "Una inner class compila mas rapido que una clase de nivel superior",
+            "Es la unica forma de implementar una interfaz en Java",
+            "No hay ninguna ventaja practica real"
+          ],
+          "explanation": "Al vivir dentro de la clase contenedora, la inner class comparte su alcance de acceso a fields privados - patron real usado por implementaciones de Iterator dentro de clases de coleccion."
+        }
+      ]
+    },
+    {
+      "unitId": "fund-enums",
+      "name": "Enumeraciones (enum)",
+      "certObjective": "language-basics",
+      "orderIndex": 11,
+      "summary": {
+        "text": "Un enum define un conjunto fijo y conocido de constantes con seguridad de tipos - mejor que usar Strings o ints sueltos para representar opciones limitadas (dias de la semana, estados, etc.). Un enum puede tener campos, constructores y metodos como cualquier clase; sus constructores son siempre privados o package-private (nunca se instancia con new fuera del propio enum). values() devuelve un array con todas las constantes en el orden declarado, y valueOf(String) busca una constante por su nombre exacto.",
+        "code": "enum Dia {\n    LUNES, MARTES, MIERCOLES;\n}\n\nenum Planeta {\n    MERCURIO(3.3e23), TIERRA(5.9e24);\n\n    final double masa;\n    Planeta(double masa) { this.masa = masa; }\n}"
+      },
+      "exercises": [
+        {
+          "id": "fund-enum-intro",
+          "type": "worked_example",
+          "difficulty": 1,
+          "prompt": "Un enum define un conjunto fijo de constantes con seguridad de tipos",
+          "code": "enum Dia {\n    LUNES, MARTES, MIERCOLES, JUEVES, VIERNES, SABADO, DOMINGO;\n}\nDia hoy = Dia.LUNES;",
+          "answer": "ok",
+          "explanation": "A diferencia de usar Strings o ints sueltos, el compilador garantiza que 'hoy' solo puede tener uno de los 7 valores declarados - no hay forma de asignarle un valor invalido.",
+          "conceptId": "enum-basico",
+          "role": "intro",
+          "pathOrder": 0
+        },
+        {
+          "id": "fund-enum-guided",
+          "type": "mcq",
+          "difficulty": 1,
+          "prompt": "Que ventaja da un enum frente a usar un int para representar un conjunto fijo de opciones?",
+          "answer": "El compilador impide asignar un valor que no sea una de las constantes declaradas",
+          "distractors": [
+            "Un enum ocupa menos memoria que un int",
+            "Un enum se puede modificar en tiempo de ejecucion, un int no",
+            "No hay ninguna ventaja real, son equivalentes"
+          ],
+          "explanation": "Con un int cualquier numero compila, aunque no represente una opcion valida; con un enum solo las constantes declaradas son valores posibles - seguridad de tipos.",
+          "conceptId": "enum-basico",
+          "role": "guided",
+          "pathOrder": 1
+        },
+        {
+          "id": "fund-enum-solo",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Como se compara de forma segura si dos variables enum apuntan a la misma constante?",
+          "answer": "Con == (las constantes enum son instancias unicas, es seguro compararlas asi)",
+          "distractors": [
+            "Solo con .equals(), == nunca funciona con enums",
+            "Con compareTo() unicamente",
+            "No se pueden comparar directamente, hay que convertir a String primero"
+          ],
+          "explanation": "Cada constante enum es una unica instancia (singleton) creada una vez por la JVM; == compara identidad de objeto, que es seguro y es la forma idiomatica de comparar enums (a diferencia de String, donde == es riesgoso).",
+          "conceptId": "enum-basico",
+          "role": "solo",
+          "pathOrder": 2
+        },
+        {
+          "id": "fund-enum-values",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Que devuelve Dia.values()?",
+          "answer": "Un array con todas las constantes del enum, en el orden en que fueron declaradas",
+          "distractors": [
+            "Un List con las constantes en orden alfabetico",
+            "Un Set sin orden garantizado",
+            "Un solo valor: la primera constante declarada"
+          ],
+          "explanation": "values() es un metodo generado automaticamente por el compilador para todo enum; devuelve un array ordenado segun la declaracion.",
+          "conceptId": "enum-metodos",
+          "role": "guided",
+          "pathOrder": 3,
+          "dependsOn": [
+            "enum-basico"
+          ]
+        },
+        {
+          "id": "fund-enum-valueof",
+          "type": "predict_output",
+          "difficulty": 2,
+          "prompt": "Que imprime este codigo?",
+          "code": "enum Dia { LUNES, MARTES, MIERCOLES; }\nDia d = Dia.valueOf(\"MARTES\");\nSystem.out.println(d);",
+          "answer": "MARTES",
+          "explanation": "valueOf(String) busca la constante cuyo nombre coincide exactamente (sensible a mayusculas) y la devuelve; System.out.println(d) imprime el nombre de la constante.",
+          "conceptId": "enum-metodos",
+          "role": "solo",
+          "pathOrder": 4,
+          "dependsOn": [
+            "enum-basico"
+          ]
+        },
+        {
+          "id": "fund-enum-constructor-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "Un enum puede tener campos y un constructor, como cualquier clase",
+          "code": "enum Planeta {\n    MERCURIO(3.3e23), TIERRA(5.9e24);\n\n    final double masa;\n\n    Planeta(double masa) {\n        this.masa = masa;\n    }\n}\ndouble m = Planeta.TIERRA.masa;",
+          "answer": "ok",
+          "explanation": "Cada constante llama al constructor con los argumentos indicados entre parentesis, en el momento en que el enum se carga; masa queda fijo para cada constante.",
+          "conceptId": "enum-constructor",
+          "role": "intro",
+          "pathOrder": 5,
+          "dependsOn": [
+            "enum-basico"
+          ]
+        },
+        {
+          "id": "fund-enum-constructor-guided",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Que modificador de acceso puede tener el constructor de un enum?",
+          "answer": "Private (o package-private, sin modificador) - nunca public ni protected",
+          "distractors": [
+            "Cualquiera, incluido public",
+            "Debe ser siempre static",
+            "Los enums no pueden tener constructor"
+          ],
+          "explanation": "Las constantes de un enum son las unicas instancias posibles; permitir un constructor public/protected implicaria poder crear instancias adicionales con new desde afuera, lo cual el lenguaje prohibe explicitamente.",
+          "conceptId": "enum-constructor",
+          "role": "guided",
+          "pathOrder": 6,
+          "dependsOn": [
+            "enum-basico"
+          ]
+        },
+        {
+          "id": "fund-enum-constructor-solo",
+          "type": "fill_blank",
+          "difficulty": 2,
+          "prompt": "Completa la asignacion del campo masa dentro del constructor:",
+          "code": "enum Planeta {\n    MERCURIO(3.3e23), TIERRA(5.9e24);\n\n    final double masa;\n\n    Planeta(double masa) {\n        this._____ = masa;\n    }\n}",
+          "answer": "masa",
+          "distractors": [
+            "Planeta",
+            "this",
+            "valor"
+          ],
+          "explanation": "this.masa = masa asigna el argumento del constructor al campo de instancia masa, igual que en cualquier clase normal.",
+          "conceptId": "enum-constructor",
+          "role": "solo",
+          "pathOrder": 7,
+          "dependsOn": [
+            "enum-basico"
+          ]
+        },
+        {
+          "id": "fund-enum-interview",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Una consultora IT grande te pregunta: por que conviene modelar un conjunto fijo de estados (por ejemplo, ACTIVO/INACTIVO/SUSPENDIDO) con un enum en vez de constantes String sueltas?",
+          "answer": "El compilador rechaza valores invalidos en tiempo de compilacion, en vez de descubrir un typo (como ACTIBO) recien en produccion",
+          "distractors": [
+            "Un enum consume menos memoria que un String en cualquier caso",
+            "No hay diferencia real, es solo una cuestion de estilo",
+            "Un enum se serializa mas rapido que un String"
+          ],
+          "explanation": "Con Strings sueltas, un typo como ACTIBO compila igual y falla silenciosamente en tiempo de ejecucion; con un enum, ese mismo error es un error de compilacion inmediato."
         }
       ]
     }
