@@ -677,11 +677,13 @@ a clean/in-place build and manually verify on-device:
    in order: Que es Java?, Estructura de una clase, Tipos/variables/main,
    Tipos primitivos y wrappers, Texto, Fechas y tiempo, Condicionales,
    Loops.
-2. Play through each of the 5 new units: confirm the `worked_example`
-   intro card renders and auto-advances for each laddered concept (first
-   time only — should not reappear after being "born" via its `solo`
-   exercise), confirm `guided`/`solo` exercises grade correctly, confirm
-   `predict_output` multi-line answers grade correctly (e.g.
+2. From Home, tap "Estudiar hoy" (not "Ver ruta" unit-play, which strips
+   `worked_example` cards via `answerableOnly()`): confirm each new
+   concept's `worked_example` intro card renders and auto-advances the
+   first time, and does not reappear after its `solo` exercise is
+   answered ("born"). Separately, play each of the 5 new units directly
+   from Ruta to confirm `guided`/`solo` exercises grade correctly there,
+   and that `predict_output` multi-line answers grade correctly (e.g.
    `fund-switch-solo`, `fund-loop-breakcontinue`).
 3. Confirm "Ver resumen" (Unit Summary / Tips) shows the new `summary`
    text/code for each of the 5 new units.
