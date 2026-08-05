@@ -587,13 +587,49 @@ git commit -m "content: retrofit Que es Java?/Tipos-variables-main + add interfa
 
 ---
 
+## Post-review corrections (applied after this plan was executed)
+
+The final whole-branch review found two things. Steps 1-3 above are left as
+a historical record of what was dispatched; the merged content differs as
+follows:
+
+1. **`fund-statementlambda-guided`'s explanation was subtly wrong.** It
+   said `a + b;` "no retorna nada" (implying the only problem is the
+   missing `return`). In fact `a + b;` is not a valid Java statement at
+   all — only assignment, pre/post increment/decrement, method invocation,
+   and object creation are valid expression-statements. The chosen answer
+   was still correct (grading unaffected), but the *why* taught a wrong
+   reason. Fixed to state both facts.
+2. **A whole unit was missing: basic interfaces were never taught.**
+   Sub-cycle 3 jumped straight to "Interfaces avanzadas" (default/private/
+   static methods) without ever covering `interface`/`implements`/implicit
+   `public abstract` methods/implicit `public static final` fields/
+   implementing multiple interfaces — even though later content (e.g.
+   sub-cycle 2's `fund-anonima-solo`) already assumes the reader knows
+   what a plain interface is. Luis chose to close this now rather than
+   defer it. **New unit added: `fund-interfaces-basicas`, orderIndex 12**
+   (10 exercises, 3 concepts: `interfaz-declaracion`, `interfaz-constantes`,
+   `interfaz-multiple`), inserted *before* `fund-interfaces-avanzadas` and
+   `fund-interfaces-funcionales-lambda`, which both shifted their
+   `orderIndex` by +1 (13 and 14 respectively — their exercise content and
+   `pathOrder` values are unchanged, only the unit-level `orderIndex`
+   moved).
+
+Final section state: **14 units, 138 exercises** (not the 13/128 that
+Steps 3/5 above describe).
+
+---
+
 ## After the task: manual on-device QA
 
 Install a clean/in-place build and manually verify on-device:
 
-1. Ruta shows Fundamentos de Java with 13 units total, in order, and
-   `fund-what-is-java` / `fund-types-and-main` still show "Completada"
-   (retrofit must not reset Luis's existing progress on them).
+1. Ruta shows Fundamentos de Java with 14 units total, in order
+   (`...fund-loops, fund-herencia-polimorfismo, fund-clases-especiales,
+   fund-enums, fund-interfaces-basicas, fund-interfaces-avanzadas,
+   fund-interfaces-funcionales-lambda`), and `fund-what-is-java` /
+   `fund-types-and-main` still show "Completada" (retrofit must not reset
+   Luis's existing progress on them).
 2. Replay `fund-what-is-java` and `fund-types-and-main` from Ruta: confirm
    the answerable-exercise count drops by exactly the number of new
    `worked_example` intros added to each (3 for `fund-what-is-java`: wait,
