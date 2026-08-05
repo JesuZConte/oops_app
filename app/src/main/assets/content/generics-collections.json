@@ -402,6 +402,42 @@
           "answer": "List<String> lista = new ArrayList<>();\nlista.add(\"a\");\nlista.add(\"b\");\nfor (String s : lista) System.out.println(s);",
           "code": "List<String> lista = new ArrayList<>();\nlista.add(\"a\");\nlista.add(\"b\");\nfor (String s : lista) System.out.println(s);",
           "explanation": "Se declara e instancia la lista, se agregan elementos en orden, y luego se recorre con for-each."
+        },
+        {
+          "id": "gencol-cme-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "Modificar una coleccion mientras la recorres con un for-each lanza ConcurrentModificationException",
+          "code": "List<String> nombres = new ArrayList<>(List.of(\"Ana\", \"Bob\", \"Carla\"));\nfor (String n : nombres) {\n    if (n.equals(\"Bob\")) {\n        nombres.remove(n); // ConcurrentModificationException\n    }\n}",
+          "answer": "ok",
+          "explanation": "El for-each usa un Iterator internamente; modificar la coleccion directamente (no a traves del iterator) invalida su estado interno y la siguiente llamada a next() detecta el cambio y lanza la excepcion, en vez de fallar silenciosamente.",
+          "conceptId": "concurrent-modification",
+          "role": "intro",
+          "pathOrder": 0
+        },
+        {
+          "id": "gencol-cme-guided",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Como se puede eliminar elementos de una lista de forma segura mientras se recorre?",
+          "answer": "Usando el metodo remove() del propio Iterator (o Collection.removeIf()), no el remove() de la lista directamente",
+          "distractors": ["No hay forma segura de eliminar elementos durante un recorrido", "Usando un for clasico con indice siempre evita el problema sin excepciones", "Convirtiendo la lista a un array antes de recorrerla soluciona el problema automaticamente"],
+          "explanation": "Iterator.remove() (o removeIf(), que lo usa internamente) actualiza el estado interno del iterador de forma consistente; remove() de la coleccion, en cambio, no le avisa al iterator activo, causando la inconsistencia detectada.",
+          "conceptId": "concurrent-modification",
+          "role": "guided",
+          "pathOrder": 1
+        },
+        {
+          "id": "gencol-cme-solo",
+          "type": "predict_output",
+          "difficulty": 3,
+          "prompt": "Que imprime este codigo?",
+          "code": "List<Integer> numeros = new ArrayList<>(List.of(1, 2, 3));\ntry {\n    for (Integer n : numeros) {\n        if (n == 2) numeros.remove(n);\n    }\n} catch (ConcurrentModificationException e) {\n    System.out.println(\"capturada\");\n}",
+          "answer": "capturada",
+          "explanation": "Al remover 2 directamente de la lista durante el for-each, el iterator detecta la modificacion no autorizada en la siguiente llamada a next() y lanza ConcurrentModificationException, que el catch captura.",
+          "conceptId": "concurrent-modification",
+          "role": "solo",
+          "pathOrder": 2
         }
       ]
     },
@@ -748,6 +784,142 @@
             "Porque los arrays permiten agregar elementos mas facil que un ArrayList"
           ],
           "explanation": "Cuando el tamano es fijo y se conocen los tipos primitivos que se van a guardar, un array evita el autoboxing (int[] guarda ints directos, no Integer) y el overhead estructural de una lista dinamica - un ArrayList<E> brilla cuando el tamano es variable o se necesitan los metodos de Collections."
+        }
+      ]
+    },
+    {
+      "unitId": "gencol-sequenced-collections",
+      "name": "Sequenced Collections",
+      "certObjective": "generics-collections",
+      "orderIndex": 6,
+      "summary": {
+        "text": "Java 21 agrego las interfaces SequencedCollection, SequencedSet y SequencedMap, que dan una forma uniforme de trabajar con el primer y ultimo elemento de cualquier coleccion con orden definido - List, LinkedHashSet, LinkedHashMap, etc. Los metodos comunes son getFirst()/getLast(), addFirst()/addLast(), removeFirst()/removeLast(), y reversed(), que devuelve una vista invertida de la coleccion sin copiar los datos.",
+        "code": "List<Integer> numeros = new ArrayList<>(List.of(1, 2, 3));\nnumeros.getFirst(); // 1\nnumeros.getLast();  // 3\nnumeros.addFirst(0); // [0, 1, 2, 3]\n\nList<Integer> invertida = numeros.reversed(); // vista, no copia"
+      },
+      "exercises": [
+        {
+          "id": "gencol-sequenced-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "SequencedCollection da acceso uniforme al primer y ultimo elemento de cualquier coleccion ordenada",
+          "code": "List<Integer> numeros = new ArrayList<>(List.of(1, 2, 3));\nnumeros.getFirst(); // 1\nnumeros.getLast();  // 3\nnumeros.addFirst(0); // [0, 1, 2, 3]\nnumeros.removeLast(); // [0, 1, 2]",
+          "answer": "ok",
+          "explanation": "Antes de Java 21, List no tenia un metodo directo para el primer/ultimo elemento (habia que usar get(0) o get(size()-1), propenso a errores); SequencedCollection unifica esa operacion para List, Deque, LinkedHashSet y otras colecciones con orden definido.",
+          "conceptId": "sequenced-basico",
+          "role": "intro",
+          "pathOrder": 0
+        },
+        {
+          "id": "gencol-sequenced-guided",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Antes de Java 21, como se obtenia el ultimo elemento de una List sin SequencedCollection?",
+          "answer": "lista.get(lista.size() - 1), propenso a errores de indice",
+          "distractors": ["lista.getLast(), que ya existia desde Java 8", "No habia ninguna forma de acceder al ultimo elemento", "lista.last(), un metodo heredado de Collection"],
+          "explanation": "getLast()/getFirst() son nuevos de Java 21 (SequencedCollection); antes, la unica forma directa era calcular el ultimo indice manualmente con size() - 1.",
+          "conceptId": "sequenced-basico",
+          "role": "guided",
+          "pathOrder": 1
+        },
+        {
+          "id": "gencol-sequenced-solo",
+          "type": "predict_output",
+          "difficulty": 2,
+          "prompt": "Que imprime este codigo?",
+          "code": "List<String> nombres = new ArrayList<>(List.of(\"Ana\", \"Bob\"));\nnombres.addFirst(\"Zoe\");\nSystem.out.println(nombres);",
+          "answer": "[Zoe, Ana, Bob]",
+          "explanation": "addFirst() inserta el elemento al comienzo de la lista, desplazando el resto; el resultado queda con Zoe como primer elemento.",
+          "conceptId": "sequenced-basico",
+          "role": "solo",
+          "pathOrder": 2
+        },
+        {
+          "id": "gencol-reversed-intro",
+          "type": "worked_example",
+          "difficulty": 3,
+          "prompt": "reversed() devuelve una vista invertida de la coleccion, sin copiar los datos",
+          "code": "List<Integer> numeros = new ArrayList<>(List.of(1, 2, 3));\nList<Integer> invertida = numeros.reversed(); // [3, 2, 1], vista\n\nnumeros.addLast(4);\nSystem.out.println(invertida); // [4, 3, 2, 1] - refleja el cambio",
+          "answer": "ok",
+          "explanation": "reversed() no crea una copia invertida: devuelve una vista que sigue conectada a la coleccion original - cualquier cambio en una se refleja en la otra, en ambas direcciones.",
+          "conceptId": "sequenced-reversed",
+          "role": "intro",
+          "pathOrder": 3,
+          "dependsOn": ["sequenced-basico"]
+        },
+        {
+          "id": "gencol-reversed-guided",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Si modificas la lista invertida devuelta por reversed(), que pasa con la lista original?",
+          "answer": "Tambien se modifica, porque reversed() devuelve una vista conectada a la coleccion original, no una copia",
+          "distractors": ["No pasa nada, son colecciones completamente independientes", "Se lanza una excepcion, la vista invertida es de solo lectura", "Solo se modifica si se llama a un metodo especial de sincronizacion"],
+          "explanation": "reversed() es una vista (como subList() o keySet()), no una copia - las modificaciones se propagan en ambas direcciones porque ambas referencian la misma estructura de datos subyacente.",
+          "conceptId": "sequenced-reversed",
+          "role": "guided",
+          "pathOrder": 4,
+          "dependsOn": ["sequenced-basico"]
+        },
+        {
+          "id": "gencol-reversed-solo",
+          "type": "predict_output",
+          "difficulty": 3,
+          "prompt": "Que imprime este codigo?",
+          "code": "List<Integer> numeros = new ArrayList<>(List.of(1, 2, 3));\nList<Integer> invertida = numeros.reversed();\ninvertida.addFirst(4);\nSystem.out.println(numeros);",
+          "answer": "[1, 2, 3, 4]",
+          "explanation": "addFirst(4) sobre la vista invertida agrega 4 al principio de esa vista, lo cual equivale a agregarlo al FINAL de la lista original - reversed() invierte tambien el significado de first/last.",
+          "conceptId": "sequenced-reversed",
+          "role": "solo",
+          "pathOrder": 5,
+          "dependsOn": ["sequenced-basico"]
+        },
+        {
+          "id": "gencol-seqmap-intro",
+          "type": "worked_example",
+          "difficulty": 3,
+          "prompt": "SequencedMap agrega firstEntry()/lastEntry() y putFirst()/putLast() a los Maps ordenados",
+          "code": "LinkedHashMap<String, Integer> edades = new LinkedHashMap<>();\nedades.put(\"Ana\", 30);\nedades.put(\"Bob\", 25);\n\nedades.firstEntry(); // Ana=30\nedades.putFirst(\"Zoe\", 40); // Zoe queda primero",
+          "answer": "ok",
+          "explanation": "SequencedMap (implementada por LinkedHashMap y TreeMap) da acceso directo a la primera y ultima entrada, y permite insertar explicitamente al principio o al final - antes de Java 21 no habia forma directa de hacerlo.",
+          "conceptId": "sequenced-map",
+          "role": "intro",
+          "pathOrder": 6,
+          "dependsOn": ["sequenced-basico"]
+        },
+        {
+          "id": "gencol-seqmap-guided",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Que interfaz implementa LinkedHashMap desde Java 21 que le agrega firstEntry()/lastEntry()?",
+          "answer": "SequencedMap",
+          "distractors": ["SequencedCollection", "SequencedSet", "Comparable"],
+          "explanation": "SequencedMap es la version para Maps de la familia Sequenced*; SequencedCollection y SequencedSet son para List/Deque y Set respectivamente.",
+          "conceptId": "sequenced-map",
+          "role": "guided",
+          "pathOrder": 7,
+          "dependsOn": ["sequenced-basico"]
+        },
+        {
+          "id": "gencol-seqmap-solo",
+          "type": "fill_blank",
+          "difficulty": 2,
+          "prompt": "Completa para insertar 'Zoe' al principio del Map manteniendo el orden:",
+          "code": "LinkedHashMap<String, Integer> edades = new LinkedHashMap<>();\nedades._____(\"Zoe\", 40);",
+          "answer": "putFirst",
+          "distractors": ["put", "addFirst", "insertFirst"],
+          "explanation": "putFirst() (de SequencedMap) inserta la entrada al comienzo del orden de iteracion; put() normal solo agrega al final si la clave es nueva.",
+          "conceptId": "sequenced-map",
+          "role": "solo",
+          "pathOrder": 8,
+          "dependsOn": ["sequenced-basico"]
+        },
+        {
+          "id": "gencol-sequenced-interview",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Una consultora IT grande te pregunta: que problema real resuelve SequencedCollection que existia antes de Java 21?",
+          "answer": "Antes, cada tipo de coleccion tenia su propia forma (o ninguna forma directa) de acceder al primer/ultimo elemento; SequencedCollection unifica esa operacion con una sola API consistente",
+          "distractors": ["Resuelve problemas de rendimiento en colecciones muy grandes", "Permite que las colecciones sean thread-safe automaticamente", "Reemplaza completamente a List y Map con una sola interfaz"],
+          "explanation": "El problema no era de rendimiento ni de concurrencia, sino de consistencia de API: List tenia get(0)/get(size()-1), Deque tenia getFirst()/getLast(), y Set/Map no tenian nada directo - SequencedCollection/Set/Map dan una interfaz comun."
         }
       ]
     }
