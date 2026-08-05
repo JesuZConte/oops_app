@@ -596,3 +596,12 @@ Install a clean/in-place build and manually verify on-device:
    (this exercises the fix from
    `docs/superpowers/plans/2026-08-05-checkpoint-satisfied-permanent-fix.md`
    under real new-content growth again).
+6. If any prior on-device QA install completed "Streams y lambdas" via
+   placement only (no approved review checkpoint), confirm that install
+   now shows "Manejo de Excepciones" and "Concurrencia" units re-locked
+   until the 2 new units here are played — this is an accepted,
+   code-documented consequence of adding content to an already-completed
+   section (see the comment on `checkpointSatisfied` in
+   `GetLearningPathUseCase.kt`), not a regression. If the checkpoint was
+   an approved review attempt instead, it stays permanently unlocked per
+   the checkpoint-satisfied-permanence fix (see step 5).

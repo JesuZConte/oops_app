@@ -406,7 +406,7 @@
           "prompt": "Predicate<T> representa una condicion; Consumer<T> representa una accion sin devolver valor",
           "code": "Predicate<Integer> esPar = n -> n % 2 == 0;\nesPar.test(4); // true\n\nConsumer<String> imprimir = s -> System.out.println(s);\nimprimir.accept(\"Hola\"); // imprime Hola",
           "answer": "ok",
-          "explanation": "Predicate<T> tiene un unico metodo abstracto test(T): boolean, evalua una condicion. Consumer<T> tiene accept(T): void, ejecuta una accion sobre el valor, sin devolver nada. Ambas son interfaces funcionales de java.util.function, listas para usar sin declararlas vos mismo.",
+          "explanation": "Predicate<T> tiene un unico metodo abstracto test(T): boolean, evalua una condicion. Consumer<T> tiene accept(T): void, ejecuta una accion sobre el valor, sin devolver nada. Ambas son interfaces funcionales de java.util.function, listas para usar sin tener que declararlas tú mismo.",
           "conceptId": "predicate-consumer",
           "role": "intro",
           "pathOrder": 0
@@ -494,7 +494,7 @@
           "prompt": "Cuando conviene usar un method reference en vez de una lambda equivalente?",
           "answer": "Cuando la lambda solo llama a un metodo existente sin logica adicional - el method reference es mas legible en ese caso",
           "distractors": ["Siempre, method reference es obligatorio desde Java 8", "Nunca, las lambdas son mas rapidas en tiempo de ejecucion", "Solo cuando el metodo es static"],
-          "explanation": "Method references (static, de instancia, o de constructor) son azucar sintactico para lambdas que se limitan a invocar un metodo existente. Si la lambda tiene logica adicional (varias lineas, condicionales), no se puede reemplazar por un method reference.",
+          "explanation": "Method references (static, de instancia, o de constructor) son azucar sintactico para lambdas que se limitan a invocar un metodo existente. Si la lambda tiene logica adicional (varias lineas, condicionales), no se puede reemplazar por un method reference. Hay una diferencia sutil: en Clase::metodo (como String::length) el primer parametro de la lambda se convierte en el receptor; en objeto::metodo (como System.out::println) el receptor ya esta fijo, y el parametro de la lambda pasa como argumento.",
           "conceptId": "method-references",
           "role": "guided",
           "pathOrder": 7,
@@ -521,8 +521,7 @@
           "prompt": "Una consultora IT grande te pregunta: por que usar Predicate/Function/Consumer/Supplier en vez de crear tus propias interfaces funcionales para cada caso?",
           "answer": "Porque son parte de la biblioteca estandar (java.util.function), evitan reinventar lo mismo, y son reconocidas por cualquier desarrollador Java sin explicacion adicional",
           "distractors": ["Porque Java no permite crear interfaces funcionales propias", "Porque las interfaces propias no pueden usarse con lambdas", "No hay ninguna ventaja real, es solo preferencia personal"],
-          "explanation": "Reutilizar las interfaces estandar de java.util.function mejora la legibilidad y reduce codigo repetido. Crear una interfaz propia solo tiene sentido cuando el caso no encaja en ninguna variante estandar (BiFunction, UnaryOperator, etc.) o cuando el nombre del metodo importa para la legibilidad del dominio.",
-          "pathOrder": 9
+          "explanation": "Reutilizar las interfaces estandar de java.util.function mejora la legibilidad y reduce codigo repetido. Crear una interfaz propia solo tiene sentido cuando el caso no encaja en ninguna variante estandar (BiFunction, UnaryOperator, etc.) o cuando el nombre del metodo importa para la legibilidad del dominio."
         }
       ]
     },
@@ -657,8 +656,7 @@
           "prompt": "Una empresa de servicios financieros te pregunta: que problema real resuelve Optional que no se podia resolver ya con un chequeo de null tradicional?",
           "answer": "Hace explicito en la firma del metodo que el resultado puede faltar, obligando al que llama a manejarlo - un chequeo de null es facil de olvidar porque el compilador no lo exige",
           "distractors": ["Optional hace que el codigo corra mas rapido que un if de null", "Optional elimina completamente la posibilidad de NullPointerException en toda la aplicacion", "No resuelve ningun problema nuevo, es solo una forma distinta de escribir lo mismo"],
-          "explanation": "Un metodo que devuelve String puede devolver null sin que nada lo indique en la firma, y es facil olvidar el chequeo. Un metodo que devuelve Optional<String> comunica explicitamente 'esto puede no tener valor', y el equipo puede exigir que se maneje. Optional no elimina NPE magicamente (todavia se puede hacer optional.get() sin chequear y fallar), pero hace el riesgo visible.",
-          "pathOrder": 9
+          "explanation": "Un metodo que devuelve String puede devolver null sin que nada lo indique en la firma, y es facil olvidar el chequeo. Un metodo que devuelve Optional<String> comunica explicitamente 'esto puede no tener valor', y el equipo puede exigir que se maneje. Optional no elimina NPE magicamente (todavia se puede hacer optional.get() sin chequear y fallar), pero hace el riesgo visible."
         }
       ]
     }
