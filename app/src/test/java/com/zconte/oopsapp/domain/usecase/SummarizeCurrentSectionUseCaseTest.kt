@@ -82,6 +82,19 @@ class SummarizeCurrentSectionUseCaseTest {
     }
 
     @Test
+    fun `a section with new unplayed units stays current even if its checkpoint was already approved`() {
+        val sections = listOf(
+            sectionPath("s1", 1, completed = false, checkpointSatisfied = true, status = CheckpointStatus.SATISFIED),
+            sectionPath("s2", 2, completed = true, checkpointSatisfied = true, status = CheckpointStatus.SATISFIED)
+        )
+
+        val summary = summarizeCurrentSection(sections)
+
+        assertEquals("s1", summary.currentSection?.section?.id)
+        assertFalse(summary.isCheckpointPending)
+    }
+
+    @Test
     fun `an empty roadmap has no current section`() {
         val summary = summarizeCurrentSection(emptyList())
 
