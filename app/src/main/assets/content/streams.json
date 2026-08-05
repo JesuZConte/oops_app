@@ -406,7 +406,7 @@
           "prompt": "Predicate<T> representa una condicion; Consumer<T> representa una accion sin devolver valor",
           "code": "Predicate<Integer> esPar = n -> n % 2 == 0;\nesPar.test(4); // true\n\nConsumer<String> imprimir = s -> System.out.println(s);\nimprimir.accept(\"Hola\"); // imprime Hola",
           "answer": "ok",
-          "explanation": "Predicate<T> tiene un unico metodo abstracto test(T): boolean, evalua una condicion. Consumer<T> tiene accept(T): void, ejecuta una accion sobre el valor, sin devolver nada. Ambas son interfaces funcionales de java.util.function, listas para usar sin tener que declararlas tú mismo.",
+          "explanation": "Predicate<T> tiene un unico metodo abstracto test(T): boolean, evalua una condicion. Consumer<T> tiene accept(T): void, ejecuta una accion sobre el valor, sin devolver nada. Ambas son interfaces funcionales de java.util.function, listas para usar sin tener que declararlas tu mismo.",
           "conceptId": "predicate-consumer",
           "role": "intro",
           "pathOrder": 0
