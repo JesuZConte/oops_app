@@ -1620,10 +1620,182 @@
       ]
     },
     {
+      "unitId": "fund-interfaces-basicas",
+      "name": "Interfaces basicas",
+      "certObjective": "language-basics",
+      "orderIndex": 12,
+      "summary": {
+        "text": "Una interfaz declara un contrato: un conjunto de metodos que una clase promete implementar, usando implements. Antes de Java 8, todos los metodos de una interfaz eran implicitamente public y abstract (sin cuerpo) - no hacia falta escribir esas palabras clave. Cualquier field declarado en una interfaz es implicitamente public static final (una constante), aunque no se escriban esas palabras clave. A diferencia de la herencia de clases (una sola superclase), una clase puede implementar varias interfaces a la vez.",
+        "code": "interface Volador {\n    int ALTURA_MAXIMA = 10000; // implicitamente public static final\n\n    void volar(); // implicitamente public abstract\n}\n\nclass Avion implements Volador {\n    public void volar() {\n        System.out.println(\"Volando a \" + ALTURA_MAXIMA);\n    }\n}"
+      },
+      "exercises": [
+        {
+          "id": "fund-interfazdecl-intro",
+          "type": "worked_example",
+          "difficulty": 1,
+          "prompt": "Una interfaz declara un contrato de metodos que una clase promete implementar",
+          "code": "interface Volador {\n    void volar();\n}\n\nclass Avion implements Volador {\n    public void volar() {\n        System.out.println(\"Volando\");\n    }\n}",
+          "answer": "ok",
+          "explanation": "implements indica que Avion cumple el contrato de Volador; debe implementar todos sus metodos abstractos (volar()), o Avion tendria que declararse abstract.",
+          "conceptId": "interfaz-declaracion",
+          "role": "intro",
+          "pathOrder": 0
+        },
+        {
+          "id": "fund-interfazdecl-guided",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Que modificadores tiene implicitamente un metodo declarado en una interfaz, sin cuerpo, antes de Java 8?",
+          "answer": "public y abstract, aunque no se escriban explicitamente",
+          "distractors": [
+            "private y final",
+            "protected y static",
+            "No tiene ningun modificador implicito, hay que escribirlos siempre"
+          ],
+          "explanation": "Todo metodo de interfaz sin cuerpo es public abstract por defecto - escribir esas palabras clave es redundante pero valido; esto cambio recien con default/private/static en Java 8/9.",
+          "conceptId": "interfaz-declaracion",
+          "role": "guided",
+          "pathOrder": 1
+        },
+        {
+          "id": "fund-interfazdecl-solo",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Que pasa si una clase implementa una interfaz pero no implementa uno de sus metodos abstractos?",
+          "answer": "El codigo no compila, a menos que la clase se declare tambien como abstract",
+          "distractors": [
+            "Java genera una implementacion vacia automaticamente",
+            "Compila, pero lanza una excepcion si se llama a ese metodo",
+            "Solo es un warning, no un error de compilacion"
+          ],
+          "explanation": "Igual que con una clase abstracta, una clase concreta debe implementar todos los metodos abstractos que promete cumplir; si no puede o no quiere, tiene que declararse abstract y dejar la implementacion pendiente para una subclase.",
+          "conceptId": "interfaz-declaracion",
+          "role": "solo",
+          "pathOrder": 2
+        },
+        {
+          "id": "fund-interfazconst-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "Un field en una interfaz es implicitamente public static final (una constante)",
+          "code": "interface Volador {\n    int ALTURA_MAXIMA = 10000; // public static final implicito\n}\n\nint limite = Volador.ALTURA_MAXIMA;",
+          "answer": "ok",
+          "explanation": "No hace falta escribir public static final: cualquier field declarado directamente en una interfaz lo es automaticamente. Se accede igual que un static field de una clase: Interfaz.CAMPO.",
+          "conceptId": "interfaz-constantes",
+          "role": "intro",
+          "pathOrder": 3,
+          "dependsOn": [
+            "interfaz-declaracion"
+          ]
+        },
+        {
+          "id": "fund-interfazconst-guided",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Se puede reasignar el valor de ALTURA_MAXIMA desde una clase que implementa Volador?",
+          "answer": "No, porque es implicitamente final - su valor queda fijo desde que se declara",
+          "distractors": [
+            "Si, cualquier clase que implemente la interfaz puede modificarlo",
+            "Solo si la clase lo declara nuevamente sin final",
+            "Si, pero solo dentro de un metodo static"
+          ],
+          "explanation": "final impide reasignar el valor una vez inicializado; como los fields de interfaz son final implicitamente, son constantes verdaderas, no variables compartidas modificables.",
+          "conceptId": "interfaz-constantes",
+          "role": "guided",
+          "pathOrder": 4,
+          "dependsOn": [
+            "interfaz-declaracion"
+          ]
+        },
+        {
+          "id": "fund-interfazconst-solo",
+          "type": "fill_blank",
+          "difficulty": 2,
+          "prompt": "Completa el acceso a la constante ALTURA_MAXIMA de la interfaz Volador:",
+          "code": "int limite = _____.ALTURA_MAXIMA;",
+          "answer": "Volador",
+          "distractors": [
+            "avion",
+            "new Volador()",
+            "this"
+          ],
+          "explanation": "Un field de interfaz es static implicitamente, asi que se accede sobre el nombre de la interfaz, igual que un static field de una clase.",
+          "conceptId": "interfaz-constantes",
+          "role": "solo",
+          "pathOrder": 5,
+          "dependsOn": [
+            "interfaz-declaracion"
+          ]
+        },
+        {
+          "id": "fund-interfazmultiple-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "Una clase puede implementar varias interfaces a la vez, a diferencia de la herencia simple de clases",
+          "code": "interface Volador {\n    void volar();\n}\ninterface Nadador {\n    void nadar();\n}\n\nclass Pato implements Volador, Nadador {\n    public void volar() { System.out.println(\"Vuela\"); }\n    public void nadar() { System.out.println(\"Nada\"); }\n}",
+          "answer": "ok",
+          "explanation": "implements acepta una lista separada por comas; Pato debe implementar los metodos abstractos de ambas interfaces. Esto no es posible con extends de clases, que solo permite una superclase.",
+          "conceptId": "interfaz-multiple",
+          "role": "intro",
+          "pathOrder": 6,
+          "dependsOn": [
+            "interfaz-declaracion"
+          ]
+        },
+        {
+          "id": "fund-interfazmultiple-guided",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Cuantas interfaces puede implementar una misma clase?",
+          "answer": "Tantas como necesite, separadas por coma en implements",
+          "distractors": [
+            "Una sola, igual que con extends",
+            "Hasta un maximo de 2",
+            "Ninguna si la clase ya extiende de otra clase"
+          ],
+          "explanation": "No hay limite practico en la cantidad de interfaces que una clase puede implementar; ademas, una clase puede extender una superclase Y implementar varias interfaces al mismo tiempo (extends antes que implements).",
+          "conceptId": "interfaz-multiple",
+          "role": "guided",
+          "pathOrder": 7,
+          "dependsOn": [
+            "interfaz-declaracion"
+          ]
+        },
+        {
+          "id": "fund-interfazmultiple-solo",
+          "type": "predict_output",
+          "difficulty": 2,
+          "prompt": "Que imprime este codigo?",
+          "code": "interface Volador {\n    void volar();\n}\ninterface Nadador {\n    void nadar();\n}\nclass Pato implements Volador, Nadador {\n    public void volar() { System.out.println(\"Vuela\"); }\n    public void nadar() { System.out.println(\"Nada\"); }\n}\npublic class Main {\n    public static void main(String[] args) {\n        Pato p = new Pato();\n        p.volar();\n        p.nadar();\n    }\n}",
+          "answer": "Vuela\nNada",
+          "explanation": "Pato implementa ambos metodos, uno de cada interfaz; se ejecutan en el orden en que se llaman: volar() primero, nadar() despues.",
+          "conceptId": "interfaz-multiple",
+          "role": "solo",
+          "pathOrder": 8,
+          "dependsOn": [
+            "interfaz-declaracion"
+          ]
+        },
+        {
+          "id": "fund-interfazbasicas-interview",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Una consultora IT grande te pregunta: por que preferir definir un contrato con una interfaz en vez de una clase abstracta cuando una clase necesita cumplir varios contratos distintos?",
+          "answer": "Porque una clase solo puede extender una clase abstracta (herencia simple), pero puede implementar tantas interfaces como necesite",
+          "distractors": [
+            "Porque las clases abstractas no pueden tener metodos abstractos",
+            "No hay ninguna diferencia practica entre ambas para este caso",
+            "Porque las interfaces son mas rapidas en tiempo de ejecucion"
+          ],
+          "explanation": "La limitacion de herencia simple de clases es justamente lo que las interfaces resuelven: permiten que una clase cumpla multiples contratos independientes sin el problema del diamante que tendria heredar de varias clases."
+        }
+      ]
+    },
+    {
       "unitId": "fund-interfaces-avanzadas",
       "name": "Interfaces avanzadas",
       "certObjective": "language-basics",
-      "orderIndex": 12,
+      "orderIndex": 13,
       "summary": {
         "text": "Desde Java 8, las interfaces pueden tener default methods (con cuerpo, heredado por las clases que implementan la interfaz) y private methods (para compartir codigo entre default methods sin exponerlo publicamente). Tambien pueden tener static methods, invocados directamente sobre la interfaz (InterfaceName.metodo()), nunca sobre una instancia. Si una clase implementa dos interfaces con un default method de igual firma, debe sobreescribirlo explicitamente para resolver el conflicto.",
         "code": "interface Formateador {\n    String formatear(String texto);\n\n    default String formatearMayuscula(String texto) {\n        return formatear(texto).toUpperCase();\n    }\n\n    static Formateador identidad() {\n        return texto -> texto;\n    }\n}"
@@ -1799,7 +1971,7 @@
       "unitId": "fund-interfaces-funcionales-lambda",
       "name": "Interfaces funcionales y lambdas",
       "certObjective": "language-basics",
-      "orderIndex": 13,
+      "orderIndex": 14,
       "summary": {
         "text": "Una interfaz funcional tiene exactamente un metodo abstracto (Single Abstract Method, SAM) - puede tener default/static methods ademas, pero solo uno abstracto. La anotacion @FunctionalInterface no es obligatoria, pero le pide al compilador que verifique esa regla. Una lambda expression implementa ese unico metodo abstracto de forma compacta: (parametros) -> cuerpo. El compilador infiere el tipo de los parametros a partir del contexto; tambien se puede usar var explicitamente en la lista de parametros. Una lambda de una sola expresion la devuelve implicitamente; una lambda con bloque { } (statement lambda) necesita return explicito si devuelve un valor.",
         "code": "@FunctionalInterface\ninterface Operacion {\n    int aplicar(int a, int b);\n}\n\nOperacion suma = (a, b) -> a + b;\nOperacion sumaConVar = (var a, var b) -> a + b;\nOperacion sumaBloque = (a, b) -> {\n    int resultado = a + b;\n    return resultado;\n};"
@@ -1971,13 +2143,13 @@
           "type": "mcq",
           "difficulty": 3,
           "prompt": "Por que este codigo no compila: Operacion suma = (a, b) -> { a + b; };",
-          "answer": "Porque al usar bloque { }, hace falta un return explicito para devolver el valor; a + b; sola es solo una expresion-statement que no retorna nada",
+          "answer": "Porque a + b; no es un statement valido en Java (solo asignaciones, invocaciones a metodos, incrementos/decrementos y creacion de objetos lo son), y ademas, aunque lo fuera, faltaria un return explicito para devolver el valor",
           "distractors": [
             "Porque las statement lambdas no pueden usar operadores aritmeticos",
             "Porque falta declarar el tipo de a y b explicitamente",
             "El codigo si compila sin problemas"
           ],
-          "explanation": "Sin return, el bloque no devuelve ningun valor, pero aplicar() esta declarado para devolver int - eso es un error de compilacion, distinto de omitir return en una expression lambda sin llaves (donde el valor se devuelve implicitamente).",
+          "explanation": "Un bloque { } de lambda contiene statements, no una expresion suelta: a + b por si sola no es un statement valido en Java (a diferencia de, por ejemplo, contador++ o metodo()). Ademas, aunque fuera valido, faltaria un return explicito para que el valor se devuelva - sin llaves, en cambio, una sola expresion se devuelve implicitamente.",
           "conceptId": "statement-lambda",
           "role": "guided",
           "pathOrder": 10,
