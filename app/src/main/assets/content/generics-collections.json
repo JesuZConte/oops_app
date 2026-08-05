@@ -341,7 +341,8 @@
             "Un mapa clave-valor",
             "Una cola FIFO sin orden"
           ],
-          "explanation": "TreeSet implementa Set (sin duplicados) y ademas mantiene los elementos en orden natural."
+          "explanation": "TreeSet implementa Set (sin duplicados) y ademas mantiene los elementos en orden natural.",
+          "pathOrder": 0
         },
         {
           "id": "gencol-listssets-02",
@@ -355,7 +356,8 @@
             "TreeMap",
             "LinkedList"
           ],
-          "explanation": "HashSet es la implementacion base de Set: sin duplicados, sin orden garantizado."
+          "explanation": "HashSet es la implementacion base de Set: sin duplicados, sin orden garantizado.",
+          "pathOrder": 1
         },
         {
           "id": "gencol-listssets-03",
@@ -364,7 +366,8 @@
           "prompt": "Que imprime este codigo? (el orden de iteracion importa)",
           "code": "Set<String> set = new TreeSet<>();\nset.add(\"banana\");\nset.add(\"manzana\");\nset.add(\"cereza\");\nfor (String s : set) System.out.println(s);",
           "answer": "banana\ncereza\nmanzana",
-          "explanation": "TreeSet mantiene los elementos en orden natural (alfabetico para String), sin importar el orden de insercion."
+          "explanation": "TreeSet mantiene los elementos en orden natural (alfabetico para String), sin importar el orden de insercion.",
+          "pathOrder": 2
         },
         {
           "id": "gencol-listssets-04",
@@ -373,7 +376,8 @@
           "prompt": "Que imprime este codigo?",
           "code": "Set<String> set = new LinkedHashSet<>();\nset.add(\"banana\");\nset.add(\"manzana\");\nset.add(\"cereza\");\nfor (String s : set) System.out.println(s);",
           "answer": "banana\nmanzana\ncereza",
-          "explanation": "LinkedHashSet preserva el orden de insercion, a diferencia de HashSet (sin orden) o TreeSet (orden natural)."
+          "explanation": "LinkedHashSet preserva el orden de insercion, a diferencia de HashSet (sin orden) o TreeSet (orden natural).",
+          "pathOrder": 3
         },
         {
           "id": "gencol-listssets-05",
@@ -386,7 +390,8 @@
             "Siempre, porque LinkedList es mas eficiente en memoria",
             "Nunca, ArrayList siempre es mejor"
           ],
-          "explanation": "ArrayList desplaza elementos al insertar/eliminar en medio (O(n)); LinkedList solo reenlaza nodos vecinos (O(1)) una vez ubicada la posicion."
+          "explanation": "ArrayList desplaza elementos al insertar/eliminar en medio (O(n)); LinkedList solo reenlaza nodos vecinos (O(1)) una vez ubicada la posicion.",
+          "pathOrder": 4
         },
         {
           "id": "gencol-listssets-06",
@@ -401,19 +406,20 @@
           ],
           "answer": "List<String> lista = new ArrayList<>();\nlista.add(\"a\");\nlista.add(\"b\");\nfor (String s : lista) System.out.println(s);",
           "code": "List<String> lista = new ArrayList<>();\nlista.add(\"a\");\nlista.add(\"b\");\nfor (String s : lista) System.out.println(s);",
-          "explanation": "Se declara e instancia la lista, se agregan elementos en orden, y luego se recorre con for-each."
+          "explanation": "Se declara e instancia la lista, se agregan elementos en orden, y luego se recorre con for-each.",
+          "pathOrder": 5
         },
         {
           "id": "gencol-cme-intro",
           "type": "worked_example",
           "difficulty": 2,
           "prompt": "Modificar una coleccion mientras la recorres con un for-each lanza ConcurrentModificationException",
-          "code": "List<String> nombres = new ArrayList<>(List.of(\"Ana\", \"Bob\", \"Carla\"));\nfor (String n : nombres) {\n    if (n.equals(\"Bob\")) {\n        nombres.remove(n); // ConcurrentModificationException\n    }\n}",
+          "code": "List<String> nombres = new ArrayList<>(List.of(\"Ana\", \"Bob\", \"Carla\", \"Dora\"));\nfor (String n : nombres) {\n    if (n.equals(\"Bob\")) {\n        nombres.remove(n); // ConcurrentModificationException\n    }\n}",
           "answer": "ok",
           "explanation": "El for-each usa un Iterator internamente; modificar la coleccion directamente (no a traves del iterator) invalida su estado interno y la siguiente llamada a next() detecta el cambio y lanza la excepcion, en vez de fallar silenciosamente.",
           "conceptId": "concurrent-modification",
           "role": "intro",
-          "pathOrder": 0
+          "pathOrder": 6
         },
         {
           "id": "gencol-cme-guided",
@@ -425,19 +431,19 @@
           "explanation": "Iterator.remove() (o removeIf(), que lo usa internamente) actualiza el estado interno del iterador de forma consistente; remove() de la coleccion, en cambio, no le avisa al iterator activo, causando la inconsistencia detectada.",
           "conceptId": "concurrent-modification",
           "role": "guided",
-          "pathOrder": 1
+          "pathOrder": 7
         },
         {
           "id": "gencol-cme-solo",
           "type": "predict_output",
           "difficulty": 3,
           "prompt": "Que imprime este codigo?",
-          "code": "List<Integer> numeros = new ArrayList<>(List.of(1, 2, 3));\ntry {\n    for (Integer n : numeros) {\n        if (n == 2) numeros.remove(n);\n    }\n} catch (ConcurrentModificationException e) {\n    System.out.println(\"capturada\");\n}",
+          "code": "List<Integer> numeros = new ArrayList<>(List.of(1, 2, 3, 4));\ntry {\n    for (Integer n : numeros) {\n        if (n == 2) numeros.remove(n);\n    }\n} catch (ConcurrentModificationException e) {\n    System.out.println(\"capturada\");\n}",
           "answer": "capturada",
           "explanation": "Al remover 2 directamente de la lista durante el for-each, el iterator detecta la modificacion no autorizada en la siguiente llamada a next() y lanza ConcurrentModificationException, que el catch captura.",
           "conceptId": "concurrent-modification",
           "role": "solo",
-          "pathOrder": 2
+          "pathOrder": 8
         }
       ]
     },

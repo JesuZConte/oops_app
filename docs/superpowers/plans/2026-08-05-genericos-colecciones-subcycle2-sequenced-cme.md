@@ -339,6 +339,46 @@ git commit -m "content: add ConcurrentModificationException + Sequenced Collecti
 
 ---
 
+## Post-review corrections (applied after this plan was executed)
+
+The final whole-branch review, verified by actually executing the code on
+a real JDK 21, found the CME exercises didn't do what they claimed:
+
+1. **(Critical) Neither CME code sample actually throws.** Both hit the
+   classic "removing the second-to-last element" ArrayList trap: after
+   `remove()`, the iterator's `cursor == size`, so `hasNext()` returns
+   `false` and the loop exits *before* the next `next()` call would have
+   detected the modification and thrown. This is exactly the trap the
+   1Z0-830 exam tests, and the original content taught the wrong side of
+   it. Fixed by using a 4th list element so the removed element is no
+   longer second-to-last:
+   - `gencol-cme-intro`: list becomes `["Ana", "Bob", "Carla", "Dora"]`
+     (still removes `"Bob"`) — now genuinely throws (uncaught, since this
+     is a worked_example, not asserted by a grader).
+   - `gencol-cme-solo`: list becomes `List.of(1, 2, 3, 4)` (still removes
+     `2`) — now genuinely throws, caught, prints `"capturada"` as the
+     exercise's `answer` already claimed.
+2. **(Important) Fresh-install ordering was inverted.** The CME ladder's
+   `pathOrder` (0,1,2) sorted *before* the 6 pre-existing
+   `gencol-listssets-*` exercises, which have no `pathOrder` at all
+   (`null` sorts last, per `pathOrder ?: Int.MAX_VALUE`) — a fresh
+   install's first-ever exercise in this unit would have been the
+   hardest new concept, not a basic List/Set fundamental. Fixed by
+   giving the 6 existing exercises explicit `pathOrder` 0-5 (in their
+   existing order — this only adds the `pathOrder` field, nothing else
+   about them changes, so `review_state`/grandfathering is unaffected)
+   and shifting the CME ladder to `pathOrder` 6, 7, 8.
+
+Two Minor findings from the same review were left unfixed (deferred):
+`gencol-seqmap-intro`'s summary overstates that `SequencedMap` always
+supports positional insertion (`TreeMap.putFirst()` actually throws
+`UnsupportedOperationException`, since a sorted map can't honor a
+caller-chosen position); `gencol-sequenced-guided`'s explanation slightly
+overstates when `getLast()` first became available. Both are
+explanation-text polish, not incorrect answers.
+
+---
+
 ## After the task: manual on-device QA
 
 Install a clean/in-place build and manually verify on-device:
