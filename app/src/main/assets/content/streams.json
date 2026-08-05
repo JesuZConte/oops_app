@@ -525,6 +525,142 @@
           "pathOrder": 9
         }
       ]
+    },
+    {
+      "unitId": "streams-optional",
+      "name": "Optional",
+      "certObjective": "streams-lambdas",
+      "orderIndex": 6,
+      "summary": {
+        "text": "Optional<T> envuelve un valor que puede o no estar presente, para evitar NullPointerException y hacer explicito en la firma de un metodo que el resultado puede faltar. Se crea con Optional.of() (valor no nulo garantizado), Optional.ofNullable() (puede ser null), o Optional.empty(). isPresent()/isEmpty() chequean si hay valor; orElse()/orElseGet()/orElseThrow() dan una alternativa si no lo hay; map() transforma el valor solo si esta presente, sin necesitar un if explicito.",
+        "code": "Optional<String> nombre = Optional.ofNullable(buscarNombre());\n\nif (nombre.isPresent()) {\n    System.out.println(nombre.get());\n}\n\nString resultado = nombre.orElse(\"Desconocido\");"
+      },
+      "exercises": [
+        {
+          "id": "streams-optcreate-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "Optional envuelve un valor que puede o no estar presente",
+          "code": "Optional<String> conValor = Optional.of(\"Hola\");       // nunca null, o lanza NPE\nOptional<String> puedeSerNull = Optional.ofNullable(null); // OK, queda vacio\nOptional<String> vacio = Optional.empty();\n\nconValor.isPresent(); // true\nvacio.isPresent();    // false",
+          "answer": "ok",
+          "explanation": "Optional.of() exige un valor no nulo (lanza NullPointerException si le pasas null). Optional.ofNullable() acepta null y crea un Optional vacio en ese caso. Optional.empty() crea directamente un Optional sin valor.",
+          "conceptId": "optional-creacion",
+          "role": "intro",
+          "pathOrder": 0
+        },
+        {
+          "id": "streams-optcreate-guided",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Que pasa si llamas a Optional.of(null)?",
+          "answer": "Se lanza NullPointerException inmediatamente",
+          "distractors": ["Se crea un Optional vacio, igual que ofNullable", "Compila pero falla recien al llamar a get()", "Devuelve null directamente, sin envolver nada"],
+          "explanation": "Optional.of() esta pensado para casos donde el valor NUNCA deberia ser null. Si lo es, es un error de programacion, y Optional.of() lo detecta inmediatamente en vez de esconderlo. Para valores que legitimamente pueden ser null, se usa ofNullable().",
+          "conceptId": "optional-creacion",
+          "role": "guided",
+          "pathOrder": 1
+        },
+        {
+          "id": "streams-optcreate-solo",
+          "type": "predict_output",
+          "difficulty": 2,
+          "prompt": "Que imprime este codigo?",
+          "code": "Optional<String> valor = Optional.ofNullable(null);\nSystem.out.println(valor.isPresent());\nSystem.out.println(valor.isEmpty());",
+          "answer": "false\ntrue",
+          "explanation": "ofNullable(null) crea un Optional vacio; isPresent() da false (no hay valor) e isEmpty() da true (esta vacio) - son metodos complementarios, isEmpty() se agrego en Java 11.",
+          "conceptId": "optional-creacion",
+          "role": "solo",
+          "pathOrder": 2
+        },
+        {
+          "id": "streams-optorelse-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "orElse()/orElseGet()/orElseThrow() dan una alternativa cuando el Optional esta vacio",
+          "code": "Optional<String> nombre = Optional.empty();\n\nString a = nombre.orElse(\"Desconocido\");           // valor por defecto fijo\nString b = nombre.orElseGet(() -> calcularDefault()); // valor calculado perezosamente\nnombre.orElseThrow(() -> new RuntimeException(\"Sin nombre\")); // lanza si esta vacio",
+          "answer": "ok",
+          "explanation": "orElse() siempre evalua su argumento (aunque el Optional tenga valor). orElseGet() solo ejecuta el Supplier si esta vacio (mas eficiente si calcular el default es costoso). orElseThrow() lanza la excepcion provista en vez de devolver un valor por defecto.",
+          "conceptId": "optional-orElse",
+          "role": "intro",
+          "pathOrder": 3,
+          "dependsOn": ["optional-creacion"]
+        },
+        {
+          "id": "streams-optorelse-guided",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Por que orElseGet() puede ser mas eficiente que orElse() en algunos casos?",
+          "answer": "Porque orElseGet() solo ejecuta su Supplier si el Optional esta vacio; orElse() siempre evalua su argumento, tenga valor o no",
+          "distractors": ["No hay diferencia real de eficiencia entre ambos", "orElseGet() es mas lento porque usa una interfaz funcional", "orElse() nunca se ejecuta si el Optional tiene valor"],
+          "explanation": "Si el argumento de orElse() es una llamada costosa (por ejemplo, una consulta a base de datos), esa llamada se ejecuta SIEMPRE, incluso cuando no hace falta. orElseGet() evita ese costo evaluando el Supplier solo cuando realmente esta vacio.",
+          "conceptId": "optional-orElse",
+          "role": "guided",
+          "pathOrder": 4,
+          "dependsOn": ["optional-creacion"]
+        },
+        {
+          "id": "streams-optorelse-solo",
+          "type": "predict_output",
+          "difficulty": 2,
+          "prompt": "Que imprime este codigo?",
+          "code": "Optional<String> nombre = Optional.of(\"Ana\");\nString resultado = nombre.orElse(\"Desconocido\");\nSystem.out.println(resultado);",
+          "answer": "Ana",
+          "explanation": "Como el Optional tiene un valor presente (Ana), orElse() devuelve ese valor directamente, ignorando el argumento por defecto.",
+          "conceptId": "optional-orElse",
+          "role": "solo",
+          "pathOrder": 5,
+          "dependsOn": ["optional-creacion"]
+        },
+        {
+          "id": "streams-optmap-intro",
+          "type": "worked_example",
+          "difficulty": 3,
+          "prompt": "map() transforma el valor de un Optional solo si esta presente, sin necesitar un if explicito",
+          "code": "Optional<String> nombre = Optional.of(\"ana\");\nOptional<Integer> largo = nombre.map(String::length); // Optional[3]\n\nOptional<String> vacio = Optional.empty();\nOptional<Integer> largoVacio = vacio.map(String::length); // Optional vacio, no lanza nada",
+          "answer": "ok",
+          "explanation": "map() aplica la funcion solo si hay valor presente. Si el Optional esta vacio, map() devuelve otro Optional vacio sin ejecutar la funcion, evitando tener que chequear isPresent() manualmente antes de transformar.",
+          "conceptId": "optional-map",
+          "role": "intro",
+          "pathOrder": 6,
+          "dependsOn": ["optional-creacion"]
+        },
+        {
+          "id": "streams-optmap-guided",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Que pasa si llamas a map() sobre un Optional vacio?",
+          "answer": "Devuelve otro Optional vacio, sin ejecutar la funcion de transformacion",
+          "distractors": ["Lanza NoSuchElementException", "Ejecuta la funcion igual, pasandole null", "Devuelve Optional.of(null)"],
+          "explanation": "map() esta disenado para encadenar transformaciones sin romper con un Optional vacio. Si no hay valor, simplemente propaga el vacio hacia el resultado, sin intentar ejecutar la funcion.",
+          "conceptId": "optional-map",
+          "role": "guided",
+          "pathOrder": 7,
+          "dependsOn": ["optional-creacion"]
+        },
+        {
+          "id": "streams-optmap-solo",
+          "type": "predict_output",
+          "difficulty": 2,
+          "prompt": "Que imprime este codigo?",
+          "code": "Optional<String> nombre = Optional.of(\"maria\");\nint largo = nombre.map(String::length).orElse(0);\nSystem.out.println(largo);",
+          "answer": "5",
+          "explanation": "map(String::length) transforma \"maria\" (5 caracteres) en Optional[5]. orElse(0) devuelve ese valor presente, 5, sin usar el default.",
+          "conceptId": "optional-map",
+          "role": "solo",
+          "pathOrder": 8,
+          "dependsOn": ["optional-creacion"]
+        },
+        {
+          "id": "streams-optional-interview",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Una empresa de servicios financieros te pregunta: que problema real resuelve Optional que no se podia resolver ya con un chequeo de null tradicional?",
+          "answer": "Hace explicito en la firma del metodo que el resultado puede faltar, obligando al que llama a manejarlo - un chequeo de null es facil de olvidar porque el compilador no lo exige",
+          "distractors": ["Optional hace que el codigo corra mas rapido que un if de null", "Optional elimina completamente la posibilidad de NullPointerException en toda la aplicacion", "No resuelve ningun problema nuevo, es solo una forma distinta de escribir lo mismo"],
+          "explanation": "Un metodo que devuelve String puede devolver null sin que nada lo indique en la firma, y es facil olvidar el chequeo. Un metodo que devuelve Optional<String> comunica explicitamente 'esto puede no tener valor', y el equipo puede exigir que se maneje. Optional no elimina NPE magicamente (todavia se puede hacer optional.get() sin chequear y fallar), pero hace el riesgo visible.",
+          "pathOrder": 9
+        }
+      ]
     }
   ]
 }
