@@ -9,7 +9,7 @@ import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 private const val CONTENT_VERSION_KEY = "content_version"
-private const val CURRENT_CONTENT_VERSION = "12"
+private const val CURRENT_CONTENT_VERSION = "13"
 
 class ContentSeeder @Inject constructor(
     private val contentLoader: ContentLoader,
