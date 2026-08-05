@@ -33,10 +33,14 @@ class GetLearningPathUseCase @Inject constructor(
             }
 
             val sectionComplete = units.isNotEmpty() && units.all { it.id in completedUnits }
-            val checkpointSatisfied = sectionComplete && (
-                checkpointRepository.hasApprovedAttempt(section.id, CheckpointKind.REVIEW) ||
-                    unitProgress.all { it.completedVia == UnitCompletionSource.PLACEMENT }
-                )
+            // An approved checkpoint attempt is a permanent record: once earned, it stays
+            // satisfied even if later content-authoring adds new, not-yet-played units to
+            // this section (which would otherwise flip sectionComplete back to false and
+            // cascade-lock every downstream section's unfinished units). Full placement
+            // completion is NOT a permanent record in the same way — it reflects today's
+            // unit state, so it still requires sectionComplete.
+            val checkpointSatisfied = checkpointRepository.hasApprovedAttempt(section.id, CheckpointKind.REVIEW) ||
+                (sectionComplete && unitProgress.all { it.completedVia == UnitCompletionSource.PLACEMENT })
             val checkpointStatus = computeCheckpointStatus(section.id, sectionComplete, checkpointSatisfied)
             previousSectionFullyDone = checkpointSatisfied
 

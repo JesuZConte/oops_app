@@ -94,6 +94,30 @@ class GetLearningPathUseCaseTest {
     }
 
     @Test
+    fun `an approved checkpoint stays satisfied even after new units are added to the section later`() = runTest {
+        val repository = FakeContentRepositoryForPath(
+            sections = listOf(section("s1", 1), section("s2", 2)),
+            unitsBySection = mapOf(
+                "s1" to listOf(unit("s1-u1", "s1", 1), unit("s1-u2", "s1", 2)),
+                "s2" to listOf(unit("s2-u1", "s2", 1))
+            ),
+            completedUnits = listOf(played("s1-u1"))
+        )
+        val checkpointRepository = FakeCheckpointRepository()
+        checkpointRepository.recordAttempt(
+            "s1", CheckpointKind.REVIEW, scorePct = 100, passed = true,
+            takenAt = LocalDate.of(2026, 7, 20), failedExerciseIds = emptyList()
+        )
+        val useCase = GetLearningPathUseCase(repository, checkpointRepository, retryUnlockedUseCase(checkpointRepository))
+
+        val path = useCase()
+
+        assertFalse(path.first().completed)
+        assertTrue(path.first().checkpointSatisfied)
+        assertTrue(path[1].unlocked)
+    }
+
+    @Test
     fun `a section stays locked when units are done but the checkpoint has not been approved`() = runTest {
         val repository = FakeContentRepositoryForPath(
             sections = listOf(section("s1", 1), section("s2", 2)),
