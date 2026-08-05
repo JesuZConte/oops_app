@@ -139,6 +139,56 @@ git commit -m "fix: an approved section checkpoint stays satisfied after new uni
 
 ---
 
+## Post-review addition (found during task review, fixed in the same task)
+
+The task review found a real, directly-caused downstream side effect:
+`SummarizeCurrentSectionUseCase.kt` (the Home screen's "TU RUTA" card,
+wired via `HomeViewModel`) relies on an invariant this fix breaks. Its own
+doc comment says `!checkpointSatisfied` (not `!completed`) is what makes
+`sections.firstOrNull { !it.checkpointSatisfied }` correct — that was only
+true because the *old* `checkpointSatisfied` formula required
+`sectionComplete`, so `checkpointSatisfied == true` always implied
+`completed == true`. This fix breaks that implication on purpose (that's
+the whole point: a permanently-approved section can now have
+`completed = false` if new units were added later) — which means Home
+would now skip straight past a section like Fundamentos (permanently
+satisfied, but with real unplayed content) to the next section, exactly
+in the live scenario this fix targets.
+
+**Additional fix required in the same task**, in
+`app/src/main/java/com/zconte/oopsapp/domain/usecase/SummarizeCurrentSectionUseCase.kt`:
+change the "current section" selector from `!it.checkpointSatisfied` to
+`!(it.completed && it.checkpointSatisfied)` — a section is "current" if it
+is *not* both fully complete AND checkpoint-satisfied. This is equivalent
+to the old logic under the old (now-broken) invariant, and correctly
+keeps a section current whenever it has real unplayed content, regardless
+of checkpoint status. `isCheckpointPending`'s logic is unchanged (still
+`completed && !checkpointSatisfied`).
+
+Add a regression test to
+`app/src/test/java/com/zconte/oopsapp/domain/usecase/SummarizeCurrentSectionUseCaseTest.kt`,
+modeling the exact broken-invariant case:
+
+```kotlin
+    @Test
+    fun `a section with new unplayed units stays current even if its checkpoint was already approved`() {
+        val sections = listOf(
+            sectionPath("s1", 1, completed = false, checkpointSatisfied = true, status = CheckpointStatus.SATISFIED),
+            sectionPath("s2", 2, completed = true, checkpointSatisfied = true, status = CheckpointStatus.SATISFIED)
+        )
+
+        val summary = summarizeCurrentSection(sections)
+
+        assertEquals("s1", summary.currentSection?.section?.id)
+        assertFalse(summary.isCheckpointPending)
+    }
+```
+
+Update the doc comment on `summarizeCurrentSection` to explain the new
+condition instead of the old one.
+
+---
+
 ## After the task: manual on-device QA
 
 Install a clean/in-place build and manually verify on-device:
