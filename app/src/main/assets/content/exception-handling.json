@@ -15,13 +15,53 @@
       },
       "exercises": [
         {
+          "id": "throwable-hierarchy-intro",
+          "type": "worked_example",
+          "difficulty": 1,
+          "prompt": "Throwable es la raiz de todo lo que se puede lanzar en Java: se divide en Exception y Error",
+          "code": "Throwable\n├── Exception       // errores recuperables de la aplicacion\n│    └── RuntimeException  // subclase: unchecked\n└── Error            // problemas graves del entorno (JVM, memoria)",
+          "answer": "ok",
+          "explanation": "Throwable tiene dos ramas directas: Exception (errores que la aplicacion deberia poder manejar) y Error (problemas del entorno de ejecucion, como quedarse sin memoria, que normalmente no se intentan recuperar).",
+          "conceptId": "throwable-hierarchy",
+          "role": "intro",
+          "pathOrder": 0
+        },
+        {
           "id": "excep-jerarquia-01",
           "type": "mcq",
           "difficulty": 1,
           "prompt": "Cual es la superclase de todas las excepciones y errores en Java?",
           "answer": "Throwable",
           "distractors": ["Exception", "RuntimeException", "Error"],
-          "explanation": "Throwable es la raiz de la jerarquia; Exception y Error son sus dos subclases directas."
+          "explanation": "Throwable es la raiz de la jerarquia; Exception y Error son sus dos subclases directas.",
+          "conceptId": "throwable-hierarchy",
+          "role": "guided",
+          "pathOrder": 1
+        },
+        {
+          "id": "excep-jerarquia-06",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Que representa un OutOfMemoryError?",
+          "answer": "Un problema grave del entorno de ejecucion que normalmente no se debe intentar recuperar",
+          "distractors": ["Una excepcion checked que se debe declarar en el metodo", "Un error de logica que el desarrollador debe capturar y reintentar", "Una advertencia del compilador, no un error real"],
+          "explanation": "Error indica condiciones anormales del JVM/entorno; la practica recomendada es no capturarlo para intentar arreglarlo en tiempo de ejecucion.",
+          "conceptId": "throwable-hierarchy",
+          "role": "solo",
+          "pathOrder": 2
+        },
+        {
+          "id": "checked-vs-unchecked-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "Las excepciones checked (extienden Exception) obligan a declararlas o capturarlas; las unchecked (extienden RuntimeException) no lo exigen",
+          "code": "class ErrorDeNegocio extends Exception { }        // checked: debe declararse o capturarse\nclass ErrorDeProgramacion extends RuntimeException { } // unchecked: no lo exige el compilador",
+          "answer": "ok",
+          "explanation": "El compilador solo revisa las checked exceptions: si un metodo puede lanzarlas, debe declararlas con throws o capturarlas con try-catch. Las unchecked (RuntimeException y sus subclases) no tienen esa exigencia, porque tipicamente representan errores de programacion (como un indice invalido) en vez de condiciones externas recuperables.",
+          "conceptId": "checked-vs-unchecked",
+          "role": "intro",
+          "pathOrder": 3,
+          "dependsOn": ["throwable-hierarchy"]
         },
         {
           "id": "excep-jerarquia-02",
@@ -30,7 +70,11 @@
           "prompt": "Que caracteriza a una excepcion unchecked (RuntimeException)?",
           "answer": "El compilador no obliga a declararla ni a capturarla",
           "distractors": ["Siempre representa un error critico del sistema", "No puede ser capturada con catch", "Solo puede lanzarse desde metodos static"],
-          "explanation": "Las unchecked extienden RuntimeException y el compilador no exige manejo explicito, a diferencia de las checked."
+          "explanation": "Las unchecked extienden RuntimeException y el compilador no exige manejo explicito, a diferencia de las checked.",
+          "conceptId": "checked-vs-unchecked",
+          "role": "guided",
+          "pathOrder": 4,
+          "dependsOn": ["throwable-hierarchy"]
         },
         {
           "id": "excep-jerarquia-03",
@@ -40,7 +84,11 @@
           "code": "public class SaldoInsuficienteException extends _____ {\n}",
           "answer": "Exception",
           "distractors": ["RuntimeException", "Throwable", "Error"],
-          "explanation": "Extender Exception (no RuntimeException) hace que la excepcion sea checked, y el compilador exige declararla o capturarla."
+          "explanation": "Extender Exception (no RuntimeException) hace que la excepcion sea checked, y el compilador exige declararla o capturarla.",
+          "conceptId": "checked-vs-unchecked",
+          "role": "guided",
+          "pathOrder": 5,
+          "dependsOn": ["throwable-hierarchy"]
         },
         {
           "id": "excep-jerarquia-04",
@@ -49,7 +97,11 @@
           "prompt": "Que imprime este codigo?",
           "code": "try {\n    Object o = \"texto\";\n    Integer i = (Integer) o;\n} catch (RuntimeException e) {\n    System.out.println(\"capturada: \" + e.getClass().getSimpleName());\n}",
           "answer": "capturada: ClassCastException",
-          "explanation": "Castear un String a Integer lanza ClassCastException, que es unchecked (extiende RuntimeException), asi que el catch(RuntimeException e) la captura."
+          "explanation": "Castear un String a Integer lanza ClassCastException, que es unchecked (extiende RuntimeException), asi que el catch(RuntimeException e) la captura.",
+          "conceptId": "checked-vs-unchecked",
+          "role": "guided",
+          "pathOrder": 6,
+          "dependsOn": ["throwable-hierarchy"]
         },
         {
           "id": "excep-jerarquia-05",
@@ -58,16 +110,51 @@
           "prompt": "Por que Java distingue entre excepciones checked y unchecked?",
           "answer": "Para forzar el manejo explicito de errores recuperables (checked) sin sobrecargar cada firma con errores de programacion (unchecked)",
           "distractors": ["Porque las unchecked son mas lentas en tiempo de ejecucion", "Porque las checked no pueden envolver una causa", "Porque el compilador elimino las checked en versiones recientes"],
-          "explanation": "Checked fuerza a manejar condiciones de las que el codigo puede recuperarse; unchecked evita ensuciar cada firma con errores de programacion que no deberian ocurrir si el codigo es correcto."
+          "explanation": "Checked fuerza a manejar condiciones de las que el codigo puede recuperarse; unchecked evita ensuciar cada firma con errores de programacion que no deberian ocurrir si el codigo es correcto.",
+          "conceptId": "checked-vs-unchecked",
+          "role": "solo",
+          "pathOrder": 7,
+          "dependsOn": ["throwable-hierarchy"]
         },
         {
-          "id": "excep-jerarquia-06",
+          "id": "override-checked-intro",
+          "type": "worked_example",
+          "difficulty": 3,
+          "prompt": "Un metodo que sobreescribe otro no puede declarar throws mas amplio que el metodo original para excepciones checked",
+          "code": "class Base {\n    void leer() throws IOException { }\n}\n\nclass Derivada extends Base {\n    void leer() throws FileNotFoundException { } // OK: subclase de IOException\n    // void leer() throws Exception { } // ERROR: mas amplia que IOException\n}",
+          "answer": "ok",
+          "explanation": "Cuando un metodo override declara excepciones checked, solo puede declarar la misma excepcion, una subclase mas especifica, o ninguna -nunca una checked mas amplia o distinta que la declarada en el metodo original. Esto preserva el contrato: quien llama al metodo por su tipo declarado (Base) sabe exactamente que checked exceptions puede recibir, sin sorpresas al usar una subclase.",
+          "conceptId": "override-checked-exceptions",
+          "role": "intro",
+          "pathOrder": 8,
+          "dependsOn": ["checked-vs-unchecked"]
+        },
+        {
+          "id": "override-checked-guided",
           "type": "mcq",
-          "difficulty": 2,
-          "prompt": "Que representa un OutOfMemoryError?",
-          "answer": "Un problema grave del entorno de ejecucion que normalmente no se debe intentar recuperar",
-          "distractors": ["Una excepcion checked que se debe declarar en el metodo", "Un error de logica que el desarrollador debe capturar y reintentar", "Una advertencia del compilador, no un error real"],
-          "explanation": "Error indica condiciones anormales del JVM/entorno; la practica recomendada es no capturarlo para intentar arreglarlo en tiempo de ejecucion."
+          "difficulty": 3,
+          "prompt": "Un metodo Base.procesar() declara throws IOException. Cual de estos overrides en una subclase compila?",
+          "answer": "void procesar() throws FileNotFoundException",
+          "distractors": ["void procesar() throws Exception", "void procesar() throws SQLException", "void procesar() throws Throwable"],
+          "explanation": "FileNotFoundException extiende IOException, asi que es una checked exception mas especifica -permitido. Exception y Throwable son mas amplias que IOException -no permitido. SQLException no tiene relacion de herencia con IOException -tampoco permitido.",
+          "conceptId": "override-checked-exceptions",
+          "role": "guided",
+          "pathOrder": 9,
+          "dependsOn": ["checked-vs-unchecked"]
+        },
+        {
+          "id": "override-checked-solo",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Por que este codigo no compila?",
+          "code": "class Base {\n    void conectar() throws IOException { }\n}\n\nclass Derivada extends Base {\n    @Override\n    void conectar() throws Exception { }\n}",
+          "answer": "Exception es mas amplia que IOException; un override no puede declarar una checked exception mas general que la del metodo original",
+          "distractors": ["Los metodos override no pueden usar la anotacion @Override con throws", "Exception no es una clase valida para throws", "Falta declarar IOException tambien en el override"],
+          "explanation": "El override reduce el contrato de excepciones (o lo deja igual), nunca lo amplia -declarar throws Exception rompe esa regla porque Exception incluye muchas mas checked exceptions que las que el metodo original prometia.",
+          "conceptId": "override-checked-exceptions",
+          "role": "solo",
+          "pathOrder": 10,
+          "dependsOn": ["checked-vs-unchecked"]
         }
       ]
     },
@@ -82,6 +169,18 @@
       },
       "exercises": [
         {
+          "id": "multi-catch-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "catch (TipoA | TipoB e) atrapa varios tipos de excepcion en un mismo bloque, siempre que ninguno sea subtipo del otro",
+          "code": "try {\n    procesar();\n} catch (IOException | SQLException e) {\n    manejar(e);\n}",
+          "answer": "ok",
+          "explanation": "El multi-catch usa | para listar tipos alternativos en un solo catch, evitando duplicar el mismo manejo en bloques separados. La variable e queda con un tipo union de ambos -no se puede reasignar a un tipo mas especifico dentro del catch, y ninguno de los tipos puede ser subclase del otro (seria redundante).",
+          "conceptId": "multi-catch",
+          "role": "intro",
+          "pathOrder": 0
+        },
+        {
           "id": "excep-trycatch-01",
           "type": "fill_blank",
           "difficulty": 2,
@@ -89,7 +188,34 @@
           "code": "try {\n    procesar();\n} catch (_____ e) {\n    manejar(e);\n}",
           "answer": "IOException | SQLException",
           "distractors": ["IOException, SQLException", "IOException & SQLException", "Exception"],
-          "explanation": "El multi-catch usa | para separar tipos alternativos en un mismo catch; la variable e queda con un tipo union de ambos."
+          "explanation": "El multi-catch usa | para separar tipos alternativos en un mismo catch; la variable e queda con un tipo union de ambos.",
+          "conceptId": "multi-catch",
+          "role": "guided",
+          "pathOrder": 1
+        },
+        {
+          "id": "excep-trycatch-05",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Cuando conviene usar multi-catch (IOException | SQLException) en vez de dos catch separados?",
+          "answer": "Cuando el manejo de ambas excepciones es identico y no necesitas logica distinta por tipo",
+          "distractors": ["Siempre, porque es mas rapido en tiempo de ejecucion", "Solo cuando ambas excepciones son unchecked", "Nunca, Java lo desaconseja"],
+          "explanation": "Multi-catch evita duplicar codigo cuando el tratamiento es el mismo; si necesitas logica distinta por excepcion, conviene separarlos.",
+          "conceptId": "multi-catch",
+          "role": "solo",
+          "pathOrder": 2
+        },
+        {
+          "id": "finally-semantics-intro",
+          "type": "worked_example",
+          "difficulty": 1,
+          "prompt": "finally se ejecuta siempre despues de try/catch, haya o no excepcion -salvo que la JVM termine antes",
+          "code": "try {\n    System.out.println(\"try\");\n} finally {\n    System.out.println(\"finally\"); // siempre se imprime\n}",
+          "answer": "ok",
+          "explanation": "finally corre incluso si el try termina normalmente, si una excepcion fue capturada, o si una excepcion no capturada se esta propagando -es el lugar para liberar recursos que deben cerrarse pase lo que pase. La unica forma comun de saltarselo es terminar la JVM abruptamente, como con System.exit().",
+          "conceptId": "finally-semantics",
+          "role": "intro",
+          "pathOrder": 3
         },
         {
           "id": "excep-trycatch-02",
@@ -98,7 +224,10 @@
           "prompt": "Que imprime este codigo?",
           "code": "try {\n    System.out.println(\"try\");\n    throw new RuntimeException(\"boom\");\n} catch (RuntimeException e) {\n    System.out.println(\"catch\");\n} finally {\n    System.out.println(\"finally\");\n}",
           "answer": "try\ncatch\nfinally",
-          "explanation": "finally siempre se ejecuta despues del catch (o del try si no hubo excepcion), incluso cuando el catch maneja la excepcion sin relanzarla."
+          "explanation": "finally siempre se ejecuta despues del catch (o del try si no hubo excepcion), incluso cuando el catch maneja la excepcion sin relanzarla.",
+          "conceptId": "finally-semantics",
+          "role": "guided",
+          "pathOrder": 4
         },
         {
           "id": "excep-trycatch-03",
@@ -107,7 +236,46 @@
           "prompt": "Que devuelve la llamada a valor()?",
           "code": "static int valor() {\n    try {\n        return 1;\n    } finally {\n        return 2;\n    }\n}",
           "answer": "2",
-          "explanation": "Un return dentro de finally reemplaza cualquier return pendiente del try, aunque esto se considera mala practica."
+          "explanation": "Un return dentro de finally reemplaza cualquier return pendiente del try, aunque esto se considera mala practica.",
+          "conceptId": "finally-semantics",
+          "role": "guided",
+          "pathOrder": 5
+        },
+        {
+          "id": "excep-trycatch-06",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Que pasa si el bloque try llama a System.exit(0) antes de terminar?",
+          "answer": "La JVM termina de inmediato y el bloque finally no se ejecuta",
+          "distractors": ["El finally se ejecuta igual porque siempre corre", "Se lanza una excepcion adicional que hay que capturar", "El programa espera a que finally termine antes de salir"],
+          "explanation": "System.exit() detiene la JVM inmediatamente; es una de las pocas formas de evitar que finally se ejecute.",
+          "conceptId": "finally-semantics",
+          "role": "solo",
+          "pathOrder": 6
+        },
+        {
+          "id": "catch-ordering-intro",
+          "type": "worked_example",
+          "difficulty": 3,
+          "prompt": "Los catch mas especificos deben ir antes que los mas generales -un catch inalcanzable es un error de compilacion",
+          "code": "try {\n    riesgo();\n} catch (IOException e) {      // especifico primero\n    manejarIO(e);\n} catch (Exception e) {        // general despues: OK\n    manejarGenerico(e);\n}",
+          "answer": "ok",
+          "explanation": "Si un catch mas general (como Exception) fuera antes que uno mas especifico (como IOException), el general capturaria todo primero y el segundo catch jamas se alcanzaria -Java lo detecta en tiempo de compilacion y lo rechaza, en vez de dejarlo como codigo muerto silencioso.",
+          "conceptId": "catch-ordering",
+          "role": "intro",
+          "pathOrder": 7
+        },
+        {
+          "id": "catch-ordering-guided",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Cual de estos ordenes de catch compila sin errores?",
+          "answer": "catch (NumberFormatException e) {...} catch (RuntimeException e) {...}",
+          "distractors": ["catch (RuntimeException e) {...} catch (NumberFormatException e) {...}", "catch (Exception e) {...} catch (RuntimeException e) {...}", "catch (Throwable e) {...} catch (Exception e) {...}"],
+          "explanation": "NumberFormatException es subclase de RuntimeException, asi que debe ir primero (mas especifico); los otros tres ejemplos ponen el tipo mas general antes que uno mas especifico relacionado, lo cual el compilador rechaza como catch inalcanzable.",
+          "conceptId": "catch-ordering",
+          "role": "guided",
+          "pathOrder": 8
         },
         {
           "id": "excep-trycatch-04",
@@ -117,25 +285,51 @@
           "code": "try {\n    riesgo();\n} catch (Exception e) {\n    manejarGenerico(e);\n} catch (IOException e) {\n    manejarIO(e);\n}",
           "answer": "El catch de Exception es mas general y ya capturaria IOException antes de llegar al segundo catch",
           "distractors": ["IOException no puede lanzarse desde riesgo()", "Los catch deben ir en orden alfabetico", "Falta un finally obligatorio despues de los catch"],
-          "explanation": "El compilador exige que los catch mas especificos vayan antes que los mas generales, porque un catch inalcanzable es un error de compilacion."
+          "explanation": "El compilador exige que los catch mas especificos vayan antes que los mas generales, porque un catch inalcanzable es un error de compilacion.",
+          "conceptId": "catch-ordering",
+          "role": "solo",
+          "pathOrder": 9
         },
         {
-          "id": "excep-trycatch-05",
-          "type": "mcq",
-          "difficulty": 2,
-          "prompt": "Cuando conviene usar multi-catch (IOException | SQLException) en vez de dos catch separados?",
-          "answer": "Cuando el manejo de ambas excepciones es identico y no necesitas logica distinta por tipo",
-          "distractors": ["Siempre, porque es mas rapido en tiempo de ejecucion", "Solo cuando ambas excepciones son unchecked", "Nunca, Java lo desaconseja"],
-          "explanation": "Multi-catch evita duplicar codigo cuando el tratamiento es el mismo; si necesitas logica distinta por excepcion, conviene separarlos."
+          "id": "unreachable-code-intro",
+          "type": "worked_example",
+          "difficulty": 3,
+          "prompt": "El codigo despues de un throw (o return) incondicional dentro del mismo bloque es inalcanzable, y no compila",
+          "code": "void metodo() {\n    throw new RuntimeException(\"error\");\n    System.out.println(\"nunca se ejecuta\"); // ERROR: unreachable statement\n}",
+          "answer": "ok",
+          "explanation": "Un throw incondicional termina la ejecucion del metodo en ese punto; el compilador detecta que cualquier codigo despues, en el mismo flujo, jamas se ejecutaria y lo marca como error de compilacion (unreachable statement), no solo una advertencia.",
+          "conceptId": "unreachable-code-after-throw",
+          "role": "intro",
+          "pathOrder": 10,
+          "dependsOn": ["catch-ordering"]
         },
         {
-          "id": "excep-trycatch-06",
+          "id": "unreachable-code-guided",
           "type": "mcq",
           "difficulty": 3,
-          "prompt": "Que pasa si el bloque try llama a System.exit(0) antes de terminar?",
-          "answer": "La JVM termina de inmediato y el bloque finally no se ejecuta",
-          "distractors": ["El finally se ejecuta igual porque siempre corre", "Se lanza una excepcion adicional que hay que capturar", "El programa espera a que finally termine antes de salir"],
-          "explanation": "System.exit() detiene la JVM inmediatamente; es una de las pocas formas de evitar que finally se ejecute."
+          "prompt": "Este metodo no compila. Por que?",
+          "code": "int calcular(int n) {\n    if (n < 0) {\n        throw new IllegalArgumentException(\"negativo\");\n    } else {\n        return n * 2;\n    }\n    System.out.println(\"listo\");\n}",
+          "answer": "La ultima linea es inalcanzable: tanto el if como el else terminan el metodo (throw o return), asi que nunca se llega a ese println",
+          "distractors": ["Falta un return final despues del if-else", "IllegalArgumentException debe declararse con throws", "El else no puede usar return dentro de un if-else con throw"],
+          "explanation": "Cuando TODAS las ramas de un if-else terminan de forma definitiva (throw o return), cualquier codigo despues del if-else completo es inalcanzable, igual que despues de un throw suelto -el compilador lo rechaza como unreachable statement.",
+          "conceptId": "unreachable-code-after-throw",
+          "role": "guided",
+          "pathOrder": 11,
+          "dependsOn": ["catch-ordering"]
+        },
+        {
+          "id": "unreachable-code-solo",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Por que este codigo no compila?",
+          "code": "void procesar() {\n    return;\n    int x = 5;\n}",
+          "answer": "return termina el metodo inmediatamente; la declaracion int x = 5 despues es codigo inalcanzable",
+          "distractors": ["No se puede declarar una variable local sin usarla", "Falta inicializar x antes del return", "return no puede ser la primera instruccion de un metodo"],
+          "explanation": "Igual que con throw, un return incondicional termina el flujo del metodo en ese punto -cualquier instruccion despues, en el mismo bloque, es inalcanzable y produce un error de compilacion, no una simple advertencia.",
+          "conceptId": "unreachable-code-after-throw",
+          "role": "solo",
+          "pathOrder": 12,
+          "dependsOn": ["catch-ordering"]
         }
       ]
     },
