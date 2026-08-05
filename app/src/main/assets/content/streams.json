@@ -20,7 +20,11 @@
           "difficulty": 1,
           "prompt": "Que metodo crea un Stream a partir de una List?",
           "answer": "stream",
-          "distractors": ["toStream", "asStream", "of"],
+          "distractors": [
+            "toStream",
+            "asStream",
+            "of"
+          ],
           "explanation": "List.stream() crea un Stream secuencial respaldado por la coleccion."
         },
         {
@@ -30,7 +34,11 @@
           "prompt": "Genera un rango de enteros de 1 (inclusive) a 10 (exclusive):",
           "code": "IntStream._____(1, 10)",
           "answer": "range",
-          "distractors": ["of", "generate", "iterate"],
+          "distractors": [
+            "of",
+            "generate",
+            "iterate"
+          ],
           "explanation": "IntStream.range(start, end) genera enteros con el limite superior exclusivo."
         },
         {
@@ -61,7 +69,11 @@
           "prompt": "Filtra los elementos que cumplen una condicion:",
           "code": "stream._____(s -> s.length() > 3)",
           "answer": "filter",
-          "distractors": ["map", "sorted", "limit"],
+          "distractors": [
+            "map",
+            "sorted",
+            "limit"
+          ],
           "explanation": "filter() conserva solo los elementos que cumplen el predicado."
         },
         {
@@ -71,7 +83,11 @@
           "prompt": "Transforma cada elemento del stream:",
           "code": "stream._____(String::toUpperCase)",
           "answer": "map",
-          "distractors": ["filter", "reduce", "peek"],
+          "distractors": [
+            "filter",
+            "reduce",
+            "peek"
+          ],
           "explanation": "map() aplica una funcion a cada elemento y produce un nuevo stream."
         },
         {
@@ -81,7 +97,11 @@
           "prompt": "Elimina elementos duplicados:",
           "code": "stream._____()",
           "answer": "distinct",
-          "distractors": ["unique", "filter", "dedupe"],
+          "distractors": [
+            "unique",
+            "filter",
+            "dedupe"
+          ],
           "explanation": "distinct() usa equals() para descartar duplicados."
         },
         {
@@ -91,7 +111,11 @@
           "prompt": "Ordena los elementos usando su orden natural:",
           "code": "stream._____()",
           "answer": "sorted",
-          "distractors": ["order", "arrange", "collect"],
+          "distractors": [
+            "order",
+            "arrange",
+            "collect"
+          ],
           "explanation": "sorted() sin argumentos usa Comparable/orden natural."
         },
         {
@@ -101,7 +125,11 @@
           "prompt": "Limita el stream a los primeros 5 elementos:",
           "code": "stream._____(5)",
           "answer": "limit",
-          "distractors": ["take", "first", "cap"],
+          "distractors": [
+            "take",
+            "first",
+            "cap"
+          ],
           "explanation": "limit(n) trunca el stream a n elementos."
         },
         {
@@ -111,7 +139,11 @@
           "prompt": "Descarta los primeros 3 elementos:",
           "code": "stream._____(3)",
           "answer": "skip",
-          "distractors": ["drop", "offset", "limit"],
+          "distractors": [
+            "drop",
+            "offset",
+            "limit"
+          ],
           "explanation": "skip(n) descarta los primeros n elementos del stream."
         },
         {
@@ -120,7 +152,11 @@
           "difficulty": 3,
           "prompt": "Que metodo aplana un Stream de listas en un unico Stream de elementos?",
           "answer": "flatMap",
-          "distractors": ["map", "collect", "reduce"],
+          "distractors": [
+            "map",
+            "collect",
+            "reduce"
+          ],
           "explanation": "flatMap() sustituye cada elemento por un stream y los aplana en uno solo."
         },
         {
@@ -151,7 +187,11 @@
           "prompt": "Convierte un Stream<String> en List<String>:",
           "code": "stream._____(Collectors.toList())",
           "answer": "collect",
-          "distractors": ["map", "reduce", "forEach"],
+          "distractors": [
+            "map",
+            "reduce",
+            "forEach"
+          ],
           "explanation": "collect() es una operacion terminal que acumula elementos en una coleccion."
         },
         {
@@ -160,7 +200,11 @@
           "difficulty": 1,
           "prompt": "Cual de estas es una operacion terminal (cierra el stream)?",
           "answer": "forEach",
-          "distractors": ["map", "filter", "sorted"],
+          "distractors": [
+            "map",
+            "filter",
+            "sorted"
+          ],
           "explanation": "forEach() consume el stream; map, filter y sorted son operaciones intermedias (lazy)."
         },
         {
@@ -170,7 +214,11 @@
           "prompt": "Cuenta los elementos del stream:",
           "code": "long total = stream._____();",
           "answer": "count",
-          "distractors": ["size", "sum", "length"],
+          "distractors": [
+            "size",
+            "sum",
+            "length"
+          ],
           "explanation": "count() es una operacion terminal que devuelve un long."
         },
         {
@@ -179,7 +227,11 @@
           "difficulty": 2,
           "prompt": "Que operacion combina todos los elementos en un unico resultado usando un acumulador?",
           "answer": "reduce",
-          "distractors": ["collect", "map", "filter"],
+          "distractors": [
+            "collect",
+            "map",
+            "filter"
+          ],
           "explanation": "reduce() combina elementos de a pares hasta obtener un unico valor."
         },
         {
@@ -189,7 +241,11 @@
           "prompt": "Verifica si algun elemento cumple una condicion:",
           "code": "stream._____(s -> s.isEmpty())",
           "answer": "anyMatch",
-          "distractors": ["allMatch", "noneMatch", "filter"],
+          "distractors": [
+            "allMatch",
+            "noneMatch",
+            "filter"
+          ],
           "explanation": "anyMatch() devuelve true si al menos un elemento cumple el predicado."
         },
         {
@@ -199,7 +255,11 @@
           "prompt": "Verifica que todos los elementos cumplan una condicion:",
           "code": "stream._____(s -> s.length() > 0)",
           "answer": "allMatch",
-          "distractors": ["anyMatch", "noneMatch", "map"],
+          "distractors": [
+            "anyMatch",
+            "noneMatch",
+            "map"
+          ],
           "explanation": "allMatch() devuelve true solo si todos los elementos cumplen el predicado."
         },
         {
@@ -209,7 +269,11 @@
           "prompt": "Verifica que ningun elemento cumpla una condicion:",
           "code": "stream._____(s -> s == null)",
           "answer": "noneMatch",
-          "distractors": ["allMatch", "anyMatch", "filter"],
+          "distractors": [
+            "allMatch",
+            "anyMatch",
+            "filter"
+          ],
           "explanation": "noneMatch() devuelve true si ningun elemento cumple el predicado."
         },
         {
@@ -219,7 +283,11 @@
           "prompt": "Obtiene el elemento minimo segun un comparador:",
           "code": "stream._____(Comparator.naturalOrder())",
           "answer": "min",
-          "distractors": ["max", "sorted", "reduce"],
+          "distractors": [
+            "max",
+            "sorted",
+            "reduce"
+          ],
           "explanation": "min() es una operacion terminal que devuelve un Optional<T>."
         },
         {
@@ -229,7 +297,11 @@
           "prompt": "Obtiene el elemento maximo segun un comparador:",
           "code": "stream._____(Comparator.naturalOrder())",
           "answer": "max",
-          "distractors": ["min", "sorted", "limit"],
+          "distractors": [
+            "min",
+            "sorted",
+            "limit"
+          ],
           "explanation": "max() es una operacion terminal que devuelve un Optional<T>."
         },
         {
@@ -237,7 +309,12 @@
           "type": "parsons",
           "difficulty": 2,
           "prompt": "Ordena las lineas para filtrar los pares y sumarlos:",
-          "lines": ["numeros.stream()", ".filter(n -> n % 2 == 0)", ".mapToInt(Integer::intValue)", ".sum()"],
+          "lines": [
+            "numeros.stream()",
+            ".filter(n -> n % 2 == 0)",
+            ".mapToInt(Integer::intValue)",
+            ".sum()"
+          ],
           "answer": "numeros.stream()\n.filter(n -> n % 2 == 0)\n.mapToInt(Integer::intValue)\n.sum()",
           "code": "numeros.stream()\n.filter(n -> n % 2 == 0)\n.mapToInt(Integer::intValue)\n.sum()",
           "explanation": "stream() abre el pipeline, filter() selecciona los pares, mapToInt() desempaqueta a int y sum() reduce a un total."
@@ -273,7 +350,9 @@
           "prompt": "Completa el metodo para agrupar por departamento (pista: agrupar -> grouping...):",
           "code": "users.stream().collect(Collectors._____(User::getDepartment))",
           "answer": "groupingBy",
-          "distractors": ["partitioningBy"],
+          "distractors": [
+            "partitioningBy"
+          ],
           "explanation": "groupingBy agrupa por una clave derivada; partitioningBy solo divide en true/false.",
           "conceptId": "collectors-groupingby",
           "role": "guided",
@@ -286,7 +365,11 @@
           "prompt": "Agrupa los elementos por una propiedad derivada:",
           "code": "stream.collect(Collectors._____(String::length))",
           "answer": "groupingBy",
-          "distractors": ["joining", "toMap", "partitioningBy"],
+          "distractors": [
+            "joining",
+            "toMap",
+            "partitioningBy"
+          ],
           "explanation": "Collectors.groupingBy() agrupa elementos en un Map segun la funcion clasificadora.",
           "conceptId": "collectors-groupingby",
           "role": "solo",
@@ -311,7 +394,9 @@
           "prompt": "Completa el metodo para dividir por un predicado (pista: dividir en 2 -> partitioning...):",
           "code": "users.stream().collect(Collectors._____(u -> u.getSalary() > 1000))",
           "answer": "partitioningBy",
-          "distractors": ["groupingBy"],
+          "distractors": [
+            "groupingBy"
+          ],
           "explanation": "partitioningBy divide en true/false; groupingBy agruparia por el valor devuelto.",
           "conceptId": "collectors-partitioningby",
           "role": "guided",
@@ -324,7 +409,11 @@
           "prompt": "Divide los numeros en pares e impares:",
           "code": "numeros.stream().collect(Collectors._____(n -> n % 2 == 0))",
           "answer": "partitioningBy",
-          "distractors": ["groupingBy", "toMap", "joining"],
+          "distractors": [
+            "groupingBy",
+            "toMap",
+            "joining"
+          ],
           "explanation": "partitioningBy(predicado) devuelve un Map<Boolean, List<...>> con las claves false y true.",
           "conceptId": "collectors-partitioningby",
           "role": "solo",
@@ -341,7 +430,10 @@
           "conceptId": "collectors-partition-then-group",
           "role": "intro",
           "pathOrder": 6,
-          "dependsOn": ["collectors-groupingby", "collectors-partitioningby"]
+          "dependsOn": [
+            "collectors-groupingby",
+            "collectors-partitioningby"
+          ]
         },
         {
           "id": "collectors-combo-solo",
@@ -359,7 +451,10 @@
           "conceptId": "collectors-partition-then-group",
           "role": "solo",
           "pathOrder": 7,
-          "dependsOn": ["collectors-groupingby", "collectors-partitioningby"]
+          "dependsOn": [
+            "collectors-groupingby",
+            "collectors-partitioningby"
+          ]
         },
         {
           "id": "streams-14",
@@ -368,7 +463,11 @@
           "prompt": "Une los elementos del stream en un String separado por coma:",
           "code": "stream.collect(Collectors._____(\", \"))",
           "answer": "joining",
-          "distractors": ["toList", "toSet", "groupingBy"],
+          "distractors": [
+            "toList",
+            "toSet",
+            "groupingBy"
+          ],
           "explanation": "Collectors.joining() concatena Strings con el separador dado.",
           "conceptId": "collectors-joining",
           "role": "solo",
@@ -379,12 +478,185 @@
           "type": "parsons",
           "difficulty": 3,
           "prompt": "Ordena las lineas para pasar las palabras a mayusculas y juntarlas en una lista:",
-          "lines": ["palabras.stream()", ".map(String::toUpperCase)", ".collect(Collectors.toList())"],
+          "lines": [
+            "palabras.stream()",
+            ".map(String::toUpperCase)",
+            ".collect(Collectors.toList())"
+          ],
           "answer": "palabras.stream()\n.map(String::toUpperCase)\n.collect(Collectors.toList())",
           "code": "palabras.stream()\n.map(String::toUpperCase)\n.collect(Collectors.toList())",
           "explanation": "map() transforma cada elemento y collect(Collectors.toList()) los acumula en una lista nueva.",
           "conceptId": "collectors-tolist",
           "role": "solo",
+          "pathOrder": 9
+        }
+      ]
+    },
+    {
+      "unitId": "streams-functional-interfaces",
+      "name": "Interfaces funcionales estandar",
+      "certObjective": "streams-lambdas",
+      "orderIndex": 5,
+      "summary": {
+        "text": "java.util.function define interfaces funcionales listas para usar, en vez de crear las tuyas propias para cada caso comun. Predicate<T> representa una condicion (test(T): boolean), Consumer<T> representa una accion sobre un valor sin devolver nada (accept(T): void), Function<T,R> transforma un valor de un tipo a otro (apply(T): R), y Supplier<T> provee un valor sin recibir argumentos (get(): T). Method references (Clase::metodo) son una forma mas corta de escribir una lambda que solo llama a un metodo existente.",
+        "code": "Predicate<String> esVacio = String::isEmpty;\nConsumer<String> imprimir = System.out::println;\nFunction<String, Integer> largo = String::length;\nSupplier<String> saludo = () -> \"Hola\";"
+      },
+      "exercises": [
+        {
+          "id": "streams-predicate-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "Predicate<T> representa una condicion; Consumer<T> representa una accion sin devolver valor",
+          "code": "Predicate<Integer> esPar = n -> n % 2 == 0;\nesPar.test(4); // true\n\nConsumer<String> imprimir = s -> System.out.println(s);\nimprimir.accept(\"Hola\"); // imprime Hola",
+          "answer": "ok",
+          "explanation": "Predicate<T> tiene un unico metodo abstracto test(T): boolean, evalua una condicion. Consumer<T> tiene accept(T): void, ejecuta una accion sobre el valor, sin devolver nada. Ambas son interfaces funcionales de java.util.function, listas para usar sin declararlas vos mismo.",
+          "conceptId": "predicate-consumer",
+          "role": "intro",
+          "pathOrder": 0
+        },
+        {
+          "id": "streams-predicate-guided",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Cual es la diferencia principal entre Predicate<T> y Consumer<T>?",
+          "answer": "Predicate devuelve un boolean (evalua una condicion); Consumer no devuelve nada (ejecuta una accion)",
+          "distractors": [
+            "Predicate recibe dos argumentos y Consumer recibe uno",
+            "No hay diferencia real, son la misma interfaz con otro nombre",
+            "Consumer solo funciona con Strings"
+          ],
+          "explanation": "test(T): boolean vs accept(T): void es la diferencia central. Predicate se usa para filtrar/evaluar, Consumer para actuar sobre un valor (como imprimir o guardar).",
+          "conceptId": "predicate-consumer",
+          "role": "guided",
+          "pathOrder": 1
+        },
+        {
+          "id": "streams-predicate-solo",
+          "type": "predict_output",
+          "difficulty": 2,
+          "prompt": "Que imprime este codigo?",
+          "code": "Predicate<Integer> esMayorDeCinco = n -> n > 5;\nSystem.out.println(esMayorDeCinco.test(3));\nSystem.out.println(esMayorDeCinco.test(8));",
+          "answer": "false\ntrue",
+          "explanation": "test(3) evalua 3 > 5, que es false; test(8) evalua 8 > 5, que es true.",
+          "conceptId": "predicate-consumer",
+          "role": "solo",
+          "pathOrder": 2
+        },
+        {
+          "id": "streams-function-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "Function<T,R> transforma un valor de tipo T a tipo R; Supplier<T> provee un valor sin recibir nada",
+          "code": "Function<String, Integer> largo = s -> s.length();\nlargo.apply(\"hola\"); // 4\n\nSupplier<Double> aleatorio = () -> Math.random();\naleatorio.get(); // un valor random",
+          "answer": "ok",
+          "explanation": "Function<T,R> tiene apply(T): R, recibe un valor y devuelve otro, posiblemente de otro tipo. Supplier<T> tiene get(): T, no recibe nada, solo provee un valor (util para valores calculados de forma perezosa).",
+          "conceptId": "function-supplier",
+          "role": "intro",
+          "pathOrder": 3,
+          "dependsOn": [
+            "predicate-consumer"
+          ]
+        },
+        {
+          "id": "streams-function-guided",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Que interfaz usarias para representar 'una operacion que no recibe argumentos pero devuelve un valor'?",
+          "answer": "Supplier<T>",
+          "distractors": [
+            "Function<T,R>",
+            "Consumer<T>",
+            "Predicate<T>"
+          ],
+          "explanation": "Supplier<T> es la unica de las cuatro interfaces basicas que no recibe ningun argumento. Su unico metodo, get(), solo produce un valor.",
+          "conceptId": "function-supplier",
+          "role": "guided",
+          "pathOrder": 4,
+          "dependsOn": [
+            "predicate-consumer"
+          ]
+        },
+        {
+          "id": "streams-function-solo",
+          "type": "predict_output",
+          "difficulty": 2,
+          "prompt": "Que imprime este codigo?",
+          "code": "Function<Integer, Integer> alCuadrado = n -> n * n;\nSystem.out.println(alCuadrado.apply(5));",
+          "answer": "25",
+          "explanation": "apply(5) ejecuta la lambda con n=5, devolviendo 5 * 5 = 25.",
+          "conceptId": "function-supplier",
+          "role": "solo",
+          "pathOrder": 5,
+          "dependsOn": [
+            "predicate-consumer"
+          ]
+        },
+        {
+          "id": "streams-methodref-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "Un method reference (Clase::metodo) es una forma mas corta de escribir una lambda que solo llama a un metodo existente",
+          "code": "Function<String, Integer> largo1 = s -> s.length();     // lambda\nFunction<String, Integer> largo2 = String::length;      // method reference, equivalente",
+          "answer": "ok",
+          "explanation": "String::length es equivalente a s -> s.length(). Java infiere que el primer parametro de la lambda se convierte en el receptor de la llamada al metodo. Es puramente sintaxis mas corta, el comportamiento es identico.",
+          "conceptId": "method-references",
+          "role": "intro",
+          "pathOrder": 6,
+          "dependsOn": [
+            "function-supplier"
+          ]
+        },
+        {
+          "id": "streams-methodref-guided",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Cuando conviene usar un method reference en vez de una lambda equivalente?",
+          "answer": "Cuando la lambda solo llama a un metodo existente sin logica adicional - el method reference es mas legible en ese caso",
+          "distractors": [
+            "Siempre, method reference es obligatorio desde Java 8",
+            "Nunca, las lambdas son mas rapidas en tiempo de ejecucion",
+            "Solo cuando el metodo es static"
+          ],
+          "explanation": "Method references (static, de instancia, o de constructor) son azucar sintactico para lambdas que se limitan a invocar un metodo existente. Si la lambda tiene logica adicional (varias lineas, condicionales), no se puede reemplazar por un method reference.",
+          "conceptId": "method-references",
+          "role": "guided",
+          "pathOrder": 7,
+          "dependsOn": [
+            "function-supplier"
+          ]
+        },
+        {
+          "id": "streams-methodref-solo",
+          "type": "fill_blank",
+          "difficulty": 2,
+          "prompt": "Completa el method reference equivalente a 's -> System.out.println(s)':",
+          "code": "Consumer<String> imprimir = _____;",
+          "answer": "System.out::println",
+          "distractors": [
+            "System.out.println",
+            "System::out::println",
+            "println::System.out"
+          ],
+          "explanation": "System.out::println referencia el metodo println() de instancia sobre el objeto System.out. La sintaxis es objeto::metodo para method references de instancia sobre un objeto concreto.",
+          "conceptId": "method-references",
+          "role": "solo",
+          "pathOrder": 8,
+          "dependsOn": [
+            "function-supplier"
+          ]
+        },
+        {
+          "id": "streams-functional-interview",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Una consultora IT grande te pregunta: por que usar Predicate/Function/Consumer/Supplier en vez de crear tus propias interfaces funcionales para cada caso?",
+          "answer": "Porque son parte de la biblioteca estandar (java.util.function), evitan reinventar lo mismo, y son reconocidas por cualquier desarrollador Java sin explicacion adicional",
+          "distractors": [
+            "Porque Java no permite crear interfaces funcionales propias",
+            "Porque las interfaces propias no pueden usarse con lambdas",
+            "No hay ninguna ventaja real, es solo preferencia personal"
+          ],
+          "explanation": "Reutilizar las interfaces estandar de java.util.function mejora la legibilidad y reduce codigo repetido. Crear una interfaz propia solo tiene sentido cuando el caso no encaja en ninguna variante estandar (BiFunction, UnaryOperator, etc.) o cuando el nombre del metodo importa para la legibilidad del dominio.",
           "pathOrder": 9
         }
       ]
