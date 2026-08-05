@@ -15,12 +15,44 @@
       },
       "exercises": [
         {
+          "id": "gencol-declaracion-intro",
+          "type": "worked_example",
+          "difficulty": 1,
+          "prompt": "Los Generics permiten declarar un parametro de tipo que la clase usa internamente",
+          "code": "class Caja<T> {\n    private T contenido;\n\n    void guardar(T valor) {\n        contenido = valor;\n    }\n\n    T obtener() {\n        return contenido;\n    }\n}\n\nCaja<String> caja = new Caja<>();",
+          "answer": "ok",
+          "explanation": "T es un parametro de tipo: un marcador de posicion que se reemplaza por un tipo real (String, Integer, etc.) cuando se usa la clase. Caja<String> hace que guardar()/obtener() trabajen especificamente con String, con chequeo de tipos en compilacion.",
+          "conceptId": "generics-declaracion",
+          "role": "intro",
+          "pathOrder": 0
+        },
+        {
+          "id": "gencol-declaracion-guided",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Que gana Caja<T> frente a una version de Caja que use Object internamente?",
+          "answer": "Chequeo de tipos en tiempo de compilacion, sin necesitar castear al sacar el valor",
+          "distractors": [
+            "Mejor rendimiento en tiempo de ejecucion",
+            "La posibilidad de guardar cualquier tipo, cosa que Object no permite",
+            "Object y T son exactamente lo mismo, no hay ninguna diferencia real"
+          ],
+          "explanation": "Con Object, obtener() devolveria Object y habria que castear manualmente (riesgo de ClassCastException en runtime); con T, el compilador ya sabe el tipo real y no hace falta castear.",
+          "conceptId": "generics-declaracion",
+          "role": "guided",
+          "pathOrder": 1
+        },
+        {
           "id": "gencol-generics-01",
           "type": "mcq",
           "difficulty": 1,
           "prompt": "Para que sirven los Generics en Java?",
           "answer": "Para detectar errores de tipo en tiempo de compilacion",
-          "distractors": ["Para hacer el codigo mas rapido en tiempo de ejecucion", "Para evitar escribir tipos explicitos", "Para permitir herencia multiple"],
+          "distractors": [
+            "Para hacer el codigo mas rapido en tiempo de ejecucion",
+            "Para evitar escribir tipos explicitos",
+            "Para permitir herencia multiple"
+          ],
           "explanation": "Los generics agregan chequeo de tipos en compilacion, evitando ClassCastException en tiempo de ejecucion."
         },
         {
@@ -30,8 +62,49 @@
           "prompt": "Declara el parametro de tipo T en esta clase generica:",
           "code": "public class Caja<_____> {\n    private T valor;\n}",
           "answer": "T",
-          "distractors": ["Object", "E", "V"],
-          "explanation": "El parametro de tipo se declara entre angulos junto al nombre de la clase; T es la convencion para un tipo generico simple."
+          "distractors": [
+            "Object",
+            "E",
+            "V"
+          ],
+          "explanation": "El parametro de tipo se declara entre angulos junto al nombre de la clase; T es la convencion para un tipo generico simple.",
+          "conceptId": "generics-declaracion",
+          "role": "solo",
+          "pathOrder": 2
+        },
+        {
+          "id": "gencol-bounded-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "T extends Number acota el tipo generico a Number y sus subtipos",
+          "code": "public <T extends Number> double sumar(T a, T b) {\n    return a.doubleValue() + b.doubleValue();\n}\n\nsumar(3, 4);      // T = Integer, OK\nsumar(3.5, 4.5);  // T = Double, OK\n// sumar(\"a\", \"b\"); ERROR: String no extiende Number",
+          "answer": "ok",
+          "explanation": "Sin el bound, T podria ser cualquier tipo y no se podria llamar a doubleValue() (que solo existe en Number y sus subclases); T extends Number restringe los tipos aceptados y habilita usar los metodos de Number dentro del metodo.",
+          "conceptId": "generics-bounded",
+          "role": "intro",
+          "pathOrder": 3,
+          "dependsOn": [
+            "generics-declaracion"
+          ]
+        },
+        {
+          "id": "gencol-bounded-guided",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Por que hace falta declarar T extends Number para poder llamar a a.doubleValue() dentro del metodo?",
+          "answer": "Porque sin el bound, T podria ser cualquier tipo, y el compilador no puede garantizar que tenga el metodo doubleValue()",
+          "distractors": [
+            "No hace falta, doubleValue() esta disponible en cualquier tipo generico",
+            "Porque T extends Number hace que el metodo sea mas rapido",
+            "Porque sin bound, T seria automaticamente String"
+          ],
+          "explanation": "El compilador solo permite llamar a metodos que sabe que el tipo tiene garantizados; con T sin bound, el unico tipo garantizado es Object. T extends Number garantiza los metodos de Number, incluido doubleValue().",
+          "conceptId": "generics-bounded",
+          "role": "guided",
+          "pathOrder": 4,
+          "dependsOn": [
+            "generics-declaracion"
+          ]
         },
         {
           "id": "gencol-generics-03",
@@ -40,8 +113,49 @@
           "prompt": "Declara un metodo generico que solo acepta subtipos de Number:",
           "code": "public <T extends _____> void imprimir(T valor) {\n    System.out.println(valor);\n}",
           "answer": "Number",
-          "distractors": ["Object", "Comparable", "Integer"],
-          "explanation": "T extends Number acota el tipo generico a Number y sus subtipos (Integer, Double, etc.)."
+          "distractors": [
+            "Object",
+            "Comparable",
+            "Integer"
+          ],
+          "explanation": "T extends Number acota el tipo generico a Number y sus subtipos (Integer, Double, etc.).",
+          "conceptId": "generics-bounded",
+          "role": "solo",
+          "pathOrder": 5
+        },
+        {
+          "id": "gencol-wildcardext-intro",
+          "type": "worked_example",
+          "difficulty": 3,
+          "prompt": "? extends Number acepta una lista de Number o cualquier subtipo, de solo lectura",
+          "code": "void imprimirTotal(List<? extends Number> lista) {\n    double total = 0;\n    for (Number n : lista) {\n        total += n.doubleValue();\n    }\n    System.out.println(total);\n}\n\nimprimirTotal(List.of(1, 2, 3));       // List<Integer>, OK\nimprimirTotal(List.of(1.5, 2.5));      // List<Double>, OK",
+          "answer": "ok",
+          "explanation": "? extends Number acepta List<Integer>, List<Double>, etc. - cualquier subtipo de Number- pero el metodo solo puede LEER elementos como Number, nunca agregar (salvo null), porque el compilador no sabe el subtipo exacto.",
+          "conceptId": "generics-wildcard-extends",
+          "role": "intro",
+          "pathOrder": 6,
+          "dependsOn": [
+            "generics-bounded"
+          ]
+        },
+        {
+          "id": "gencol-wildcardext-guided",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Por que no se puede hacer lista.add(5) sobre un List<? extends Number>?",
+          "answer": "Porque el compilador no sabe si la lista real es List<Integer>, List<Double>, etc., y agregar el tipo incorrecto romperia esa lista concreta",
+          "distractors": [
+            "Porque List<? extends Number> siempre es inmutable",
+            "Si se puede, add() funciona igual que en cualquier List",
+            "Porque Number no tiene un metodo add()"
+          ],
+          "explanation": "Si el compilador permitiera lista.add(5) sobre un List<? extends Number> que en realidad es un List<Double>, estarias agregando un Integer a una lista de Double - eso rompe la seguridad de tipos que generics garantiza.",
+          "conceptId": "generics-wildcard-extends",
+          "role": "guided",
+          "pathOrder": 7,
+          "dependsOn": [
+            "generics-bounded"
+          ]
         },
         {
           "id": "gencol-generics-04",
@@ -50,8 +164,130 @@
           "prompt": "Que significa este wildcard?",
           "code": "List<? extends Number> lista",
           "answer": "Una lista de un subtipo desconocido de Number, de solo lectura para agregar elementos",
-          "distractors": ["Una lista que solo acepta Integer", "Una lista mutable de cualquier tipo", "Una lista de Number exacto, sin subtipos"],
-          "explanation": "? extends Number es un wildcard acotado superiormente: acepta List<Integer>, List<Double>, etc., pero no permite agregar elementos (salvo null) porque el tipo exacto es desconocido."
+          "distractors": [
+            "Una lista que solo acepta Integer",
+            "Una lista mutable de cualquier tipo",
+            "Una lista de Number exacto, sin subtipos"
+          ],
+          "explanation": "? extends Number es un wildcard acotado superiormente: acepta List<Integer>, List<Double>, etc., pero no permite agregar elementos (salvo null) porque el tipo exacto es desconocido.",
+          "conceptId": "generics-wildcard-extends",
+          "role": "solo",
+          "pathOrder": 8
+        },
+        {
+          "id": "gencol-wildcardsuper-intro",
+          "type": "worked_example",
+          "difficulty": 3,
+          "prompt": "? super Integer acepta una lista de Integer o cualquier supertipo, para escribir",
+          "code": "void agregarNumeros(List<? super Integer> lista) {\n    lista.add(1);\n    lista.add(2);\n}\n\nagregarNumeros(new ArrayList<Integer>()); // OK\nagregarNumeros(new ArrayList<Number>());  // OK\nagregarNumeros(new ArrayList<Object>());  // OK",
+          "answer": "ok",
+          "explanation": "? super Integer acepta List<Integer>, List<Number>, List<Object> - cualquier supertipo de Integer- y permite agregar Integer con seguridad, porque cualquiera de esos tipos puede contener un Integer. Lo que no se garantiza es que leer devuelva especificamente un Integer (solo Object).",
+          "conceptId": "generics-wildcard-super-pecs",
+          "role": "intro",
+          "pathOrder": 9,
+          "dependsOn": [
+            "generics-wildcard-extends"
+          ]
+        },
+        {
+          "id": "gencol-wildcardsuper-guided",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Que dice la regla PECS (Producer Extends, Consumer Super) sobre cuando usar cada wildcard?",
+          "answer": "Usa extends cuando la coleccion produce datos (solo la lees), y super cuando la coleccion consume datos (solo agregas a ella)",
+          "distractors": [
+            "Usa extends para escribir y super para leer, al reves de lo que suena",
+            "PECS dice que nunca hay que usar wildcards, siempre el tipo exacto",
+            "extends y super son intercambiables, PECS es solo una convencion de estilo sin efecto real"
+          ],
+          "explanation": "PECS es una regla mnemotecnica: si tu codigo actua como Productor (extrae/lee elementos), usa extends; si actua como Consumidor (agrega/escribe elementos), usa super. Mezclarlos al reves haria que el compilador rechace operaciones validas.",
+          "conceptId": "generics-wildcard-super-pecs",
+          "role": "guided",
+          "pathOrder": 10,
+          "dependsOn": [
+            "generics-wildcard-extends"
+          ]
+        },
+        {
+          "id": "gencol-wildcardsuper-solo",
+          "type": "predict_output",
+          "difficulty": 3,
+          "prompt": "Que imprime este codigo?",
+          "code": "List<Object> objetos = new ArrayList<>();\nList<? super Integer> lista = objetos;\nlista.add(42);\nSystem.out.println(objetos.get(0));",
+          "answer": "42",
+          "explanation": "objetos y lista apuntan a la misma lista en memoria; lista.add(42) agrega el Integer 42 (valido porque List<Object> es un supertipo aceptado por ? super Integer), y objetos.get(0) lo recupera como Object.",
+          "conceptId": "generics-wildcard-super-pecs",
+          "role": "solo",
+          "pathOrder": 11,
+          "dependsOn": [
+            "generics-wildcard-extends"
+          ]
+        },
+        {
+          "id": "gencol-erasure-intro",
+          "type": "worked_example",
+          "difficulty": 3,
+          "prompt": "Type erasure: en tiempo de ejecucion, la informacion del tipo generico desaparece",
+          "code": "List<String> strings = new ArrayList<>();\nList<Integer> ints = new ArrayList<>();\n\nSystem.out.println(strings.getClass() == ints.getClass()); // true",
+          "answer": "ok",
+          "explanation": "El compilador usa los tipos generics solo para chequear en compilacion; al compilar a bytecode, borra esa informacion (erasure) y ambas listas terminan siendo la misma clase ArrayList en tiempo de ejecucion - por eso List<String> y List<Integer> comparten la misma Class.",
+          "conceptId": "generics-type-erasure",
+          "role": "intro",
+          "pathOrder": 12,
+          "dependsOn": [
+            "generics-declaracion"
+          ]
+        },
+        {
+          "id": "gencol-erasure-guided",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Por que no se puede escribir new T[10] dentro de una clase generica Caja<T>?",
+          "answer": "Porque en tiempo de ejecucion T ya no existe (fue borrado por type erasure), y la JVM necesita saber el tipo real del array para crearlo",
+          "distractors": [
+            "Porque los arrays no pueden guardar tipos genericos bajo ninguna circunstancia",
+            "Es solo una limitacion arbitraria del compilador sin motivo tecnico real",
+            "Porque T siempre se convierte en int, que no es un tipo de objeto"
+          ],
+          "explanation": "Un array en Java conoce su tipo de componente en tiempo de ejecucion (para chequeos como ArrayStoreException); como T se borra por erasure, la JVM no tendria forma de saber que tipo de array crear - por eso T se considera no reificable.",
+          "conceptId": "generics-type-erasure",
+          "role": "guided",
+          "pathOrder": 13,
+          "dependsOn": [
+            "generics-declaracion"
+          ]
+        },
+        {
+          "id": "gencol-erasure-solo",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Que significa que un tipo generico como T sea no reificable (non-reifiable)?",
+          "answer": "Que su informacion de tipo no esta completamente disponible en tiempo de ejecucion, a diferencia de un tipo concreto como String",
+          "distractors": [
+            "Que no se puede usar nunca dentro de una clase generica",
+            "Que el tipo cambia dinamicamente segun el valor asignado",
+            "Que solo puede usarse con tipos primitivos"
+          ],
+          "explanation": "Reificable significa que el tipo existe completamente en runtime; por type erasure, T (y en general los tipos parametrizados como List<String>) pierden esa informacion detallada en tiempo de ejecucion - de ahi vienen restricciones como no poder hacer instanceof List<String> o new T[].",
+          "conceptId": "generics-type-erasure",
+          "role": "solo",
+          "pathOrder": 14,
+          "dependsOn": [
+            "generics-declaracion"
+          ]
+        },
+        {
+          "id": "gencol-generics-interview",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Una consultora IT grande te pregunta: por que Java implementa generics con type erasure en vez de mantener la informacion de tipo en tiempo de ejecucion (como hacen otros lenguajes)?",
+          "answer": "Para mantener compatibilidad con codigo Java anterior a los generics (Java 5), que compilaba sin parametros de tipo y debia seguir funcionando con las mismas clases (como ArrayList)",
+          "distractors": [
+            "Porque la JVM no puede representar tipos genericos bajo ninguna circunstancia tecnica",
+            "Fue un error de diseno que Java nunca pudo corregir en versiones posteriores",
+            "Porque type erasure hace que el codigo compile mas rapido, sin otra razon"
+          ],
+          "explanation": "Generics se agrego en Java 5 sobre un lenguaje y una JVM que ya existian; erasure permitio que ArrayList (generica) fuera binariamente compatible con el bytecode ya compilado de versiones anteriores que usaban ArrayList sin tipos parametrizados."
         },
         {
           "id": "gencol-generics-05",
@@ -59,7 +295,11 @@
           "difficulty": 2,
           "prompt": "Por que usarias Generics en vez de simplemente tipar todo como Object?",
           "answer": "Porque Object requeriria casteos manuales y generics detecta errores de tipo en compilacion",
-          "distractors": ["Porque Object es mas lento en tiempo de ejecucion", "Porque Object no permite null", "Porque Object no puede usarse en colecciones"],
+          "distractors": [
+            "Porque Object es mas lento en tiempo de ejecucion",
+            "Porque Object no permite null",
+            "Porque Object no puede usarse en colecciones"
+          ],
           "explanation": "Sin generics, sacar un valor de una coleccion de Object requiere castear manualmente, y un error de tipo solo se descubre en tiempo de ejecucion (ClassCastException)."
         },
         {
@@ -90,7 +330,11 @@
           "prompt": "Que tipo de coleccion es esta declaracion?",
           "code": "Set<String> nombres = new TreeSet<>();",
           "answer": "Un Set ordenado, sin elementos duplicados",
-          "distractors": ["Una lista ordenada, permite duplicados", "Un mapa clave-valor", "Una cola FIFO sin orden"],
+          "distractors": [
+            "Una lista ordenada, permite duplicados",
+            "Un mapa clave-valor",
+            "Una cola FIFO sin orden"
+          ],
           "explanation": "TreeSet implementa Set (sin duplicados) y ademas mantiene los elementos en orden natural."
         },
         {
@@ -100,7 +344,11 @@
           "prompt": "Crea un Set que no permite duplicados y no garantiza orden:",
           "code": "Set<String> nombres = new _____<>();",
           "answer": "HashSet",
-          "distractors": ["ArrayList", "TreeMap", "LinkedList"],
+          "distractors": [
+            "ArrayList",
+            "TreeMap",
+            "LinkedList"
+          ],
           "explanation": "HashSet es la implementacion base de Set: sin duplicados, sin orden garantizado."
         },
         {
@@ -127,7 +375,11 @@
           "difficulty": 2,
           "prompt": "Cuando preferirias LinkedList sobre ArrayList en un caso real?",
           "answer": "Cuando necesitas inserciones/eliminaciones frecuentes al inicio o en medio de la lista",
-          "distractors": ["Cuando necesitas acceso aleatorio rapido por indice", "Siempre, porque LinkedList es mas eficiente en memoria", "Nunca, ArrayList siempre es mejor"],
+          "distractors": [
+            "Cuando necesitas acceso aleatorio rapido por indice",
+            "Siempre, porque LinkedList es mas eficiente en memoria",
+            "Nunca, ArrayList siempre es mejor"
+          ],
           "explanation": "ArrayList desplaza elementos al insertar/eliminar en medio (O(n)); LinkedList solo reenlaza nodos vecinos (O(1)) una vez ubicada la posicion."
         },
         {
@@ -135,7 +387,12 @@
           "type": "parsons",
           "difficulty": 1,
           "prompt": "Ordena las lineas para crear una lista, agregar dos elementos y recorrerla:",
-          "lines": ["List<String> lista = new ArrayList<>();", "lista.add(\"a\");", "lista.add(\"b\");", "for (String s : lista) System.out.println(s);"],
+          "lines": [
+            "List<String> lista = new ArrayList<>();",
+            "lista.add(\"a\");",
+            "lista.add(\"b\");",
+            "for (String s : lista) System.out.println(s);"
+          ],
           "answer": "List<String> lista = new ArrayList<>();\nlista.add(\"a\");\nlista.add(\"b\");\nfor (String s : lista) System.out.println(s);",
           "code": "List<String> lista = new ArrayList<>();\nlista.add(\"a\");\nlista.add(\"b\");\nfor (String s : lista) System.out.println(s);",
           "explanation": "Se declara e instancia la lista, se agregan elementos en orden, y luego se recorre con for-each."
@@ -158,7 +415,11 @@
           "difficulty": 1,
           "prompt": "Que estructura de datos es un Map?",
           "answer": "Una coleccion de pares clave-valor, sin claves duplicadas",
-          "distractors": ["Una lista ordenada de elementos", "Un conjunto sin orden ni duplicados", "Una pila LIFO"],
+          "distractors": [
+            "Una lista ordenada de elementos",
+            "Un conjunto sin orden ni duplicados",
+            "Una pila LIFO"
+          ],
           "explanation": "Map asocia cada clave unica a un valor; put() con una clave existente reemplaza el valor."
         },
         {
@@ -168,7 +429,11 @@
           "prompt": "Crea un Map que mantiene las claves ordenadas:",
           "code": "Map<String, Integer> edades = new _____<>();",
           "answer": "TreeMap",
-          "distractors": ["HashMap", "ArrayList", "LinkedList"],
+          "distractors": [
+            "HashMap",
+            "ArrayList",
+            "LinkedList"
+          ],
           "explanation": "TreeMap ordena las claves segun su orden natural (o un Comparator dado)."
         },
         {
@@ -187,7 +452,11 @@
           "prompt": "Que hace este codigo?",
           "code": "Deque<Integer> pila = new ArrayDeque<>();\npila.push(1);\npila.push(2);\nSystem.out.println(pila.pop());",
           "answer": "Usa el Deque como pila (LIFO): imprime 2",
-          "distractors": ["Usa el Deque como cola (FIFO): imprime 1", "Lanza una excepcion porque ArrayDeque no soporta push/pop", "Imprime el tamano de la pila"],
+          "distractors": [
+            "Usa el Deque como cola (FIFO): imprime 1",
+            "Lanza una excepcion porque ArrayDeque no soporta push/pop",
+            "Imprime el tamano de la pila"
+          ],
           "explanation": "push() inserta al frente del Deque; pop() remueve y devuelve el frente. Tras push(1) y push(2), el frente es 2."
         },
         {
@@ -196,7 +465,11 @@
           "difficulty": 2,
           "prompt": "Que problema practico resuelve un Deque que una List no resuelve tan bien?",
           "answer": "Insertar y remover eficientemente en ambos extremos, sirviendo como pila o cola",
-          "distractors": ["Ordenar elementos automaticamente", "Evitar duplicados", "Acceso aleatorio por indice"],
+          "distractors": [
+            "Ordenar elementos automaticamente",
+            "Evitar duplicados",
+            "Acceso aleatorio por indice"
+          ],
           "explanation": "Deque (double-ended queue) esta disenado para operaciones O(1) en ambos extremos, algo que una List generica no garantiza."
         },
         {
@@ -206,7 +479,11 @@
           "prompt": "Agrega un elemento al frente de un Deque:",
           "code": "deque._____(\"primero\");",
           "answer": "addFirst",
-          "distractors": ["addLast", "add", "offerLast"],
+          "distractors": [
+            "addLast",
+            "add",
+            "offerLast"
+          ],
           "explanation": "addFirst() inserta explicitamente al frente; add() y offerLast() insertan al final."
         }
       ]
@@ -228,7 +505,11 @@
           "prompt": "Que hace este codigo?",
           "code": "Comparator<Persona> porEdad = Comparator.comparing(Persona::getEdad);",
           "answer": "Crea un Comparator que ordena personas por su edad",
-          "distractors": ["Ordena personas por nombre", "Modifica el campo edad de cada persona", "Lanza una excepcion porque getEdad no existe"],
+          "distractors": [
+            "Ordena personas por nombre",
+            "Modifica el campo edad de cada persona",
+            "Lanza una excepcion porque getEdad no existe"
+          ],
           "explanation": "Comparator.comparing() construye un Comparator a partir de una funcion que extrae la clave de comparacion (aqui, la edad), sin necesidad de implementar Comparable."
         },
         {
@@ -238,7 +519,11 @@
           "prompt": "Implementa el metodo de Comparable para ordenar por edad:",
           "code": "public int _____(Persona otra) {\n    return this.edad - otra.edad;\n}",
           "answer": "compareTo",
-          "distractors": ["compare", "equals", "hashCode"],
+          "distractors": [
+            "compare",
+            "equals",
+            "hashCode"
+          ],
           "explanation": "compareTo(T o) es el metodo que declara la interfaz Comparable<T>."
         },
         {
@@ -246,7 +531,11 @@
           "type": "parsons",
           "difficulty": 2,
           "prompt": "Ordena las lineas para ordenar una lista de nombres usando un Comparator:",
-          "lines": ["List<String> nombres = new ArrayList<>(List.of(\"Carlos\", \"Ana\", \"Beto\"));", "nombres.sort(Comparator.naturalOrder());", "System.out.println(nombres);"],
+          "lines": [
+            "List<String> nombres = new ArrayList<>(List.of(\"Carlos\", \"Ana\", \"Beto\"));",
+            "nombres.sort(Comparator.naturalOrder());",
+            "System.out.println(nombres);"
+          ],
           "answer": "List<String> nombres = new ArrayList<>(List.of(\"Carlos\", \"Ana\", \"Beto\"));\nnombres.sort(Comparator.naturalOrder());\nSystem.out.println(nombres);",
           "code": "List<String> nombres = new ArrayList<>(List.of(\"Carlos\", \"Ana\", \"Beto\"));\nnombres.sort(Comparator.naturalOrder());\nSystem.out.println(nombres);",
           "explanation": "Se crea una lista mutable a partir de una inmutable, se ordena con el comparador de orden natural, y se imprime el resultado."
@@ -266,7 +555,11 @@
           "difficulty": 2,
           "prompt": "Que pasa si intentas modificar una lista creada con List.of(...)?",
           "answer": "Lanza UnsupportedOperationException, porque es inmutable",
-          "distractors": ["Se modifica normalmente, como un ArrayList", "Lanza NullPointerException", "No compila"],
+          "distractors": [
+            "Se modifica normalmente, como un ArrayList",
+            "Lanza NullPointerException",
+            "No compila"
+          ],
           "explanation": "List.of() (Java 9+) crea una lista inmutable; cualquier intento de agregar/quitar/modificar lanza UnsupportedOperationException."
         },
         {
@@ -275,8 +568,180 @@
           "difficulty": 3,
           "prompt": "Te piden elegir entre HashMap y TreeMap para cachear resultados por clave -- cual eliges y por que?",
           "answer": "HashMap, porque el orden no importa para un cache y ofrece acceso O(1) promedio; TreeMap solo si necesitas las claves ordenadas",
-          "distractors": ["TreeMap siempre, porque mantiene orden", "Da lo mismo, ambos tienen el mismo rendimiento", "Ninguno, para un cache se deberia usar una List"],
+          "distractors": [
+            "TreeMap siempre, porque mantiene orden",
+            "Da lo mismo, ambos tienen el mismo rendimiento",
+            "Ninguno, para un cache se deberia usar una List"
+          ],
           "explanation": "Un cache tipico solo necesita lookup rapido por clave; TreeMap paga O(log n) por mantener orden que un cache no necesita."
+        }
+      ]
+    },
+    {
+      "unitId": "gencol-arrays",
+      "name": "Arrays",
+      "certObjective": "generics-collections",
+      "orderIndex": 5,
+      "summary": {
+        "text": "Un array es una estructura de tamano fijo que guarda elementos del mismo tipo, indexados desde 0. Se puede declarar multi-dimensional (array de arrays), donde cada fila puede incluso tener un largo distinto (arrays irregulares/jagged). La clase utilitaria Arrays ofrece metodos estaticos como sort(), binarySearch(), equals(), fill() y asList() para trabajar con arrays sin escribir loops manuales.",
+        "code": "int[] numeros = {5, 3, 1, 4, 2};\nArrays.sort(numeros); // [1, 2, 3, 4, 5]\n\nint[][] matriz = new int[2][3]; // 2 filas, 3 columnas\nmatriz[0][1] = 10;"
+      },
+      "exercises": [
+        {
+          "id": "gencol-arrdecl-intro",
+          "type": "worked_example",
+          "difficulty": 1,
+          "prompt": "Un array tiene tamano fijo, definido al crearlo, y se indexa desde 0",
+          "code": "int[] numeros = new int[5];  // 5 elementos, todos en 0\nnumeros[0] = 10;\nnumeros[4] = 50;\n\nint[] literal = {1, 2, 3};   // tamano 3, inicializado directo",
+          "answer": "ok",
+          "explanation": "El tamano se fija al crear el array (new int[5]) y no puede cambiar despues - a diferencia de una List, que crece dinamicamente. El primer elemento es indice 0, el ultimo es tamano-1.",
+          "conceptId": "arrays-declaracion",
+          "role": "intro",
+          "pathOrder": 0
+        },
+        {
+          "id": "gencol-arrdecl-guided",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Que pasa si accedes a numeros[5] en un array int[] numeros = new int[5]?",
+          "answer": "Se lanza ArrayIndexOutOfBoundsException en tiempo de ejecucion",
+          "distractors": [
+            "Devuelve 0 automaticamente, sin error",
+            "El array crece automaticamente para incluir el indice 5",
+            "Es un error de compilacion, no de ejecucion"
+          ],
+          "explanation": "Los indices validos van de 0 a tamano-1 (0 a 4 en un array de 5); acceder fuera de ese rango compila bien pero lanza una excepcion en runtime, porque el tamano solo se conoce con certeza en ejecucion.",
+          "conceptId": "arrays-declaracion",
+          "role": "guided",
+          "pathOrder": 1
+        },
+        {
+          "id": "gencol-arrdecl-solo",
+          "type": "fill_blank",
+          "difficulty": 1,
+          "prompt": "Declara un array de 3 Strings vacio (sin inicializar valores):",
+          "code": "String[] nombres = new String[_____];",
+          "answer": "3",
+          "distractors": [
+            "3.0",
+            "\"3\"",
+            "three"
+          ],
+          "explanation": "new String[3] crea un array de 3 posiciones, todas inicializadas en null (el valor por defecto para tipos de objeto).",
+          "conceptId": "arrays-declaracion",
+          "role": "solo",
+          "pathOrder": 2
+        },
+        {
+          "id": "gencol-arrmulti-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "Un array multidimensional es un array de arrays",
+          "code": "int[][] matriz = new int[2][3]; // 2 filas, 3 columnas\nmatriz[0][1] = 10;\nmatriz[1][2] = 20;\n\nint[][] irregular = new int[2][];\nirregular[0] = new int[3];\nirregular[1] = new int[5]; // filas de distinto largo (jagged array)",
+          "answer": "ok",
+          "explanation": "int[][] matriz declara un array cuyos elementos son, a su vez, arrays de int. Java no exige que todas las filas tengan el mismo largo - eso se llama un array irregular o jagged array.",
+          "conceptId": "arrays-multidimensional",
+          "role": "intro",
+          "pathOrder": 3,
+          "dependsOn": [
+            "arrays-declaracion"
+          ]
+        },
+        {
+          "id": "gencol-arrmulti-guided",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Que es un jagged array (array irregular) en Java?",
+          "answer": "Un array multidimensional donde las filas (sub-arrays) tienen distinto largo entre si",
+          "distractors": [
+            "Un array que lanza una excepcion al crearse",
+            "Un array que solo puede contener numeros negativos",
+            "Un sinonimo de array multidimensional, sin diferencia real"
+          ],
+          "explanation": "A diferencia de una matriz matematica estricta, en Java cada fila de un array 2D es su propio array independiente, asi que pueden tener largos distintos - eso es lo que hace irregular al array.",
+          "conceptId": "arrays-multidimensional",
+          "role": "guided",
+          "pathOrder": 4,
+          "dependsOn": [
+            "arrays-declaracion"
+          ]
+        },
+        {
+          "id": "gencol-arrmulti-solo",
+          "type": "predict_output",
+          "difficulty": 2,
+          "prompt": "Que imprime este codigo?",
+          "code": "int[][] matriz = {\n    {1, 2, 3},\n    {4, 5}\n};\nSystem.out.println(matriz[1].length);",
+          "answer": "2",
+          "explanation": "matriz[1] es la segunda fila, {4, 5}, que tiene 2 elementos; matriz[1].length accede al largo de esa fila especifica, no de toda la matriz.",
+          "conceptId": "arrays-multidimensional",
+          "role": "solo",
+          "pathOrder": 5,
+          "dependsOn": [
+            "arrays-declaracion"
+          ]
+        },
+        {
+          "id": "gencol-arrutil-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "La clase Arrays ofrece metodos estaticos utiles para trabajar con arrays",
+          "code": "int[] numeros = {5, 3, 1, 4, 2};\nArrays.sort(numeros);                    // [1, 2, 3, 4, 5]\nint pos = Arrays.binarySearch(numeros, 3); // busca 3 en un array ordenado\nboolean iguales = Arrays.equals(numeros, new int[]{1,2,3,4,5});",
+          "answer": "ok",
+          "explanation": "Arrays.sort() ordena in-place; Arrays.binarySearch() requiere que el array ya este ordenado, o el resultado es indefinido; Arrays.equals() compara contenido elemento por elemento (a diferencia de ==, que compararia referencias).",
+          "conceptId": "arrays-clase-utilitaria",
+          "role": "intro",
+          "pathOrder": 6,
+          "dependsOn": [
+            "arrays-declaracion"
+          ]
+        },
+        {
+          "id": "gencol-arrutil-guided",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Que precondicion necesita Arrays.binarySearch() para funcionar correctamente?",
+          "answer": "El array debe estar ordenado de antemano (por ejemplo, con Arrays.sort())",
+          "distractors": [
+            "Ninguna, funciona igual de bien con cualquier array",
+            "El array debe tener un numero par de elementos",
+            "El array debe contener solo valores positivos"
+          ],
+          "explanation": "La busqueda binaria depende de que los elementos esten ordenados para descartar mitades del array en cada paso; sobre un array desordenado, el resultado no esta garantizado y puede ser incorrecto.",
+          "conceptId": "arrays-clase-utilitaria",
+          "role": "guided",
+          "pathOrder": 7,
+          "dependsOn": [
+            "arrays-declaracion"
+          ]
+        },
+        {
+          "id": "gencol-arrutil-solo",
+          "type": "predict_output",
+          "difficulty": 2,
+          "prompt": "Que imprime este codigo?",
+          "code": "int[] a = {1, 2, 3};\nint[] b = {1, 2, 3};\nSystem.out.println(a == b);\nSystem.out.println(Arrays.equals(a, b));",
+          "answer": "false\ntrue",
+          "explanation": "a y b son arrays distintos en memoria, asi que == (comparacion de referencia) da false; Arrays.equals() compara el contenido elemento por elemento, y ambos arrays tienen los mismos valores, asi que da true.",
+          "conceptId": "arrays-clase-utilitaria",
+          "role": "solo",
+          "pathOrder": 8,
+          "dependsOn": [
+            "arrays-declaracion"
+          ]
+        },
+        {
+          "id": "gencol-arrays-interview",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Una empresa de servicios financieros te pregunta: por que elegirias un array en vez de un ArrayList para guardar un conjunto de datos de tamano fijo y conocido de antemano?",
+          "answer": "Un array primitivo evita el overhead de autoboxing y tiene un poco menos de overhead de memoria que un ArrayList, cuando el tamano ya es fijo y conocido",
+          "distractors": [
+            "Porque un ArrayList no puede guardar numeros bajo ninguna circunstancia",
+            "No hay ninguna diferencia real de rendimiento entre ambos",
+            "Porque los arrays permiten agregar elementos mas facil que un ArrayList"
+          ],
+          "explanation": "Cuando el tamano es fijo y se conocen los tipos primitivos que se van a guardar, un array evita el autoboxing (int[] guarda ints directos, no Integer) y el overhead estructural de una lista dinamica - un ArrayList<E> brilla cuando el tamano es variable o se necesitan los metodos de Collections."
         }
       ]
     }
