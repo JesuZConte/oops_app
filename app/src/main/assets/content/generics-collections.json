@@ -121,7 +121,10 @@
           "explanation": "T extends Number acota el tipo generico a Number y sus subtipos (Integer, Double, etc.).",
           "conceptId": "generics-bounded",
           "role": "solo",
-          "pathOrder": 5
+          "pathOrder": 5,
+          "dependsOn": [
+            "generics-declaracion"
+          ]
         },
         {
           "id": "gencol-wildcardext-intro",
@@ -172,7 +175,10 @@
           "explanation": "? extends Number es un wildcard acotado superiormente: acepta List<Integer>, List<Double>, etc., pero no permite agregar elementos (salvo null) porque el tipo exacto es desconocido.",
           "conceptId": "generics-wildcard-extends",
           "role": "solo",
-          "pathOrder": 8
+          "pathOrder": 8,
+          "dependsOn": [
+            "generics-bounded"
+          ]
         },
         {
           "id": "gencol-wildcardsuper-intro",

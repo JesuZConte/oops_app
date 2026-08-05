@@ -96,9 +96,9 @@ array currently has 6 objects in order: `gencol-generics-01` through
 **1a. Add these 3 fields to `gencol-generics-02`** (do not change anything
 else): `"conceptId": "generics-declaracion", "role": "solo", "pathOrder": 2`
 
-**1b. Add these 3 fields to `gencol-generics-03`**: `"conceptId": "generics-bounded", "role": "solo", "pathOrder": 5`
+**1b. Add these 4 fields to `gencol-generics-03`**: `"conceptId": "generics-bounded", "role": "solo", "pathOrder": 5, "dependsOn": ["generics-declaracion"]`
 
-**1c. Add these 3 fields to `gencol-generics-04`**: `"conceptId": "generics-wildcard-extends", "role": "solo", "pathOrder": 8`
+**1c. Add these 4 fields to `gencol-generics-04`**: `"conceptId": "generics-wildcard-extends", "role": "solo", "pathOrder": 8, "dependsOn": ["generics-bounded"]`
 
 **1d. Leave `gencol-generics-01`, `gencol-generics-05`, `gencol-generics-06`
 completely unchanged.**
@@ -512,6 +512,28 @@ git add app/src/main/assets/content/generics-collections.json \
         app/src/main/java/com/zconte/oopsapp/data/content/ContentSeeder.kt
 git commit -m "content: retrofit Generics + add Arrays unit to Genericos y Colecciones (sub-cycle 1)"
 ```
+
+---
+
+## Post-review corrections (applied after this plan was executed)
+
+The final whole-branch review found a real reachability bug, now fixed
+directly in Steps 1b/1c above (this plan was corrected in place since the
+fix is small and precise — unlike prior cycles' corrections sections,
+there's no meaningful "historical vs actual" gap here):
+
+**New hard rule, learned from this cycle:** when a retagged (grandfathered)
+exercise is the `solo`/`practice` terminal of a concept whose `intro`/
+`guided` siblings carry a `dependsOn`, the retagged exercise **must carry
+the identical `dependsOn`** — not just `conceptId`/`role`/`pathOrder`.
+Without it, the terminal becomes a candidate before its own ladder's intro/
+guided are ever offered (dependsOn gates candidacy, not `pathOrder`), and
+answering it borns the concept prematurely — permanently excluding the
+still-unborn `intro`/`guided` siblings from ever being offered (2 of them
+`worked_example`, unreachable from any other screen in the app). Verified
+safe for existing installs: `dependsOn` only affects *candidate selection*
+for not-yet-answered exercises, so a unit that's already fully answered
+(like Luis's `gencol-generics`) is completely unaffected by this change.
 
 ---
 
