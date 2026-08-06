@@ -659,6 +659,93 @@
           "explanation": "Un metodo que devuelve String puede devolver null sin que nada lo indique en la firma, y es facil olvidar el chequeo. Un metodo que devuelve Optional<String> comunica explicitamente 'esto puede no tener valor', y el equipo puede exigir que se maneje. Optional no elimina NPE magicamente (todavia se puede hacer optional.get() sin chequear y fallar), pero hace el riesgo visible."
         }
       ]
+    },
+    {
+      "unitId": "streams-parallel",
+      "name": "Streams paralelos",
+      "certObjective": "streams-lambdas",
+      "orderIndex": 7,
+      "summary": {
+        "text": "parallelStream() (o stream().parallel()) divide el trabajo de un stream entre varios hilos del ForkJoinPool comun, en vez de procesarlo todo secuencialmente en un solo hilo. Conviene para datasets grandes con calculos independientes entre si (CPU-bound); no conviene para datasets chicos o tareas I/O-bound, donde el costo de coordinar los hilos supera la ganancia. Compartir una coleccion no thread-safe (como ArrayList) dentro de un forEach() paralelo corrompe datos; collect() acumula resultados de forma segura, sin necesitar sincronizacion manual.",
+        "code": "List<Integer> cuadrados = numeros.parallelStream()\n    .map(n -> n * n)\n    .collect(Collectors.toList()); // seguro y correcto, incluso en paralelo"
+      },
+      "exercises": [
+        {
+          "id": "streams-parallel-basics-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "parallelStream() (o stream().parallel()) divide el trabajo del stream entre varios hilos del ForkJoinPool comun, en vez de procesarlo todo secuencialmente en un solo hilo",
+          "code": "List<Integer> numeros = List.of(1, 2, 3, 4, 5, 6, 7, 8);\nint suma = numeros.parallelStream()\n    .mapToInt(n -> n * n)\n    .sum(); // el calculo de cada n*n puede correr en hilos distintos",
+          "answer": "ok",
+          "explanation": "parallelStream() usa por defecto el ForkJoinPool.commonPool(), cuyo tamano depende de los nucleos disponibles en la maquina. Cada elemento (o un grupo de ellos) puede procesarse en un hilo distinto, y el resultado final se combina automaticamente -- pero el orden en que se procesan los elementos no esta garantizado.",
+          "conceptId": "parallel-basics",
+          "role": "intro",
+          "pathOrder": 0
+        },
+        {
+          "id": "streams-parallel-basics-guided",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Para que tipo de tarea conviene usar un parallel stream?",
+          "answer": "Para procesar grandes volumenes de datos con calculos independientes entre si (CPU-bound), donde el trabajo se puede repartir sin coordinacion entre elementos",
+          "distractors": ["Para leer archivos o hacer llamadas de red (I/O-bound), donde los hilos igual esperan bloqueados", "Para colecciones pequenas, porque el overhead de paralelizar siempre es despreciable", "Para cualquier stream, porque parallelStream() siempre es mas rapido que stream()"],
+          "explanation": "Paralelizar tiene un costo de coordinacion (dividir el trabajo, crear tareas, combinar resultados). Con datasets chicos o tareas I/O-bound (donde el hilo se bloquea esperando, no calculando), ese costo puede superar la ganancia -- por eso conviene medir, no asumir que parallelStream() siempre gana.",
+          "conceptId": "parallel-basics",
+          "role": "guided",
+          "pathOrder": 1
+        },
+        {
+          "id": "streams-parallel-basics-solo",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Por que el orden de procesamiento de un parallelStream() no esta garantizado, aunque el resultado final (como sum() o collect()) sea correcto?",
+          "answer": "Porque los elementos se distribuyen entre varios hilos que corren de forma independiente, y el sistema operativo decide cuando ejecuta cada uno",
+          "distractors": ["Porque parallelStream() ordena los elementos al azar antes de procesarlos", "Porque el resultado final tambien es impredecible, no solo el orden de procesamiento", "Porque solo el primer elemento se procesa en paralelo, el resto es secuencial"],
+          "explanation": "Operaciones como sum(), count() o collect() con un Collector correcto combinan los resultados parciales de forma que el resultado final es determinista, sin importar en que orden terminaron los hilos -- pero eso no significa que el procesamiento en si haya sido ordenado, solo la combinacion final.",
+          "conceptId": "parallel-basics",
+          "role": "solo",
+          "pathOrder": 2
+        },
+        {
+          "id": "streams-parallel-pitfalls-intro",
+          "type": "worked_example",
+          "difficulty": 3,
+          "prompt": "Usar una coleccion no thread-safe dentro de un forEach() en un parallel stream puede corromper datos, porque varios hilos escriben a la vez",
+          "code": "List<Integer> resultados = new ArrayList<>(); // NO es thread-safe\n\nnumeros.parallelStream()\n    .forEach(n -> resultados.add(n * n)); // PELIGRO: varios hilos llaman add() a la vez\n\n// Correcto: usar collect(), que maneja la combinacion de forma segura\nList<Integer> resultadosSeguro = numeros.parallelStream()\n    .map(n -> n * n)\n    .collect(Collectors.toList());",
+          "answer": "ok",
+          "explanation": "ArrayList.add() no es thread-safe: cuando varios hilos lo llaman al mismo tiempo desde un forEach() paralelo, pueden corromper la estructura interna de la lista o perder elementos. collect() con un Collector esta disenado especificamente para acumular resultados de un stream (paralelo o no) de forma segura, sin necesitar sincronizacion manual.",
+          "conceptId": "parallel-pitfalls",
+          "role": "intro",
+          "pathOrder": 3,
+          "dependsOn": ["parallel-basics"]
+        },
+        {
+          "id": "streams-parallel-pitfalls-guided",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Por que agregar elementos a una lista compartida dentro de un forEach() de un parallel stream es peligroso, aunque el mismo codigo funcione bien con un stream secuencial?",
+          "answer": "Porque en el stream secuencial solo un hilo llama a add() a la vez (sin problema), pero en el paralelo varios hilos pueden llamarlo simultaneamente sobre la misma lista no thread-safe",
+          "distractors": ["Porque forEach() no existe en streams paralelos", "Porque las listas nunca pueden usarse dentro de un stream, paralelo o no", "Porque el parallel stream ejecuta forEach() dos veces por cada elemento"],
+          "explanation": "El bug no esta en forEach() en si, sino en compartir un objeto mutable no sincronizado entre los hilos que el stream paralelo usa internamente. Con un stream secuencial nunca hay mas de un hilo llamando al codigo del lambda a la vez, asi que el mismo patron 'peligroso' no rompe nada -- la seguridad del codigo dependia, sin que se notara, de que corriera secuencial.",
+          "conceptId": "parallel-pitfalls",
+          "role": "guided",
+          "pathOrder": 4,
+          "dependsOn": ["parallel-basics"]
+        },
+        {
+          "id": "streams-parallel-pitfalls-solo",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Cual es la forma correcta de acumular resultados de un parallel stream en una lista, evitando el problema de una coleccion compartida no sincronizada?",
+          "answer": "Usar collect(Collectors.toList()), que combina los resultados parciales de cada hilo de forma segura",
+          "distractors": ["Usar forEach() con una lista sincronizada manualmente con synchronized en cada add()", "Usar forEach() y confiar en que ArrayList maneja la concurrencia internamente", "Convertir el parallel stream a secuencial antes de cada forEach(), perdiendo el paralelismo"],
+          "explanation": "collect() esta disenado para trabajar correctamente con streams paralelos: cada hilo acumula resultados parciales en su propia estructura, y al final se combinan sin necesitar sincronizacion manual del programador. Sincronizar manualmente cada add() (opcion synchronized) funcionaria pero anula gran parte de la ganancia de paralelizar, ya que serializa justo la parte que se queria paralelizar.",
+          "conceptId": "parallel-pitfalls",
+          "role": "solo",
+          "pathOrder": 5,
+          "dependsOn": ["parallel-basics"]
+        }
+      ]
     }
   ]
 }
