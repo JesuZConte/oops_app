@@ -347,13 +347,53 @@
       },
       "exercises": [
         {
+          "id": "race-conditions-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "Una race condition ocurre cuando varios hilos leen y modifican el mismo dato compartido sin coordinacion, y el orden de ejecucion cambia el resultado",
+          "code": "// Sin sincronizacion: dos hilos pueden leer el mismo valor de contador\n// antes de que ninguno escriba su incremento, perdiendo una actualizacion\nint contador = 0;\n// hilo A: lee contador (0), suma 1, escribe 1\n// hilo B: lee contador (0) al mismo tiempo, suma 1, escribe 1\n// resultado: contador = 1, no 2 -- se perdio un incremento",
+          "answer": "ok",
+          "explanation": "Una race condition no es un error que Java detecte ni lance como excepcion: el programa compila y corre, pero el resultado final depende del orden impredecible en que los hilos se intercalan, lo que produce resultados incorrectos de forma intermitente y dificil de reproducir.",
+          "conceptId": "race-conditions",
+          "role": "intro",
+          "pathOrder": 0
+        },
+        {
+          "id": "race-conditions-guided",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Por que una race condition es mas dificil de detectar que un error de compilacion?",
+          "answer": "Porque el programa compila y corre normalmente; el bug solo aparece de forma intermitente segun el orden en que los hilos se intercalan en tiempo de ejecucion",
+          "distractors": ["Porque Java no permite compilar codigo con hilos", "Porque siempre lanza una excepcion en el primer intento", "Porque solo ocurre en sistemas con un unico nucleo"],
+          "explanation": "A diferencia de un error de sintaxis, una race condition depende del scheduling del sistema operativo: puede pasar desapercibida en pruebas y aparecer solo en produccion bajo carga, cuando el timing de los hilos cambia.",
+          "conceptId": "race-conditions",
+          "role": "guided",
+          "pathOrder": 1
+        },
+        {
           "id": "conc-sync-01",
           "type": "mcq",
           "difficulty": 2,
           "prompt": "Que es una race condition (condicion de carrera)?",
           "answer": "Cuando el resultado de un programa depende del orden impredecible en que varios hilos acceden a datos compartidos",
           "distractors": ["Un error de compilacion por usar hilos sin declarar excepciones", "Una excepcion que se lanza cuando un hilo termina antes que otro", "Un tipo de deadlock que ocurre solo con ReentrantLock"],
-          "explanation": "Una race condition ocurre cuando multiples hilos leen/escriben el mismo estado compartido sin sincronizacion, y el resultado final depende del orden de ejecucion."
+          "explanation": "Una race condition ocurre cuando multiples hilos leen/escriben el mismo estado compartido sin sincronizacion, y el resultado final depende del orden de ejecucion.",
+          "conceptId": "race-conditions",
+          "role": "solo",
+          "pathOrder": 2
+        },
+        {
+          "id": "synchronized-basics-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "La palabra clave synchronized asegura que solo un hilo a la vez pueda ejecutar ese metodo o bloque, evitando la race condition",
+          "code": "public synchronized void incrementar() {\n    contador++;  // ahora solo un hilo a la vez puede ejecutar esta linea\n}",
+          "answer": "ok",
+          "explanation": "synchronized adquiere un lock (el monitor del objeto) antes de entrar, y lo libera automaticamente al salir del metodo o bloque, incluso si se lanza una excepcion. Mientras un hilo tiene el lock, cualquier otro que intente entrar queda BLOCKED esperando.",
+          "conceptId": "synchronized-basics",
+          "role": "intro",
+          "pathOrder": 3,
+          "dependsOn": ["race-conditions"]
         },
         {
           "id": "conc-sync-02",
@@ -363,7 +403,11 @@
           "code": "public _____ void incrementar() {\n    contador++;\n}",
           "answer": "synchronized",
           "distractors": ["volatile", "final", "static"],
-          "explanation": "synchronized en un metodo de instancia asegura que solo un hilo a la vez pueda ejecutar el metodo sobre el mismo objeto."
+          "explanation": "synchronized en un metodo de instancia asegura que solo un hilo a la vez pueda ejecutar el metodo sobre el mismo objeto.",
+          "conceptId": "synchronized-basics",
+          "role": "guided",
+          "pathOrder": 4,
+          "dependsOn": ["race-conditions"]
         },
         {
           "id": "conc-sync-03",
@@ -373,7 +417,11 @@
           "code": "synchronized (lock) {\n    saldo = saldo - monto;\n}",
           "answer": "Asegura que solo un hilo a la vez pueda ejecutar ese bloque mientras tenga el lock sobre el objeto lock",
           "distractors": ["Crea un nuevo hilo para ejecutar el bloque", "Hace que la variable saldo sea inmutable", "Repite la operacion hasta que tenga exito"],
-          "explanation": "Un bloque synchronized(objeto) adquiere el monitor de ese objeto antes de ejecutar el bloque, sirviendo como mutex."
+          "explanation": "Un bloque synchronized(objeto) adquiere el monitor de ese objeto antes de ejecutar el bloque, sirviendo como mutex.",
+          "conceptId": "synchronized-basics",
+          "role": "guided",
+          "pathOrder": 5,
+          "dependsOn": ["race-conditions"]
         },
         {
           "id": "conc-sync-04",
@@ -382,7 +430,24 @@
           "prompt": "Cuando conviene usar un bloque synchronized en vez de sincronizar todo el metodo?",
           "answer": "Cuando solo una parte del metodo toca datos compartidos, para reducir el tiempo que otros hilos quedan bloqueados",
           "distractors": ["Nunca, sincronizar todo el metodo siempre es mejor", "Solo cuando el metodo es static", "Un bloque synchronized no puede lanzar excepciones"],
-          "explanation": "Sincronizar solo la seccion critica minimiza el tiempo que el lock esta tomado, mejorando la concurrencia real del programa."
+          "explanation": "Sincronizar solo la seccion critica minimiza el tiempo que el lock esta tomado, mejorando la concurrencia real del programa.",
+          "conceptId": "synchronized-basics",
+          "role": "solo",
+          "pathOrder": 6,
+          "dependsOn": ["race-conditions"]
+        },
+        {
+          "id": "reentrant-lock-basics-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "ReentrantLock ofrece lo mismo que synchronized pero de forma explicita: hay que llamar lock() y unlock() manualmente, siempre en un try/finally",
+          "code": "private final ReentrantLock lock = new ReentrantLock();\n\nvoid incrementar() {\n    lock.lock();\n    try {\n        contador++;\n    } finally {\n        lock.unlock();  // se libera siempre, incluso si hay una excepcion\n    }\n}",
+          "answer": "ok",
+          "explanation": "A diferencia de synchronized, que libera el lock automaticamente, ReentrantLock exige liberarlo manualmente -- por eso siempre va en un bloque finally, para garantizar que se libere incluso si el codigo protegido lanza una excepcion.",
+          "conceptId": "reentrant-lock-basics",
+          "role": "intro",
+          "pathOrder": 7,
+          "dependsOn": ["synchronized-basics"]
         },
         {
           "id": "conc-sync-05",
@@ -392,7 +457,11 @@
           "code": "lock.lock();\ntry {\n    seccionCritica();\n} finally {\n    lock._____();\n}",
           "answer": "unlock",
           "distractors": ["release", "close", "free"],
-          "explanation": "unlock() debe llamarse en un finally para garantizar que el lock se libere incluso si seccionCritica() lanza una excepcion."
+          "explanation": "unlock() debe llamarse en un finally para garantizar que el lock se libere incluso si seccionCritica() lanza una excepcion.",
+          "conceptId": "reentrant-lock-basics",
+          "role": "guided",
+          "pathOrder": 8,
+          "dependsOn": ["synchronized-basics"]
         },
         {
           "id": "conc-sync-06",
@@ -401,7 +470,89 @@
           "prompt": "Que ventaja ofrece ReentrantLock sobre synchronized?",
           "answer": "Permite intentar adquirir el lock con un tiempo limite (tryLock) sin bloquear indefinidamente",
           "distractors": ["Es mas rapido en todos los casos posibles", "No requiere liberarse manualmente nunca", "Permite que dos hilos entren a la vez a la seccion critica"],
-          "explanation": "tryLock(timeout) permite evitar bloqueos indefinidos, algo que synchronized no ofrece directamente."
+          "explanation": "tryLock(timeout) permite evitar bloqueos indefinidos, algo que synchronized no ofrece directamente.",
+          "conceptId": "reentrant-lock-basics",
+          "role": "solo",
+          "pathOrder": 9,
+          "dependsOn": ["synchronized-basics"]
+        },
+        {
+          "id": "semaphore-intro",
+          "type": "worked_example",
+          "difficulty": 3,
+          "prompt": "Semaphore controla cuantos hilos pueden acceder a un recurso al mismo tiempo, no solo uno como synchronized",
+          "code": "Semaphore semaforo = new Semaphore(3); // maximo 3 hilos a la vez\n\nvoid usarRecurso() throws InterruptedException {\n    semaforo.acquire(); // espera si ya hay 3 hilos dentro\n    try {\n        // seccion con hasta 3 hilos simultaneos permitidos\n    } finally {\n        semaforo.release();\n    }\n}",
+          "answer": "ok",
+          "explanation": "Un Semaphore mantiene un contador de 'permisos' disponibles; acquire() toma uno (bloqueando si no queda ninguno) y release() lo devuelve. Con permisos=1 se comporta como un lock exclusivo; con mas de 1 permite un numero limitado de accesos concurrentes, util para limitar conexiones a una base de datos o llamadas a una API externa.",
+          "conceptId": "semaphore",
+          "role": "intro",
+          "pathOrder": 10,
+          "dependsOn": ["reentrant-lock-basics"]
+        },
+        {
+          "id": "semaphore-guided",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Tienes un pool de 10 conexiones a una base de datos y quieres evitar que mas de 10 hilos las usen a la vez. Que estructura de sincronizacion es la mas adecuada?",
+          "answer": "Semaphore(10): permite hasta 10 hilos simultaneos, ni mas ni menos",
+          "distractors": ["synchronized: solo permite 1 hilo a la vez, muy restrictivo para este caso", "ReentrantLock: igual que synchronized, solo protege un recurso a la vez", "AtomicInteger: sirve para contadores, no para limitar acceso concurrente"],
+          "explanation": "synchronized y ReentrantLock son binarios (1 hilo a la vez); Semaphore(n) generaliza esa idea a n hilos simultaneos, exactamente el caso de un pool con capacidad limitada.",
+          "conceptId": "semaphore",
+          "role": "guided",
+          "pathOrder": 11,
+          "dependsOn": ["reentrant-lock-basics"]
+        },
+        {
+          "id": "semaphore-solo",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Si un Semaphore tiene 2 permisos y ambos estan tomados, que pasa cuando un tercer hilo llama a acquire()?",
+          "answer": "El hilo queda bloqueado (esperando) hasta que otro hilo llame a release() y libere un permiso",
+          "distractors": ["Se lanza una excepcion inmediatamente", "acquire() devuelve false y el hilo continua sin el permiso", "El semaforo aumenta automaticamente su limite a 3"],
+          "explanation": "acquire() es bloqueante por defecto: si no hay permisos disponibles, el hilo espera hasta que otro los libere con release(). Existe tryAcquire() como alternativa no bloqueante que devuelve false en vez de esperar.",
+          "conceptId": "semaphore",
+          "role": "solo",
+          "pathOrder": 12,
+          "dependsOn": ["reentrant-lock-basics"]
+        },
+        {
+          "id": "readwrite-lock-intro",
+          "type": "worked_example",
+          "difficulty": 3,
+          "prompt": "ReadWriteLock permite que muchos hilos lean a la vez, pero solo uno puede escribir, y nunca a la vez que se lee",
+          "code": "ReadWriteLock rwLock = new ReentrantReadWriteLock();\n\nvoid leer() {\n    rwLock.readLock().lock();\n    try {\n        // muchos hilos pueden ejecutar esto a la vez\n    } finally {\n        rwLock.readLock().unlock();\n    }\n}\n\nvoid escribir() {\n    rwLock.writeLock().lock();\n    try {\n        // solo un hilo, y ningun lector, puede ejecutar esto\n    } finally {\n        rwLock.writeLock().unlock();\n    }\n}",
+          "answer": "ok",
+          "explanation": "Cuando los datos se leen mucho mas de lo que se escriben, un ReentrantLock normal es innecesariamente restrictivo: bloquea incluso a lectores que no se pisarian entre si. ReadWriteLock separa el permiso de lectura (compartido entre varios hilos) del de escritura (exclusivo, y excluyente con cualquier lectura en curso).",
+          "conceptId": "readwrite-lock",
+          "role": "intro",
+          "pathOrder": 13,
+          "dependsOn": ["semaphore"]
+        },
+        {
+          "id": "readwrite-lock-guided",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Mientras un hilo tiene el readLock() de un ReadWriteLock, que puede pasar?",
+          "answer": "Otros hilos pueden tambien adquirir el readLock() al mismo tiempo, pero ningun hilo puede adquirir el writeLock() hasta que todos los lectores lo liberen",
+          "distractors": ["Ningun otro hilo puede leer ni escribir hasta que se libere", "Otros hilos pueden escribir libremente sin restriccion", "El readLock() se convierte automaticamente en writeLock() para el mismo hilo"],
+          "explanation": "El readLock() es compartido: multiples hilos pueden tenerlo simultaneamente. El writeLock() es exclusivo y ademas excluye a los lectores -- debe esperar a que todos los readLock() activos se liberen antes de poder adquirirse.",
+          "conceptId": "readwrite-lock",
+          "role": "guided",
+          "pathOrder": 14,
+          "dependsOn": ["semaphore"]
+        },
+        {
+          "id": "readwrite-lock-solo",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Por que conviene usar ReadWriteLock en vez de un ReentrantLock normal para una cache que se lee constantemente y se escribe rara vez?",
+          "answer": "Porque permite que muchos hilos lean la cache al mismo tiempo sin bloquearse entre si, mejorando el rendimiento cuando las lecturas son mucho mas frecuentes que las escrituras",
+          "distractors": ["Porque ReadWriteLock no requiere liberarse manualmente", "Porque ReentrantLock no puede usarse dentro de metodos que leen datos", "Porque ReadWriteLock es mas rapido incluso cuando se escribe todo el tiempo"],
+          "explanation": "Un ReentrantLock normal serializa TODOS los accesos, incluso entre lectores que no modifican nada. Cuando las lecturas dominan, eso desperdicia paralelismo real; ReadWriteLock lo recupera dejando que los lectores no se bloqueen entre si, mientras sigue protegiendo contra condiciones de carrera durante la escritura.",
+          "conceptId": "readwrite-lock",
+          "role": "solo",
+          "pathOrder": 15,
+          "dependsOn": ["semaphore"]
         }
       ]
     },
