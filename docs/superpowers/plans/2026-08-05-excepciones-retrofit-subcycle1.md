@@ -77,7 +77,7 @@ beyond the content seed version bump.
 Find the `excep-jerarquia` unit in `exception-handling.json` (it is the
 first unit in the `units` array). Replace its entire `exercises` array
 (currently 6 exercises, ids `excep-jerarquia-01` through `-06`) with this
-exact array (10 exercises: 3 brand-new + the same 6 existing exercises
+exact array (11 exercises: 5 brand-new + the same 6 existing exercises
 now carrying `conceptId`/`role`/`pathOrder`/`dependsOn`, byte-identical
 otherwise):
 
@@ -868,11 +868,13 @@ Install a clean/in-place build and manually verify on-device:
    still show "Completada" (grandfathering preserved `review_state`) if
    they were already played, or unlocked/locked correctly per the
    normal section-unlock rules if not yet played.
-2. Replay "Jerarquia de excepciones": confirm the exercise count matches
-   the grandfathering prediction (10 total minus however many
-   `worked_example` intros were already-born concepts for this install —
-   3 new intros expected excluded if the unit was already fully
-   completed before this retrofit), and that a retrofitted exercise
+2. Replay "Jerarquia de excepciones": for an install that had already
+   fully completed all 6 original exercises before this retrofit,
+   replaying now shows 11 total answerable exercises minus the 3 new
+   `worked_example` intro cards (which auto-advance and aren't counted
+   as answerable) = 8 answerable, since the 2 new non-intro exercises
+   (`override-checked-guided`, `override-checked-solo`) are real new
+   content the install hasn't seen. Confirm a retrofitted exercise
    (e.g. `excep-jerarquia-01`) still grades correctly.
 3. Play through at least one of the brand-new concepts end-to-end (e.g.
    `override-checked-exceptions` in "Jerarquia de excepciones", or
