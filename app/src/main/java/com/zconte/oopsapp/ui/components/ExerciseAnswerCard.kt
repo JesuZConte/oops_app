@@ -104,9 +104,12 @@ fun ExerciseAnswerCard(
         }
 
         Column(
-            modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
+            modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
+            // Prompt stays at its natural height, never scrolled/squeezed -- only the code
+            // block below (which can be arbitrarily long) absorbs a shrinking viewport when
+            // the keyboard opens, so the question text is always fully visible.
             Text(
                 text = exercise.prompt,
                 style = MaterialTheme.typography.titleMedium,
@@ -121,7 +124,9 @@ fun ExerciseAnswerCard(
                     } else {
                         null
                     }
-                    CodeBlock(code = code, filledAnswer = filledAnswer, modifier = Modifier.fillMaxWidth())
+                    Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())) {
+                        CodeBlock(code = code, filledAnswer = filledAnswer, modifier = Modifier.fillMaxWidth())
+                    }
                 }
             }
         }
