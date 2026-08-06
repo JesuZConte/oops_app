@@ -15,13 +15,40 @@
       },
       "exercises": [
         {
+          "id": "thread-start-vs-run-intro",
+          "type": "worked_example",
+          "difficulty": 1,
+          "prompt": "start() lanza un hilo nuevo del sistema operativo; run() llamado directamente solo ejecuta ese codigo en el hilo actual, sin crear concurrencia",
+          "code": "Thread hilo = new Thread(() -> System.out.println(\"nuevo hilo\"));\nhilo.start();  // crea un hilo del SO y ejecuta run() ahi\n// hilo.run();  // si se llamara asi en vez de start(), NO crea hilo nuevo",
+          "answer": "ok",
+          "explanation": "start() es el metodo que realmente lanza un nuevo hilo del sistema operativo y luego invoca run() en el. Si en cambio llamas run() directamente, no se crea ningun hilo nuevo: el codigo se ejecuta secuencialmente en el hilo que hizo la llamada, como cualquier metodo normal.",
+          "conceptId": "thread-start-vs-run",
+          "role": "intro",
+          "pathOrder": 0
+        },
+        {
+          "id": "conc-threads-05",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Que problema practico resuelven los hilos que un programa de un solo hilo no puede resolver bien?",
+          "answer": "Permiten que tareas independientes progresen en paralelo o se solapen, sin que una bloquee completamente a las demas",
+          "distractors": ["Hacen que cualquier programa use menos memoria", "Eliminan la necesidad de manejar excepciones", "Garantizan que el codigo se ejecute en orden estricto"],
+          "explanation": "Sin hilos, una tarea lenta (como I/O o un calculo pesado) bloquea todo el programa; los hilos permiten aprovechar multiples nucleos o no bloquear mientras se espera I/O.",
+          "conceptId": "thread-start-vs-run",
+          "role": "guided",
+          "pathOrder": 1
+        },
+        {
           "id": "conc-threads-01",
           "type": "mcq",
           "difficulty": 2,
           "prompt": "Cual es la diferencia entre llamar start() y run() en un Thread?",
           "answer": "start() crea un nuevo hilo de ejecucion y luego invoca run(); llamar run() directamente ejecuta el codigo en el hilo actual",
           "distractors": ["No hay diferencia, ambos hacen lo mismo", "run() siempre se ejecuta antes que start()", "start() solo funciona con Runnable, no con Thread"],
-          "explanation": "start() es el metodo que realmente lanza un nuevo hilo del sistema operativo; run() es solo un metodo normal que, llamado directamente, se ejecuta secuencialmente en el hilo que lo invoca."
+          "explanation": "start() es el metodo que realmente lanza un nuevo hilo del sistema operativo; run() es solo un metodo normal que, llamado directamente, se ejecuta secuencialmente en el hilo que lo invoca.",
+          "conceptId": "thread-start-vs-run",
+          "role": "guided",
+          "pathOrder": 2
         },
         {
           "id": "conc-threads-02",
@@ -31,16 +58,23 @@
           "code": "Runnable tarea = () -> System.out.println(\"ejecutando\");\nThread hilo = new Thread(_____);\nhilo.start();",
           "answer": "tarea",
           "distractors": ["tarea.run()", "new Runnable(tarea)", "Thread.tarea"],
-          "explanation": "El constructor de Thread recibe el Runnable directamente; pasar tarea.run() ejecutaria el codigo de inmediato en el hilo actual, sin crear un hilo nuevo."
+          "explanation": "El constructor de Thread recibe el Runnable directamente; pasar tarea.run() ejecutaria el codigo de inmediato en el hilo actual, sin crear un hilo nuevo.",
+          "conceptId": "thread-start-vs-run",
+          "role": "solo",
+          "pathOrder": 3
         },
         {
-          "id": "conc-threads-03",
-          "type": "predict_output",
+          "id": "thread-lifecycle-states-intro",
+          "type": "worked_example",
           "difficulty": 2,
-          "prompt": "Que imprime este codigo (asumiendo que join() no lanza ninguna excepcion)?",
-          "code": "Thread hilo = new Thread(() -> System.out.println(\"hilo\"));\nhilo.start();\nhilo.join();\nSystem.out.println(\"principal\");",
-          "answer": "hilo\nprincipal",
-          "explanation": "join() bloquea el hilo principal hasta que hilo termine, garantizando que \"hilo\" se imprima antes que \"principal\"."
+          "prompt": "Un thread pasa por varios estados durante su vida: NEW, RUNNABLE, BLOCKED, WAITING, TIMED_WAITING y TERMINATED",
+          "code": "NEW           // creado, aun no llamo start()\nRUNNABLE      // ejecutandose o listo para ejecutar\nBLOCKED       // esperando entrar a un synchronized ocupado por otro hilo\nWAITING       // esperando indefinidamente (wait() sin timeout, join() sin timeout)\nTIMED_WAITING // esperando con limite de tiempo (sleep(), wait(timeout))\nTERMINATED    // termino su ejecucion",
+          "answer": "ok",
+          "explanation": "BLOCKED, WAITING y TIMED_WAITING se confunden facilmente: BLOCKED es especificamente esperar para entrar a un synchronized ocupado; WAITING es una espera indefinida (sin plazo); TIMED_WAITING es una espera con limite de tiempo, como Thread.sleep(ms) o join(ms).",
+          "conceptId": "thread-lifecycle-states",
+          "role": "intro",
+          "pathOrder": 4,
+          "dependsOn": ["thread-start-vs-run"]
         },
         {
           "id": "conc-threads-04",
@@ -49,16 +83,11 @@
           "prompt": "En que estado queda un hilo que llamo a Thread.sleep(1000)?",
           "answer": "TIMED_WAITING",
           "distractors": ["RUNNABLE", "BLOCKED", "TERMINATED"],
-          "explanation": "sleep() con un tiempo definido pone al hilo en TIMED_WAITING hasta que el tiempo expire o sea interrumpido."
-        },
-        {
-          "id": "conc-threads-05",
-          "type": "mcq",
-          "difficulty": 2,
-          "prompt": "Que problema practico resuelven los hilos que un programa de un solo hilo no puede resolver bien?",
-          "answer": "Permiten que tareas independientes progresen en paralelo o se solapen, sin que una bloquee completamente a las demas",
-          "distractors": ["Hacen que cualquier programa use menos memoria", "Eliminan la necesidad de manejar excepciones", "Garantizan que el codigo se ejecute en orden estricto"],
-          "explanation": "Sin hilos, una tarea lenta (como I/O o un calculo pesado) bloquea todo el programa; los hilos permiten aprovechar multiples nucleos o no bloquear mientras se espera I/O."
+          "explanation": "sleep() con un tiempo definido pone al hilo en TIMED_WAITING hasta que el tiempo expire o sea interrumpido.",
+          "conceptId": "thread-lifecycle-states",
+          "role": "guided",
+          "pathOrder": 5,
+          "dependsOn": ["thread-start-vs-run"]
         },
         {
           "id": "conc-threads-06",
@@ -67,7 +96,24 @@
           "prompt": "Un hilo que intenta entrar a un bloque synchronized ya ocupado por otro hilo, en que estado queda?",
           "answer": "BLOCKED",
           "distractors": ["WAITING", "TIMED_WAITING", "NEW"],
-          "explanation": "BLOCKED es especificamente el estado de esperar para adquirir un lock de un bloque o metodo synchronized; WAITING es para esperas indefinidas como wait() sin timeout."
+          "explanation": "BLOCKED es especificamente el estado de esperar para adquirir un lock de un bloque o metodo synchronized; WAITING es para esperas indefinidas como wait() sin timeout.",
+          "conceptId": "thread-lifecycle-states",
+          "role": "guided",
+          "pathOrder": 6,
+          "dependsOn": ["thread-start-vs-run"]
+        },
+        {
+          "id": "conc-threads-03",
+          "type": "predict_output",
+          "difficulty": 2,
+          "prompt": "Que imprime este codigo (asumiendo que join() no lanza ninguna excepcion)?",
+          "code": "Thread hilo = new Thread(() -> System.out.println(\"hilo\"));\nhilo.start();\nhilo.join();\nSystem.out.println(\"principal\");",
+          "answer": "hilo\nprincipal",
+          "explanation": "join() bloquea el hilo principal hasta que hilo termine, garantizando que \"hilo\" se imprima antes que \"principal\".",
+          "conceptId": "thread-lifecycle-states",
+          "role": "solo",
+          "pathOrder": 7,
+          "dependsOn": ["thread-start-vs-run"]
         }
       ]
     },
