@@ -344,14 +344,16 @@
       },
       "exercises": [
         {
-          "id": "excep-twr-01",
-          "type": "fill_blank",
-          "difficulty": 2,
-          "prompt": "Completa el try-with-resources para cerrar automaticamente el recurso:",
-          "code": "try (_____ br = new BufferedReader(new FileReader(\"datos.txt\"))) {\n    return br.readLine();\n}",
-          "answer": "BufferedReader",
-          "distractors": ["Reader", "Closeable", "File"],
-          "explanation": "El tipo declarado debe coincidir con el tipo real del recurso creado; BufferedReader es el tipo mas directo aqui."
+          "id": "twr-basics-intro",
+          "type": "worked_example",
+          "difficulty": 1,
+          "prompt": "try-with-resources cierra automaticamente cualquier recurso que implemente AutoCloseable, sin necesitar un finally manual",
+          "code": "try (BufferedReader lector = new BufferedReader(new FileReader(\"datos.txt\"))) {\n    System.out.println(lector.readLine());\n} // lector.close() se llama automaticamente aqui",
+          "answer": "ok",
+          "explanation": "Cualquier clase que implemente AutoCloseable (o su subinterfaz Closeable) puede declararse dentro de los parentesis de un try-with-resources; Java garantiza que close() se llama al salir del bloque, exitosamente o por excepcion, sin necesitar un finally escrito a mano.",
+          "conceptId": "try-with-resources-basics",
+          "role": "intro",
+          "pathOrder": 0
         },
         {
           "id": "excep-twr-02",
@@ -360,16 +362,23 @@
           "prompt": "Que interfaz debe implementar una clase para poder usarse en un try-with-resources?",
           "answer": "AutoCloseable",
           "distractors": ["Serializable", "Cloneable", "Runnable"],
-          "explanation": "try-with-resources llama automaticamente a close() al final del bloque, y ese metodo viene de AutoCloseable (o su subinterfaz Closeable)."
+          "explanation": "try-with-resources llama automaticamente a close() al final del bloque, y ese metodo viene de AutoCloseable (o su subinterfaz Closeable).",
+          "conceptId": "try-with-resources-basics",
+          "role": "guided",
+          "pathOrder": 1
         },
         {
-          "id": "excep-twr-03",
-          "type": "predict_output",
-          "difficulty": 3,
-          "prompt": "Que imprime este codigo?",
-          "code": "class Recurso implements AutoCloseable {\n    String nombre;\n    Recurso(String nombre) { this.nombre = nombre; }\n    public void close() { System.out.println(\"cerrando \" + nombre); }\n}\n\ntry (Recurso a = new Recurso(\"A\"); Recurso b = new Recurso(\"B\")) {\n    System.out.println(\"usando recursos\");\n}",
-          "answer": "usando recursos\ncerrando B\ncerrando A",
-          "explanation": "Los recursos se cierran en orden inverso al que se declararon, asi que B (el ultimo abierto) se cierra antes que A."
+          "id": "excep-twr-01",
+          "type": "fill_blank",
+          "difficulty": 2,
+          "prompt": "Completa el try-with-resources para cerrar automaticamente el recurso:",
+          "code": "try (_____ br = new BufferedReader(new FileReader(\"datos.txt\"))) {\n    return br.readLine();\n}",
+          "answer": "BufferedReader",
+          "distractors": ["Reader", "Closeable", "File"],
+          "explanation": "El tipo declarado debe coincidir con el tipo real del recurso creado; BufferedReader es el tipo mas directo aqui.",
+          "conceptId": "try-with-resources-basics",
+          "role": "guided",
+          "pathOrder": 2
         },
         {
           "id": "excep-twr-04",
@@ -378,7 +387,75 @@
           "prompt": "Que problema practico resuelve try-with-resources frente a cerrar el recurso manualmente en un finally?",
           "answer": "Evita fugas de recursos si el close() manual se olvida o si ocurre una excepcion antes de llegar al finally",
           "distractors": ["Hace que el codigo compile mas rapido", "Permite reutilizar el recurso despues de terminar el bloque", "Elimina la necesidad de manejar excepciones"],
-          "explanation": "Cerrar manualmente es propenso a errores humanos y a fugas si se lanza una excepcion antes del cierre; try-with-resources garantiza el cierre automatico."
+          "explanation": "Cerrar manualmente es propenso a errores humanos y a fugas si se lanza una excepcion antes del cierre; try-with-resources garantiza el cierre automatico.",
+          "conceptId": "try-with-resources-basics",
+          "role": "solo",
+          "pathOrder": 3
+        },
+        {
+          "id": "closing-order-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "Cuando hay varios recursos en un try-with-resources, se cierran en orden inverso al que se declararon",
+          "code": "try (RecursoA a = new RecursoA(); RecursoB b = new RecursoB()) {\n    usar(a, b);\n}\n// se cierra primero b, despues a",
+          "answer": "ok",
+          "explanation": "El orden de cierre es LIFO (ultimo en abrir, primero en cerrar): si declaras a y luego b, b se cierra primero. Esto importa cuando un recurso depende de otro seguir abierto durante su propio close(), como una conexion que depende de un stream subyacente.",
+          "conceptId": "resource-closing-order",
+          "role": "intro",
+          "pathOrder": 4,
+          "dependsOn": ["try-with-resources-basics"]
+        },
+        {
+          "id": "closing-order-guided",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Declaras try (RecursoX x = ...; RecursoY y = ...; RecursoZ z = ...) { ... }. En que orden se cierran los recursos?",
+          "answer": "Z, luego Y, luego X",
+          "distractors": ["X, luego Y, luego Z", "El orden no esta garantizado", "Se cierran todos al mismo tiempo"],
+          "explanation": "El cierre es en orden inverso a la declaracion (LIFO): el ultimo recurso declarado (Z) es el primero en cerrarse.",
+          "conceptId": "resource-closing-order",
+          "role": "guided",
+          "pathOrder": 5,
+          "dependsOn": ["try-with-resources-basics"]
+        },
+        {
+          "id": "excep-twr-03",
+          "type": "predict_output",
+          "difficulty": 3,
+          "prompt": "Que imprime este codigo?",
+          "code": "class Recurso implements AutoCloseable {\n    String nombre;\n    Recurso(String nombre) { this.nombre = nombre; }\n    public void close() { System.out.println(\"cerrando \" + nombre); }\n}\n\ntry (Recurso a = new Recurso(\"A\"); Recurso b = new Recurso(\"B\")) {\n    System.out.println(\"usando recursos\");\n}",
+          "answer": "usando recursos\ncerrando B\ncerrando A",
+          "explanation": "Los recursos se cierran en orden inverso al que se declararon, asi que B (el ultimo abierto) se cierra antes que A.",
+          "conceptId": "resource-closing-order",
+          "role": "solo",
+          "pathOrder": 6,
+          "dependsOn": ["try-with-resources-basics"]
+        },
+        {
+          "id": "suppressed-exceptions-intro",
+          "type": "worked_example",
+          "difficulty": 3,
+          "prompt": "Si el bloque try y el close() automatico lanzan una excepcion, la del try se propaga y la de close() queda como suprimida",
+          "code": "try {\n    // lanza excepcion A\n} catch (Exception e) {\n    e.getSuppressed(); // aca estaria la excepcion B que lanzo close(), si tambien fallo\n}",
+          "answer": "ok",
+          "explanation": "Java no descarta la excepcion de close() cuando el try ya fallo -la adjunta como 'suppressed' a la excepcion principal, accesible via getSuppressed(), en vez de reemplazar o perder la excepcion original del try.",
+          "conceptId": "suppressed-exceptions",
+          "role": "intro",
+          "pathOrder": 7,
+          "dependsOn": ["try-with-resources-basics"]
+        },
+        {
+          "id": "suppressed-exceptions-guided",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "El bloque try lanza una excepcion, y el close() automatico del recurso tambien lanza otra. Que pasa con la excepcion de close()?",
+          "answer": "Se agrega como suppressed a la excepcion del try, no se pierde ni se lanza por separado",
+          "distractors": ["Reemplaza a la excepcion del try como la que se propaga", "Se ignora silenciosamente", "Se lanza una tercera excepcion que combina ambas"],
+          "explanation": "getSuppressed() en la excepcion del try devuelve un array con cualquier excepcion adicional que haya ocurrido durante el cierre automatico de los recursos, sin descartarla.",
+          "conceptId": "suppressed-exceptions",
+          "role": "guided",
+          "pathOrder": 8,
+          "dependsOn": ["try-with-resources-basics"]
         },
         {
           "id": "excep-twr-05",
@@ -387,7 +464,11 @@
           "prompt": "Si tanto el bloque try como el close() automatico lanzan una excepcion, cual se propaga como principal?",
           "answer": "La excepcion del bloque try; la de close() se agrega como suprimida",
           "distractors": ["La de close(), porque se ejecuta despues", "Ambas se lanzan al mismo tiempo y el programa falla sin excepcion clara", "Solo se propaga la que tenga el mensaje mas corto"],
-          "explanation": "Java prioriza la excepcion original del try y adjunta la de close() como suppressed exception, accesible via getSuppressed()."
+          "explanation": "Java prioriza la excepcion original del try y adjunta la de close() como suppressed exception, accesible via getSuppressed().",
+          "conceptId": "suppressed-exceptions",
+          "role": "solo",
+          "pathOrder": 9,
+          "dependsOn": ["try-with-resources-basics"]
         }
       ]
     },
@@ -402,6 +483,18 @@
       },
       "exercises": [
         {
+          "id": "custom-exceptions-basics-intro",
+          "type": "worked_example",
+          "difficulty": 1,
+          "prompt": "Una excepcion personalizada extiende Exception (checked) o RuntimeException (unchecked) y normalmente pasa el mensaje al constructor padre",
+          "code": "public class SaldoInsuficienteException extends RuntimeException {\n    public SaldoInsuficienteException(String mensaje) {\n        super(mensaje);\n    }\n}",
+          "answer": "ok",
+          "explanation": "Crear tu propia excepcion le da significado semantico al error (el llamador puede distinguirla de otras) y te permite agregar datos propios. super(mensaje) delega el mensaje a Throwable, donde queda accesible via getMessage().",
+          "conceptId": "custom-exceptions-basics",
+          "role": "intro",
+          "pathOrder": 0
+        },
+        {
           "id": "excep-personalizadas-01",
           "type": "fill_blank",
           "difficulty": 1,
@@ -409,7 +502,46 @@
           "code": "public class SaldoInsuficienteException extends RuntimeException {\n    public SaldoInsuficienteException(String mensaje) {\n        _____;\n    }\n}",
           "answer": "super(mensaje)",
           "distractors": ["this(mensaje)", "mensaje = mensaje", "return mensaje"],
-          "explanation": "super(mensaje) delega al constructor de la superclase, que guarda el mensaje accesible via getMessage()."
+          "explanation": "super(mensaje) delega al constructor de la superclase, que guarda el mensaje accesible via getMessage().",
+          "conceptId": "custom-exceptions-basics",
+          "role": "guided",
+          "pathOrder": 1
+        },
+        {
+          "id": "excep-personalizadas-04",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Cuando conviene crear una excepcion personalizada en vez de usar una generica como RuntimeException?",
+          "answer": "Cuando el error representa una condicion especifica del dominio que el codigo llamador necesita distinguir y manejar de forma distinta",
+          "distractors": ["Siempre, porque mejora el rendimiento", "Nunca, Java desaconseja crear excepciones propias", "Solo cuando el metodo no puede lanzar checked exceptions"],
+          "explanation": "Una excepcion propia le da significado semantico al error y permite que el llamador la capture especificamente, en vez de atrapar una RuntimeException generica que podria ocultar otros bugs.",
+          "conceptId": "custom-exceptions-basics",
+          "role": "guided",
+          "pathOrder": 2
+        },
+        {
+          "id": "excep-personalizadas-05",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Estas disenando una excepcion para un error de validacion del que el llamador siempre deberia poder recuperarse. Que superclase eliges?",
+          "answer": "Exception (checked), para forzar que el llamador maneje explicitamente el caso",
+          "distractors": ["Error, porque los errores de validacion son criticos", "RuntimeException (unchecked), para no obligar a manejarla", "Throwable directamente, para maxima flexibilidad"],
+          "explanation": "Cuando se espera que el llamador pueda y deba recuperarse del error, una checked exception (extendiendo Exception) refuerza ese contrato en tiempo de compilacion.",
+          "conceptId": "custom-exceptions-basics",
+          "role": "solo",
+          "pathOrder": 3
+        },
+        {
+          "id": "exception-chaining-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "Al envolver una excepcion de bajo nivel en una de mas alto nivel, pasala como causa para no perder la traza original",
+          "code": "catch (SQLException original) {\n    throw new RuntimeException(\"fallo de acceso a datos\", original);\n}\n// mas tarde: e.getCause() devuelve la excepcion SQLException original",
+          "answer": "ok",
+          "explanation": "El segundo argumento del constructor de una excepcion es la causa (Throwable). Encadenarla preserva el stack trace original, accesible via getCause() -sin esto, se pierde informacion clave para diagnosticar el error real.",
+          "conceptId": "exception-chaining",
+          "role": "intro",
+          "pathOrder": 4
         },
         {
           "id": "excep-personalizadas-02",
@@ -419,7 +551,10 @@
           "code": "catch (SQLException original) {\n    throw new RuntimeException(\"fallo de acceso a datos\", _____);\n}",
           "answer": "original",
           "distractors": ["original.getMessage()", "original.getClass()", "null"],
-          "explanation": "Pasar la excepcion original como segundo argumento la encadena como causa, preservando el stack trace original via getCause()."
+          "explanation": "Pasar la excepcion original como segundo argumento la encadena como causa, preservando el stack trace original via getCause().",
+          "conceptId": "exception-chaining",
+          "role": "guided",
+          "pathOrder": 5
         },
         {
           "id": "excep-personalizadas-03",
@@ -428,25 +563,10 @@
           "prompt": "Que imprime este codigo?",
           "code": "try {\n    try {\n        throw new IllegalStateException(\"interno\");\n    } catch (IllegalStateException e) {\n        throw new RuntimeException(\"externo\", e);\n    }\n} catch (RuntimeException e) {\n    System.out.println(e.getMessage() + \" / \" + e.getCause().getMessage());\n}",
           "answer": "externo / interno",
-          "explanation": "getMessage() devuelve el mensaje de la excepcion externa, y getCause().getMessage() el de la excepcion original encadenada."
-        },
-        {
-          "id": "excep-personalizadas-04",
-          "type": "mcq",
-          "difficulty": 2,
-          "prompt": "Cuando conviene crear una excepcion personalizada en vez de usar una generica como RuntimeException?",
-          "answer": "Cuando el error representa una condicion especifica del dominio que el codigo llamador necesita distinguir y manejar de forma distinta",
-          "distractors": ["Siempre, porque mejora el rendimiento", "Nunca, Java desaconseja crear excepciones propias", "Solo cuando el metodo no puede lanzar checked exceptions"],
-          "explanation": "Una excepcion propia le da significado semantico al error y permite que el llamador la capture especificamente, en vez de atrapar una RuntimeException generica que podria ocultar otros bugs."
-        },
-        {
-          "id": "excep-personalizadas-05",
-          "type": "mcq",
-          "difficulty": 3,
-          "prompt": "Estas disenando una excepcion para un error de validacion del que el llamador siempre deberia poder recuperarse. Que superclase eliges?",
-          "answer": "Exception (checked), para forzar que el llamador maneje explicitamente el caso",
-          "distractors": ["Error, porque los errores de validacion son criticos", "RuntimeException (unchecked), para no obligar a manejarla", "Throwable directamente, para maxima flexibilidad"],
-          "explanation": "Cuando se espera que el llamador pueda y deba recuperarse del error, una checked exception (extendiendo Exception) refuerza ese contrato en tiempo de compilacion."
+          "explanation": "getMessage() devuelve el mensaje de la excepcion externa, y getCause().getMessage() el de la excepcion original encadenada.",
+          "conceptId": "exception-chaining",
+          "role": "guided",
+          "pathOrder": 6
         },
         {
           "id": "excep-personalizadas-06",
@@ -455,7 +575,10 @@
           "prompt": "Por que es mejor usar throw new RuntimeException(mensaje, original) en vez de solo throw new RuntimeException(mensaje) al relanzar?",
           "answer": "Porque preserva la causa original y su stack trace, facilitando el diagnostico del error real",
           "distractors": ["Porque es mas rapido en tiempo de ejecucion", "Porque evita que el compilador exija un catch", "Porque cambia el tipo de la excepcion a checked"],
-          "explanation": "Sin pasar la causa, se pierde el stack trace original y la informacion de por que ocurrio el error real queda oculta."
+          "explanation": "Sin pasar la causa, se pierde el stack trace original y la informacion de por que ocurrio el error real queda oculta.",
+          "conceptId": "exception-chaining",
+          "role": "solo",
+          "pathOrder": 7
         }
       ]
     }
