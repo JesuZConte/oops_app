@@ -416,13 +416,53 @@
       },
       "exercises": [
         {
+          "id": "virtual-threads-basics-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "Un virtual thread es un hilo liviano gestionado por la JVM (no 1:1 con un hilo del sistema operativo), pensado para crear miles sin agotar recursos",
+          "code": "// Platform thread tradicional: 1:1 con un hilo del SO, costoso crear miles\nThread hiloTradicional = new Thread(tarea);\n\n// Virtual thread: gestionado por la JVM, barato crear miles\nThread hiloVirtual = Thread.ofVirtual().unstarted(tarea);",
+          "answer": "ok",
+          "explanation": "Los platform threads (los Thread de siempre) estan atados 1:1 a un hilo del sistema operativo, un recurso limitado y costoso. Los virtual threads (Java 21) son gestionados por la JVM y multiplexados sobre pocos carrier threads, permitiendo crear cientos de miles sin agotar memoria ni el sistema operativo.",
+          "conceptId": "virtual-threads-basics",
+          "role": "intro",
+          "pathOrder": 0
+        },
+        {
           "id": "conc-vt-01",
           "type": "mcq",
           "difficulty": 2,
           "prompt": "Que es un virtual thread (Java 21)?",
           "answer": "Un hilo ligero gestionado por la JVM, que no esta atado 1:1 a un hilo del sistema operativo",
           "distractors": ["Un hilo que simula ejecucion sin realmente correr codigo", "Un reemplazo de synchronized que elimina toda necesidad de locks", "Un hilo que solo puede ejecutar codigo asincronico con async/await"],
-          "explanation": "Los virtual threads son gestionados por la JVM y multiplexados sobre pocos hilos del sistema operativo (carrier threads), permitiendo crear miles sin el costo de un hilo tradicional."
+          "explanation": "Los virtual threads son gestionados por la JVM y multiplexados sobre pocos hilos del sistema operativo (carrier threads), permitiendo crear miles sin el costo de un hilo tradicional.",
+          "conceptId": "virtual-threads-basics",
+          "role": "guided",
+          "pathOrder": 1
+        },
+        {
+          "id": "conc-vt-03",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Que problema practico resuelven los virtual threads frente a los hilos tradicionales (platform threads)?",
+          "answer": "Permiten manejar decenas de miles de tareas concurrentes (por ejemplo, conexiones bloqueantes de I/O) sin agotar los recursos del sistema operativo",
+          "distractors": ["Hacen que el codigo se ejecute mas rapido en un solo nucleo", "Eliminan la necesidad de sincronizacion entre hilos", "Reemplazan por completo a ExecutorService"],
+          "explanation": "Cada platform thread consume memoria y recursos del sistema operativo; los virtual threads son mucho mas baratos, ideal para tareas que pasan la mayor parte del tiempo bloqueadas esperando I/O.",
+          "conceptId": "virtual-threads-basics",
+          "role": "solo",
+          "pathOrder": 2
+        },
+        {
+          "id": "virtual-threads-usage-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "Executors.newVirtualThreadPerTaskExecutor() crea un virtual thread nuevo por cada tarea, en vez de reutilizar un pool fijo",
+          "code": "try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {\n    executor.submit(() -> System.out.println(\"tarea 1\"));\n    executor.submit(() -> System.out.println(\"tarea 2\"));\n}",
+          "answer": "ok",
+          "explanation": "A diferencia de newFixedThreadPool(4), que limita a 4 hilos reutilizados, este executor lanza un virtual thread barato por cada tarea enviada - no hay limite fijo de pool porque los virtual threads son mucho mas livianos que los platform threads.",
+          "conceptId": "virtual-threads-usage",
+          "role": "intro",
+          "pathOrder": 3,
+          "dependsOn": ["virtual-threads-basics"]
         },
         {
           "id": "conc-vt-02",
@@ -432,16 +472,11 @@
           "code": "Thread.ofVirtual()._____(() -> System.out.println(\"tarea\"));",
           "answer": "start",
           "distractors": ["run", "execute", "submit"],
-          "explanation": "Thread.ofVirtual() devuelve un builder; start(Runnable) crea e inicia el virtual thread con esa tarea."
-        },
-        {
-          "id": "conc-vt-03",
-          "type": "mcq",
-          "difficulty": 2,
-          "prompt": "Que problema practico resuelven los virtual threads frente a los hilos tradicionales (platform threads)?",
-          "answer": "Permiten manejar decenas de miles de tareas concurrentes (por ejemplo, conexiones bloqueantes de I/O) sin agotar los recursos del sistema operativo",
-          "distractors": ["Hacen que el codigo se ejecute mas rapido en un solo nucleo", "Eliminan la necesidad de sincronizacion entre hilos", "Reemplazan por completo a ExecutorService"],
-          "explanation": "Cada platform thread consume memoria y recursos del sistema operativo; los virtual threads son mucho mas baratos, ideal para tareas que pasan la mayor parte del tiempo bloqueadas esperando I/O."
+          "explanation": "Thread.ofVirtual() devuelve un builder; start(Runnable) crea e inicia el virtual thread con esa tarea.",
+          "conceptId": "virtual-threads-usage",
+          "role": "guided",
+          "pathOrder": 4,
+          "dependsOn": ["virtual-threads-basics"]
         },
         {
           "id": "conc-vt-04",
@@ -450,7 +485,35 @@
           "prompt": "Que hace Executors.newVirtualThreadPerTaskExecutor()?",
           "answer": "Crea un nuevo virtual thread para cada tarea enviada, en vez de reutilizar un pool fijo de hilos",
           "distractors": ["Crea un unico hilo compartido para todas las tareas", "Limita la ejecucion a un maximo de 4 hilos", "Requiere declarar cada tarea como Callable, nunca Runnable"],
-          "explanation": "A diferencia de un pool tradicional de tamano fijo, este executor lanza un virtual thread nuevo y barato por cada tarea, sin necesidad de gestionar un pool limitado."
+          "explanation": "A diferencia de un pool tradicional de tamano fijo, este executor lanza un virtual thread nuevo y barato por cada tarea, sin necesidad de gestionar un pool limitado.",
+          "conceptId": "virtual-threads-usage",
+          "role": "solo",
+          "pathOrder": 5,
+          "dependsOn": ["virtual-threads-basics"]
+        },
+        {
+          "id": "concurrent-hashmap-basics-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "ConcurrentHashMap permite que varios hilos lean y escriban el mismo mapa de forma segura, sin bloquear todo el mapa como haria sincronizar un HashMap",
+          "code": "Map<String, Integer> mapa = new ConcurrentHashMap<>();\nmapa.put(\"clave\", 1);\nmapa.computeIfAbsent(\"otra\", k -> 0);",
+          "answer": "ok",
+          "explanation": "HashMap no es thread-safe: acceso concurrente sin sincronizacion externa puede corromper su estructura interna. ConcurrentHashMap maneja la sincronizacion internamente usando bloqueos finos, permitiendo que varios hilos operen sobre partes distintas del mapa a la vez sin bloquear todo el mapa como haria un synchronized(mapa) global.",
+          "conceptId": "concurrent-hashmap-basics",
+          "role": "intro",
+          "pathOrder": 6
+        },
+        {
+          "id": "concurrent-hashmap-basics-guided",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Por que conviene usar mapa.computeIfAbsent(clave, k -> nuevoValor()) en vez de un if (!mapa.containsKey(clave)) { mapa.put(...) } manual en un ConcurrentHashMap compartido entre hilos?",
+          "answer": "Porque computeIfAbsent() es atomica: evita la race condition donde dos hilos verifican containsKey() como false al mismo tiempo y ambos terminan poniendo o sobreescribiendo el valor",
+          "distractors": ["Porque containsKey() no existe en ConcurrentHashMap", "Porque computeIfAbsent() es mas rapido en programas de un solo hilo", "Porque put() no esta permitido dentro de un ConcurrentHashMap"],
+          "explanation": "El patron 'verificar y luego actuar' (check-then-act) no es atomico: entre el containsKey() y el put(), otro hilo puede intercalarse. computeIfAbsent() (y merge(), compute(), putIfAbsent()) ejecutan la verificacion y la escritura como una sola operacion atomica sobre esa clave, evitando la race condition.",
+          "conceptId": "concurrent-hashmap-basics",
+          "role": "guided",
+          "pathOrder": 7
         },
         {
           "id": "conc-vt-05",
@@ -459,7 +522,34 @@
           "prompt": "Por que usarias ConcurrentHashMap en vez de HashMap cuando varios hilos acceden al mismo mapa?",
           "answer": "Porque HashMap no es thread-safe y puede corromperse o entrar en bucle infinito con acceso concurrente sin sincronizacion externa",
           "distractors": ["Porque HashMap no permite mas de un hilo lector", "Porque ConcurrentHashMap es mas rapido en programas de un solo hilo", "Porque HashMap no permite claves String"],
-          "explanation": "HashMap no esta disenado para acceso concurrente y puede corromper su estructura interna; ConcurrentHashMap maneja la sincronizacion internamente sin bloquear todo el mapa."
+          "explanation": "HashMap no esta disenado para acceso concurrente y puede corromper su estructura interna; ConcurrentHashMap maneja la sincronizacion internamente sin bloquear todo el mapa.",
+          "conceptId": "concurrent-hashmap-basics",
+          "role": "solo",
+          "pathOrder": 8
+        },
+        {
+          "id": "atomic-basics-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "AtomicInteger ofrece operaciones como incrementAndGet() que son atomicas, evitando la race condition de un int normal incrementado desde varios hilos",
+          "code": "AtomicInteger contador = new AtomicInteger(0);\ncontador.incrementAndGet(); // atomico: leer + sumar 1 + escribir, sin interrupcion de otro hilo",
+          "answer": "ok",
+          "explanation": "contador++ sobre un int normal es en realidad 3 pasos (leer, sumar, escribir) que no son atomicos: dos hilos pueden leer el mismo valor antes de que ninguno escriba, perdiendo un incremento. AtomicInteger implementa esa operacion completa de forma atomica usando soporte de hardware (CAS), sin necesitar un lock explicito.",
+          "conceptId": "atomic-basics",
+          "role": "intro",
+          "pathOrder": 9
+        },
+        {
+          "id": "atomic-basics-guided",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Que hace contador.compareAndSet(5, 10) en un AtomicInteger?",
+          "answer": "Si el valor actual es 5, lo cambia a 10 y devuelve true; si no es 5, no hace nada y devuelve false",
+          "distractors": ["Suma 5 y luego 10 al valor actual", "Siempre establece el valor en 10, sin importar el valor actual", "Lanza una excepcion si el valor actual no es 5"],
+          "explanation": "compareAndSet(esperado, nuevo) es la operacion atomica base (CAS: compare-and-swap) detras de metodos como incrementAndGet(): compara el valor actual con el esperado, y solo si coinciden lo reemplaza, todo en un solo paso atomico sin lock.",
+          "conceptId": "atomic-basics",
+          "role": "guided",
+          "pathOrder": 10
         },
         {
           "id": "conc-vt-06",
@@ -468,7 +558,49 @@
           "prompt": "Que ventaja tiene AtomicInteger sobre un int normal con incrementos desde varios hilos?",
           "answer": "Sus operaciones como incrementAndGet() son atomicas, evitando la race condition de un incremento no sincronizado",
           "distractors": ["AtomicInteger usa menos memoria que un int", "AtomicInteger no puede usarse dentro de un synchronized", "AtomicInteger convierte el codigo en asincronico automaticamente"],
-          "explanation": "contador++ sobre un int normal no es atomico (es leer-modificar-escribir en 3 pasos); AtomicInteger garantiza que esa operacion completa sea atomica sin necesitar un lock explicito."
+          "explanation": "contador++ sobre un int normal no es atomico (es leer-modificar-escribir en 3 pasos); AtomicInteger garantiza que esa operacion completa sea atomica sin necesitar un lock explicito.",
+          "conceptId": "atomic-basics",
+          "role": "solo",
+          "pathOrder": 11
+        },
+        {
+          "id": "copy-on-write-list-intro",
+          "type": "worked_example",
+          "difficulty": 3,
+          "prompt": "CopyOnWriteArrayList crea una copia completa del arreglo interno en cada escritura, pensado para listas que se leen mucho y se escriben poco entre varios hilos",
+          "code": "List<String> lista = new CopyOnWriteArrayList<>();\nlista.add(\"a\"); // crea una copia interna nueva del arreglo con \"a\" agregado\nfor (String s : lista) {\n    System.out.println(s); // iterar es seguro incluso si otro hilo modifica la lista al mismo tiempo\n}",
+          "answer": "ok",
+          "explanation": "Cada add()/remove() en CopyOnWriteArrayList copia todo el arreglo interno, lo que hace las escrituras costosas, pero a cambio la iteracion nunca lanza ConcurrentModificationException y nunca necesita sincronizarse: cada hilo que itera ve una foto (snapshot) del arreglo tal como estaba al empezar a iterar, sin importar que otro hilo modifique la lista en simultaneo.",
+          "conceptId": "copy-on-write-list",
+          "role": "intro",
+          "pathOrder": 12,
+          "dependsOn": ["concurrent-hashmap-basics"]
+        },
+        {
+          "id": "copy-on-write-list-guided",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Por que CopyOnWriteArrayList conviene cuando muchos hilos leen la lista y pocos la modifican, pero es mala eleccion si se escribe muy seguido?",
+          "answer": "Porque cada escritura copia todo el arreglo interno, lo cual es costoso si hay muchas escrituras; las lecturas en cambio son rapidas porque no necesitan sincronizacion",
+          "distractors": ["Porque CopyOnWriteArrayList no permite mas de un hilo lector a la vez", "Porque las escrituras son gratis pero las lecturas requieren sincronizacion explicita", "Porque la lista tiene un limite fijo de elementos que no se puede superar"],
+          "explanation": "El costo de CopyOnWriteArrayList esta concentrado en la escritura (copiar todo el arreglo), no en la lectura. Con pocas escrituras y muchas lecturas concurrentes, ese costo se paga poco y se gana mucho al no necesitar sincronizar cada lectura; con escrituras frecuentes, copiar todo el arreglo una y otra vez se vuelve caro.",
+          "conceptId": "copy-on-write-list",
+          "role": "guided",
+          "pathOrder": 13,
+          "dependsOn": ["concurrent-hashmap-basics"]
+        },
+        {
+          "id": "copy-on-write-list-solo",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Un hilo itera sobre una List con un for-each mientras otro hilo le hace add() al mismo tiempo. Con un ArrayList normal esto lanza ConcurrentModificationException. Que pasa con un CopyOnWriteArrayList en el mismo escenario?",
+          "answer": "No lanza excepcion: el hilo que itera sigue viendo la version (snapshot) de la lista que tenia al empezar a iterar, sin ver el elemento agregado por el otro hilo",
+          "distractors": ["Tambien lanza ConcurrentModificationException, igual que ArrayList", "El programa queda bloqueado (deadlock) hasta que termine la iteracion", "El elemento agregado aparece inmediatamente en la iteracion en curso"],
+          "explanation": "Como cada escritura crea un arreglo interno nuevo, el iterador de CopyOnWriteArrayList sigue apuntando al arreglo viejo (el snapshot tomado al crear el iterador) y nunca lanza ConcurrentModificationException, pero tampoco refleja cambios hechos durante esa iteracion en curso.",
+          "conceptId": "copy-on-write-list",
+          "role": "solo",
+          "pathOrder": 14,
+          "dependsOn": ["concurrent-hashmap-basics"]
         }
       ]
     }
