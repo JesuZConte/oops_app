@@ -128,6 +128,30 @@
       },
       "exercises": [
         {
+          "id": "executor-basics-intro",
+          "type": "worked_example",
+          "difficulty": 1,
+          "prompt": "Crear un hilo nuevo por cada tarea es costoso; un ExecutorService reutiliza un pool de hilos ya creados",
+          "code": "// Sin pool: crea y destruye un hilo nuevo por cada tarea (costoso)\nnew Thread(tarea).start();\n\n// Con pool: reutiliza hilos ya creados\nExecutorService pool = Executors.newFixedThreadPool(4);\npool.execute(tarea);",
+          "answer": "ok",
+          "explanation": "Cada Thread nuevo consume memoria y tiempo de creacion en el sistema operativo. Un ExecutorService mantiene un conjunto fijo de hilos listos para reutilizar, evitando ese costo repetido tarea por tarea.",
+          "conceptId": "executor-basics",
+          "role": "intro",
+          "pathOrder": 0
+        },
+        {
+          "id": "conc-executors-05",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Por que conviene usar un ExecutorService en vez de crear hilos nuevos manualmente para cada tarea?",
+          "answer": "Reutiliza un numero controlado de hilos, evitando el costo de crear y destruir hilos constantemente y limitando el uso de recursos",
+          "distractors": ["Porque los pools ejecutan las tareas mas rapido en cualquier caso", "Porque Thread ya no esta disponible en Java 21", "Porque los pools eliminan la necesidad de manejar excepciones"],
+          "explanation": "Crear un hilo del sistema operativo tiene costo; un pool reutiliza hilos existentes y limita cuantos corren a la vez, evitando saturar el sistema.",
+          "conceptId": "executor-basics",
+          "role": "guided",
+          "pathOrder": 1
+        },
+        {
           "id": "conc-executors-01",
           "type": "fill_blank",
           "difficulty": 1,
@@ -135,16 +159,23 @@
           "code": "ExecutorService pool = Executors._____(4);",
           "answer": "newFixedThreadPool",
           "distractors": ["newCachedThreadPool", "newSingleThreadExecutor", "newScheduledThreadPool"],
-          "explanation": "newFixedThreadPool(n) crea un pool con exactamente n hilos reutilizables."
+          "explanation": "newFixedThreadPool(n) crea un pool con exactamente n hilos reutilizables.",
+          "conceptId": "executor-basics",
+          "role": "solo",
+          "pathOrder": 2
         },
         {
-          "id": "conc-executors-02",
-          "type": "mcq",
+          "id": "callable-future-basics-intro",
+          "type": "worked_example",
           "difficulty": 2,
-          "prompt": "Cual es la diferencia principal entre execute() y submit() en ExecutorService?",
-          "answer": "submit() devuelve un Future para obtener el resultado o la excepcion; execute() no devuelve nada",
-          "distractors": ["execute() es mas rapido porque no crea hilos", "submit() solo acepta Runnable, no Callable", "No hay diferencia real entre ambos"],
-          "explanation": "submit() acepta Runnable o Callable y devuelve un Future; execute() (de la interfaz Executor) solo acepta Runnable y no da forma de recuperar resultados o excepciones."
+          "prompt": "Callable<V> es como Runnable pero devuelve un valor (y puede lanzar excepciones checked); submit() lo ejecuta y devuelve un Future para recuperar ese valor",
+          "code": "Callable<Integer> tarea = () -> 10 + 20;\nFuture<Integer> resultado = pool.submit(tarea);\nInteger valor = resultado.get(); // bloquea hasta que la tarea termine",
+          "answer": "ok",
+          "explanation": "Runnable.run() no devuelve nada y no puede declarar excepciones checked; Callable<V>.call() devuelve V y puede lanzar checked exceptions. submit() acepta ambos, pero solo con Callable el Future.get() trae un valor util.",
+          "conceptId": "callable-future-basics",
+          "role": "intro",
+          "pathOrder": 3,
+          "dependsOn": ["executor-basics"]
         },
         {
           "id": "conc-executors-03",
@@ -154,7 +185,24 @@
           "code": "_____<Integer> tarea = () -> 42;",
           "answer": "Callable",
           "distractors": ["Runnable", "Supplier", "Future"],
-          "explanation": "Callable<V> tiene un metodo call() que devuelve V y puede lanzar excepciones checked, a diferencia de Runnable."
+          "explanation": "Callable<V> tiene un metodo call() que devuelve V y puede lanzar excepciones checked, a diferencia de Runnable.",
+          "conceptId": "callable-future-basics",
+          "role": "guided",
+          "pathOrder": 4,
+          "dependsOn": ["executor-basics"]
+        },
+        {
+          "id": "conc-executors-02",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Cual es la diferencia principal entre execute() y submit() en ExecutorService?",
+          "answer": "submit() devuelve un Future para obtener el resultado o la excepcion; execute() no devuelve nada",
+          "distractors": ["execute() es mas rapido porque no crea hilos", "submit() solo acepta Runnable, no Callable", "No hay diferencia real entre ambos"],
+          "explanation": "submit() acepta Runnable o Callable y devuelve un Future; execute() (de la interfaz Executor) solo acepta Runnable y no da forma de recuperar resultados o excepciones.",
+          "conceptId": "callable-future-basics",
+          "role": "guided",
+          "pathOrder": 5,
+          "dependsOn": ["executor-basics"]
         },
         {
           "id": "conc-executors-04",
@@ -163,16 +211,37 @@
           "prompt": "Que imprime este codigo (asumiendo que get() no lanza ninguna excepcion)?",
           "code": "ExecutorService pool = Executors.newSingleThreadExecutor();\nFuture<Integer> resultado = pool.submit(() -> 10 + 20);\nSystem.out.println(resultado.get());\npool.shutdown();",
           "answer": "30",
-          "explanation": "get() bloquea hasta que la tarea termine y devuelve el resultado del Callable, que aqui es 10 + 20 = 30."
+          "explanation": "get() bloquea hasta que la tarea termine y devuelve el resultado del Callable, que aqui es 10 + 20 = 30.",
+          "conceptId": "callable-future-basics",
+          "role": "solo",
+          "pathOrder": 6,
+          "dependsOn": ["executor-basics"]
         },
         {
-          "id": "conc-executors-05",
+          "id": "executor-shutdown-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "Un ExecutorService sigue vivo despues de que sus tareas terminan; hay que cerrarlo explicitamente con shutdown() o shutdownNow()",
+          "code": "ExecutorService pool = Executors.newFixedThreadPool(2);\npool.submit(() -> System.out.println(\"tarea\"));\npool.shutdown(); // deja terminar tareas en curso, rechaza nuevas, y el programa puede salir",
+          "answer": "ok",
+          "explanation": "Si nunca llamas shutdown(), el pool sigue con hilos vivos esperando trabajo, y la JVM puede no terminar el programa. shutdown() es el cierre ordenado normal; shutdownNow() fuerza la interrupcion de las tareas en curso.",
+          "conceptId": "executor-shutdown",
+          "role": "intro",
+          "pathOrder": 7,
+          "dependsOn": ["executor-basics"]
+        },
+        {
+          "id": "executor-shutdown-guided",
           "type": "mcq",
           "difficulty": 2,
-          "prompt": "Por que conviene usar un ExecutorService en vez de crear hilos nuevos manualmente para cada tarea?",
-          "answer": "Reutiliza un numero controlado de hilos, evitando el costo de crear y destruir hilos constantemente y limitando el uso de recursos",
-          "distractors": ["Porque los pools ejecutan las tareas mas rapido en cualquier caso", "Porque Thread ya no esta disponible en Java 21", "Porque los pools eliminan la necesidad de manejar excepciones"],
-          "explanation": "Crear un hilo del sistema operativo tiene costo; un pool reutiliza hilos existentes y limita cuantos corren a la vez, evitando saturar el sistema."
+          "prompt": "Que pasa si envias una tarea con submit() despues de haber llamado shutdown()?",
+          "answer": "Se lanza RejectedExecutionException; shutdown() no acepta tareas nuevas, solo termina las que ya estaban en curso",
+          "distractors": ["La tarea se encola y se ejecuta cuando el pool vuelva a estar libre", "La tarea se ejecuta igual, en el hilo que llama a submit()", "No pasa nada, shutdown() se ignora si hay tareas nuevas"],
+          "explanation": "shutdown() marca el executor para rechazar nuevo trabajo; cualquier submit()/execute() posterior lanza RejectedExecutionException, a diferencia de shutdownNow() que ademas intenta interrumpir lo que esta corriendo.",
+          "conceptId": "executor-shutdown",
+          "role": "guided",
+          "pathOrder": 8,
+          "dependsOn": ["executor-basics"]
         },
         {
           "id": "conc-executors-06",
@@ -181,7 +250,89 @@
           "prompt": "Cual es la diferencia entre shutdown() y shutdownNow() en ExecutorService?",
           "answer": "shutdown() deja terminar las tareas ya enviadas y rechaza nuevas; shutdownNow() intenta interrumpir las tareas en ejecucion de inmediato",
           "distractors": ["Son exactamente lo mismo, solo cambia el nombre", "shutdown() detiene el pool inmediatamente sin esperar nada", "shutdownNow() solo funciona con Callable, no con Runnable"],
-          "explanation": "shutdown() es un apagado ordenado (espera que las tareas en cola terminen); shutdownNow() intenta detener las tareas activas y devuelve las que quedaban pendientes."
+          "explanation": "shutdown() es un apagado ordenado (espera que las tareas en cola terminen); shutdownNow() intenta detener las tareas activas y devuelve las que quedaban pendientes.",
+          "conceptId": "executor-shutdown",
+          "role": "solo",
+          "pathOrder": 9,
+          "dependsOn": ["executor-basics"]
+        },
+        {
+          "id": "completable-future-basics-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "CompletableFuture.supplyAsync() ejecuta una tarea en otro hilo y permite encadenar que hacer con el resultado, sin bloquear con get()",
+          "code": "CompletableFuture<Integer> futuro = CompletableFuture.supplyAsync(() -> 10 + 20);\nfuturo.thenAccept(valor -> System.out.println(\"resultado: \" + valor));",
+          "answer": "ok",
+          "explanation": "supplyAsync(Supplier<T>) inicia una tarea asincronica en el ForkJoinPool comun (o un Executor que le pases) y devuelve un CompletableFuture<T>. thenAccept() registra que hacer con el valor cuando este listo, sin necesitar llamar get() y bloquear el hilo actual.",
+          "conceptId": "completable-future-basics",
+          "role": "intro",
+          "pathOrder": 10,
+          "dependsOn": ["callable-future-basics"]
+        },
+        {
+          "id": "completable-future-basics-guided",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Cual es la diferencia principal entre Future y CompletableFuture?",
+          "answer": "CompletableFuture permite encadenar acciones (thenApply, thenAccept, etc.) sobre el resultado sin bloquear; Future solo permite bloquear con get() para obtener el valor",
+          "distractors": ["Future es mas nuevo y reemplaza a CompletableFuture", "CompletableFuture no puede usarse con ExecutorService", "No hay diferencia, CompletableFuture es solo un alias de Future"],
+          "explanation": "Future.get() es la unica forma de acceder al resultado, y bloquea el hilo llamador. CompletableFuture implementa Future pero ademas ofrece metodos como thenApply/thenAccept/thenCompose para reaccionar al resultado de forma no bloqueante y componer varias tareas asincronicas.",
+          "conceptId": "completable-future-basics",
+          "role": "guided",
+          "pathOrder": 11,
+          "dependsOn": ["callable-future-basics"]
+        },
+        {
+          "id": "completable-future-basics-solo",
+          "type": "predict_output",
+          "difficulty": 3,
+          "prompt": "Que imprime este codigo?",
+          "code": "CompletableFuture<Integer> futuro = CompletableFuture.supplyAsync(() -> 5)\n    .thenApply(n -> n * 2)\n    .thenApply(n -> n + 1);\nSystem.out.println(futuro.join());",
+          "answer": "11",
+          "explanation": "thenApply() transforma el resultado y devuelve un nuevo CompletableFuture: 5 -> *2 = 10 -> +1 = 11. join() bloquea y devuelve el valor final (equivalente a get(), pero sin excepcion checked).",
+          "conceptId": "completable-future-basics",
+          "role": "solo",
+          "pathOrder": 12,
+          "dependsOn": ["callable-future-basics"]
+        },
+        {
+          "id": "completable-future-combining-intro",
+          "type": "worked_example",
+          "difficulty": 3,
+          "prompt": "thenCompose() encadena una tarea que depende del resultado anterior; thenCombine() une dos CompletableFuture independientes que corren en paralelo",
+          "code": "// thenCompose: la segunda tarea NECESITA el resultado de la primera\nCompletableFuture<Integer> dependiente = CompletableFuture.supplyAsync(() -> 5)\n    .thenCompose(n -> CompletableFuture.supplyAsync(() -> n * 10));\n\n// thenCombine: ambas tareas corren independientes, se combinan al final\nCompletableFuture<Integer> a = CompletableFuture.supplyAsync(() -> 5);\nCompletableFuture<Integer> b = CompletableFuture.supplyAsync(() -> 10);\nCompletableFuture<Integer> combinado = a.thenCombine(b, (x, y) -> x + y);",
+          "answer": "ok",
+          "explanation": "thenCompose recibe una funcion que devuelve OTRO CompletableFuture, usado cuando la siguiente tarea asincronica depende del resultado de la anterior (evita terminar con CompletableFuture<CompletableFuture<T>>). thenCombine toma dos CompletableFuture independientes (que pueden correr en paralelo) y los combina cuando ambos terminan.",
+          "conceptId": "completable-future-combining",
+          "role": "intro",
+          "pathOrder": 13,
+          "dependsOn": ["completable-future-basics"]
+        },
+        {
+          "id": "completable-future-combining-guided",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Por que thenCompose() evita terminar con un CompletableFuture<CompletableFuture<T>>?",
+          "answer": "Porque 'aplana' el resultado: si la funcion que le pasas devuelve un CompletableFuture<T>, thenCompose() devuelve directamente CompletableFuture<T>, no uno anidado",
+          "distractors": ["Porque ejecuta la segunda tarea en el mismo hilo que la primera", "Porque thenCompose() no permite que la segunda tarea sea asincronica", "Porque convierte automaticamente cualquier valor en un CompletableFuture, incluso si ya era uno"],
+          "explanation": "thenApply() con una funcion que devuelve CompletableFuture<T> te dejaria con CompletableFuture<CompletableFuture<T>>. thenCompose() esta pensado exactamente para ese caso: aplana el resultado en un solo nivel, como flatMap en Streams/Optional.",
+          "conceptId": "completable-future-combining",
+          "role": "guided",
+          "pathOrder": 14,
+          "dependsOn": ["completable-future-basics"]
+        },
+        {
+          "id": "completable-future-combining-solo",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Tenes dos CompletableFuture<Integer> independientes, precioA y precioB, que consultan dos servicios distintos. Queres sumar ambos precios apenas los dos terminen. Que metodo usas?",
+          "answer": "precioA.thenCombine(precioB, (a, b) -> a + b)",
+          "distractors": ["precioA.thenCompose(a -> precioB)", "precioA.thenApply(a -> precioB.get() + a)", "CompletableFuture.supplyAsync(() -> precioA + precioB)"],
+          "explanation": "thenCombine() es exactamente para dos CompletableFuture independientes que no dependen uno del otro: espera a que ambos terminen y aplica la funcion con los dos valores. thenCompose() seria para cuando el segundo depende del primero. Llamar precioB.get() dentro de thenApply funcionaria pero bloquearia un hilo innecesariamente, perdiendo la ventaja de la composicion asincronica.",
+          "conceptId": "completable-future-combining",
+          "role": "solo",
+          "pathOrder": 15,
+          "dependsOn": ["completable-future-basics"]
         }
       ]
     },
