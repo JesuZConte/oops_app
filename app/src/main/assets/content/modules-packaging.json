@@ -464,6 +464,173 @@
           "dependsOn": ["serviceloader-basic-loading"]
         }
       ]
+    },
+    {
+      "unitId": "mod-migracion",
+      "name": "Migracion y compatibilidad",
+      "certObjective": "modules-packaging",
+      "orderIndex": 4,
+      "summary": {
+        "text": "Codigo en el classpath clasico vive en el unnamed module, que no tiene nombre y por lo tanto no puede recibirse via requires desde un modulo con nombre. Un JAR sin module-info.class puesto en el module path se convierte en automatic module: su nombre sale de Automatic-Module-Name en el manifest o se deriva del nombre del archivo, y exporta todos sus paquetes automaticamente. Dos modulos distintos que comparten un paquete Java no pueden resolverse juntos (paquete dividido); si se compilan juntos con --module-source-path el error es de compilacion, si ya vienen compilados por separado el error aparece al resolver modulos en tiempo de ejecucion. --add-opens en la linea de comandos de java habilita acceso reflexivo profundo a un paquete no exportado, sin modificar ningun module-info.java.",
+        "code": "// automatic module derivado de un jar legado:\n// foo-bar-utils-2.5.jar -> foo.bar.utils@2.5 automatic\n\n// acceso reflexivo a un paquete no exportado, habilitado en runtime:\njava --add-opens com.example.modn/com.example.modn.internal=com.example.modo -p out -m com.example.modo/com.example.modo.Main"
+      },
+      "exercises": [
+        {
+          "id": "mod-migr-unnamed-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "El codigo que se ejecuta desde el classpath clasico (no desde el module path) vive en el unnamed module: no tiene nombre y no puede ser referenciado por requires desde un modulo con nombre",
+          "code": "// build/lib con clases compiladas SIN module-info.java, puesta en -classpath (no -p):\njava -cp legacy.jar com.example.Main\n\n// intentar esto desde un modulo con nombre falla:\nmodule com.example.app {\n    requires com.foo.bar; // com.foo.bar esta en el classpath, no en el module path\n}",
+          "answer": "ok",
+          "explanation": "Cualquier clase cargada por el classloader de aplicacion desde el classpath clasico (-cp / -classpath, sin -p) pertenece al unnamed module. El unnamed module no tiene un nombre declarable, asi que ningun modulo con nombre puede hacerle requires -- no hay un identificador que poner despues de la palabra requires. Verificado con un JDK real: javac rechaza ese requires con 'module not found'.",
+          "conceptId": "unnamed-module-classpath",
+          "role": "intro",
+          "pathOrder": 0
+        },
+        {
+          "id": "mod-migr-unnamed-guided",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Un modulo con nombre declara requires com.foo.bar;, pero com.foo.bar.jar esta puesto en el classpath clasico (-cp), no en el module path (-p). Que pasa al compilar?",
+          "answer": "Error de compilacion: javac no encuentra ningun modulo llamado com.foo.bar, porque el codigo en el classpath pertenece al unnamed module, sin ese nombre",
+          "distractors": ["Compila normal: javac busca automaticamente en el classpath si no encuentra el modulo en el module path", "Compila, pero falla en runtime con ClassNotFoundException", "Compila solo si el jar tambien se agrega al module path ademas del classpath"],
+          "explanation": "requires necesita el nombre de un modulo real, resuelto desde el module path. El classpath clasico no produce modulos con nombre (todo cae en el unnamed module, sin nombre), asi que requires com.foo.bar; no tiene forma de resolverse: javac falla con 'module not found: com.foo.bar', sin importar que las clases existan en el classpath.",
+          "conceptId": "unnamed-module-classpath",
+          "role": "guided",
+          "pathOrder": 1
+        },
+        {
+          "id": "mod-migr-unnamed-solo",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Cual de estas afirmaciones sobre el unnamed module es correcta?",
+          "answer": "Agrupa todo el codigo cargado desde el classpath clasico; un modulo con nombre no puede declarar requires sobre el, porque no tiene un nombre que referenciar",
+          "distractors": ["Es un modulo mas, con nombre 'unnamed', que cualquier otro modulo puede requerir escribiendo requires unnamed;", "Solo existe si la aplicacion no usa modulos en absoluto; desaparece apenas se declara un module-info.java en cualquier parte", "Reemplaza automaticamente al module path si ambos estan presentes al mismo tiempo"],
+          "explanation": "El unnamed module coexiste con los modulos con nombre: el classpath clasico y el module path pueden usarse a la vez. Lo distintivo del unnamed module es que no tiene nombre para ser el destino de un requires; el propio unnamed module si puede leer todos los modulos con nombre (para dar compatibilidad hacia codigo legado), pero esa lectura no es reciproca.",
+          "conceptId": "unnamed-module-classpath",
+          "role": "solo",
+          "pathOrder": 2
+        },
+        {
+          "id": "mod-migr-auto-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "Un JAR sin module-info.class puesto en el module path (no en el classpath) se convierte en un automatic module: JPMS le asigna un nombre y lo trata como si exportara todos sus paquetes",
+          "code": "// foo-bar-utils-2.5.jar no tiene module-info.class\n// puesto en el module path:\njava -p mods -m com.example.app/com.example.app.Main\n\n// jar --describe-module reporta:\n// foo.bar.utils@2.5 automatic",
+          "answer": "ok",
+          "explanation": "Verificado con un JDK real: al empaquetar codigo legado (sin module-info.java) en foo-bar-utils-2.5.jar y ponerlo en el module path, jar --describe-module reporta 'foo.bar.utils@2.5 automatic' -- guiones del nombre de archivo se convierten en puntos, y el sufijo de version (2.5) se separa como version del modulo. Un automatic module exporta todos sus paquetes automaticamente, permitiendo que codigo legado se use desde modulos con nombre sin modificarlo.",
+          "conceptId": "automatic-modules-naming",
+          "role": "intro",
+          "pathOrder": 3,
+          "dependsOn": ["unnamed-module-classpath"]
+        },
+        {
+          "id": "mod-migr-auto-guided",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Pones un JAR llamado data-utils-3.1.jar (sin module-info.class, sin atributo Automatic-Module-Name en su manifest) en el module path. Que nombre de modulo se le asigna?",
+          "answer": "data.utils, derivado del nombre del archivo (guiones a puntos, sufijo de version separado)",
+          "distractors": ["unnamed, el mismo nombre generico para cualquier automatic module", "El nombre del primer paquete Java que contenga el jar, sin importar el nombre del archivo", "No se le asigna ningun nombre: los automatic modules no pueden ser requeridos por nombre, solo por classpath"],
+          "explanation": "Sin un module-info.class ni un atributo Automatic-Module-Name en el manifest, JPMS deriva el nombre del automatic module del nombre del archivo jar: reemplaza guiones por puntos y separa un sufijo que parezca numero de version. Verificado con un JDK real: data-utils-3.1.jar produce el modulo data.utils@3.1, y SI puede ser requerido por nombre (requires data.utils;) desde un modulo con nombre.",
+          "conceptId": "automatic-modules-naming",
+          "role": "guided",
+          "pathOrder": 4,
+          "dependsOn": ["unnamed-module-classpath"]
+        },
+        {
+          "id": "mod-migr-auto-solo",
+          "type": "fill_blank",
+          "difficulty": 2,
+          "prompt": "El manifest de un JAR legado incluye esta linea para fijar explicitamente el nombre de su automatic module en vez de dejar que se derive del nombre del archivo:",
+          "code": "_____: com.foobar.custom",
+          "answer": "Automatic-Module-Name",
+          "distractors": ["Module-Name", "Main-Class", "Module-Version"],
+          "explanation": "El atributo Automatic-Module-Name en el manifest le da a una libreria legada un nombre de modulo estable y elegido a proposito, en vez de depender del nombre del archivo jar (que puede cambiar entre versiones o distribuciones). Verificado con un JDK real: con esta linea en el manifest, jar --describe-module reporta el nombre elegido (com.foobar.custom) en vez del derivado del archivo.",
+          "conceptId": "automatic-modules-naming",
+          "role": "solo",
+          "pathOrder": 5,
+          "dependsOn": ["unnamed-module-classpath"]
+        },
+        {
+          "id": "mod-migr-split-intro",
+          "type": "worked_example",
+          "difficulty": 3,
+          "prompt": "Dos modulos separados (por ejemplo dos automatic modules) que contienen el mismo paquete Java no pueden resolverse juntos en el module path: JPMS lo rechaza en tiempo de ejecucion",
+          "code": "// foo-bar-utils-2.5.jar contiene el paquete com.foo.bar\n// gadget-lib-1.0.jar TAMBIEN contiene el paquete com.foo.bar\n// ambos puestos juntos en el module path:\n\njava --module-path \"foo-bar-utils-2.5.jar:gadget-lib-1.0.jar\" ...\n\n// java.lang.module.ResolutionException:\n// Module gadget.lib contains package com.foo.bar,\n// module foo.bar.utils exports package com.foo.bar to gadget.lib",
+          "answer": "ok",
+          "explanation": "JPMS no permite que el mismo paquete exista en mas de un modulo resuelto simultaneamente (paquete dividido o 'split package'). Verificado con un JDK real: al poner dos jars que comparten el paquete com.foo.bar en el mismo module path y forzar su resolucion, la JVM falla al iniciar con java.lang.module.ResolutionException, nombrando ambos modulos y el paquete en conflicto.",
+          "conceptId": "split-packages-migration",
+          "role": "intro",
+          "pathOrder": 6,
+          "dependsOn": ["automatic-modules-naming"]
+        },
+        {
+          "id": "mod-migr-split-guided",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Dos JARs legados distintos, ambos convertidos en automatic modules, resultan tener el mismo paquete Java adentro. Se ponen juntos en el module path de una aplicacion que los necesita a ambos. Que pasa al iniciar la JVM?",
+          "answer": "Falla al iniciar: java.lang.module.ResolutionException, porque el mismo paquete no puede existir en dos modulos resueltos a la vez",
+          "distractors": ["Arranca sin problema; JPMS combina el contenido de ambos paquetes en uno solo, tomando ambos jars", "Arranca, pero solo el primero de los dos jars listado en --module-path queda activo para ese paquete", "Falla en tiempo de compilacion, antes de siquiera llegar a ejecutar java"],
+          "explanation": "El conflicto de paquete dividido se detecta durante la resolucion de modulos, que ocurre al arrancar la JVM (java, no javac) -- no hay paso de compilacion involucrado cuando los jars ya vienen compilados de antes. Verificado con un JDK real: el error es java.lang.module.ResolutionException, y aparece antes de que el programa llegue a ejecutar cualquier linea de codigo.",
+          "conceptId": "split-packages-migration",
+          "role": "guided",
+          "pathOrder": 7,
+          "dependsOn": ["automatic-modules-naming"]
+        },
+        {
+          "id": "mod-migr-split-solo",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Compilas varios modulos juntos desde un unico arbol de codigo fuente con --module-source-path, y dos de ellos declaran el mismo paquete Java. Comparado con el caso de dos JARS YA COMPILADOS con el mismo paquete puestos juntos en el module path, en que momento falla cada escenario?",
+          "answer": "El caso de --module-source-path falla en tiempo de compilacion (javac); el caso de los dos jars ya compilados falla en tiempo de ejecucion (al resolver modulos)",
+          "distractors": ["Ambos casos fallan siempre en tiempo de compilacion, sin importar si los modulos ya estaban compilados", "Ambos casos fallan siempre en tiempo de ejecucion, incluso compilando todo junto con --module-source-path", "El caso de --module-source-path no falla nunca, solo el de jars ya compilados falla"],
+          "explanation": "Es el mismo problema conceptual (paquete dividido entre modulos) pero el momento de deteccion depende de cuando el sistema de modulos ve ambos modulos juntos: si se compilan juntos con --module-source-path, javac detecta el conflicto de una vez. Si cada modulo ya viene compilado por separado (por ejemplo dos automatic modules) y recien se juntan en el module path al ejecutar, el conflicto se detecta en la resolucion de modulos al arrancar java, con java.lang.module.ResolutionException.",
+          "conceptId": "split-packages-migration",
+          "role": "solo",
+          "pathOrder": 8,
+          "dependsOn": ["automatic-modules-naming"]
+        },
+        {
+          "id": "mod-migr-addopens-intro",
+          "type": "worked_example",
+          "difficulty": 3,
+          "prompt": "El acceso reflexivo profundo (setAccessible) a una clase de un paquete no exportado falla por defecto; --add-opens en la linea de comandos de java lo habilita sin tocar module-info.java",
+          "code": "// sin --add-opens:\n// java.lang.IllegalAccessException: class com.example.modo.Main (in module com.example.modo)\n// cannot access class com.example.modn.internal.Secret (in module com.example.modn)\n// because module com.example.modn does not export com.example.modn.internal to module com.example.modo\n\n// con la flag agregada al comando java:\njava --add-opens com.example.modn/com.example.modn.internal=com.example.modo -p out -m com.example.modo/com.example.modo.Main",
+          "answer": "ok",
+          "explanation": "setAccessible(true) sobre un campo o constructor de una clase en un paquete no exportado falla con IllegalAccessException, aunque el modulo que reflexiona tenga requires sobre el otro modulo. --add-opens <modulo-origen>/<paquete>=<modulo-destino> en la linea de comandos de java habilita ese acceso reflexivo especificamente para el modulo destino indicado, sin que el modulo origen necesite declarar exports ni opens en su propio module-info.java. Verificado con un JDK real: el mismo codigo falla sin la flag y funciona identico con ella.",
+          "conceptId": "add-opens-reflection",
+          "role": "intro",
+          "pathOrder": 9,
+          "dependsOn": ["unnamed-module-classpath"]
+        },
+        {
+          "id": "mod-migr-addopens-guided",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Un modulo usa reflection (Class.forName + setAccessible) para acceder a una clase de un paquete que el modulo destino NO exporta. Sin ninguna flag adicional, que pasa al ejecutar?",
+          "answer": "Falla en runtime con IllegalAccessException: el paquete no esta exportado al modulo que intenta el acceso reflexivo",
+          "distractors": ["Funciona sin problema: setAccessible(true) siempre puede saltarse las reglas de modulos, exportado o no", "No compila, javac detecta el uso de reflection sobre un paquete no exportado", "Funciona solo la primera vez que se ejecuta, y falla en ejecuciones posteriores"],
+          "explanation": "JPMS aplica encapsulamiento fuerte incluso frente a reflection: setAccessible(true) ya no basta por si solo si el paquete no fue exportado (ni abierto con opens) al modulo que reflexiona. El error es de runtime (no de compilacion, porque javac no analiza el argumento String de Class.forName), y es exactamente IllegalAccessException con el modulo y paquete en conflicto nombrados en el mensaje.",
+          "conceptId": "add-opens-reflection",
+          "role": "guided",
+          "pathOrder": 10,
+          "dependsOn": ["unnamed-module-classpath"]
+        },
+        {
+          "id": "mod-migr-addopens-solo",
+          "type": "fill_blank",
+          "difficulty": 3,
+          "prompt": "Completa la flag de linea de comandos que habilita acceso reflexivo profundo del modulo com.example.modo al paquete com.example.modn.internal del modulo com.example.modn, sin modificar ningun module-info.java:",
+          "code": "java _____ com.example.modn/com.example.modn.internal=com.example.modo -p out -m com.example.modo/com.example.modo.Main",
+          "answer": "--add-opens",
+          "distractors": ["--add-exports", "--add-reads", "--add-modules"],
+          "explanation": "--add-opens <modulo>/<paquete>=<modulo-destino> es especificamente para habilitar acceso reflexivo profundo (setAccessible) sin tocar el codigo fuente ni el module-info.java del modulo origen -- es la herramienta pensada para migrar codigo legado que depende de reflection sobre APIs internas, sin poder (o querer) modificar el modulo que las contiene.",
+          "conceptId": "add-opens-reflection",
+          "role": "solo",
+          "pathOrder": 11,
+          "dependsOn": ["unnamed-module-classpath"]
+        }
+      ]
     }
   ]
 }
