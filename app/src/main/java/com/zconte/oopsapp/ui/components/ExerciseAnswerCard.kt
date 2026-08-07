@@ -103,13 +103,18 @@ fun ExerciseAnswerCard(
             )
         }
 
+        // The whole question region -- prompt, optional code block, and the answer area
+        // (options/input, or the post-answer recap + feedback) -- scrolls together as one
+        // unit. This is the only region allowed a `weight(1f)`: a `verticalScroll` parent
+        // measures its content with unbounded height, so nothing inside this Column may
+        // carry its own `weight()` (that requires bounded constraints and crashes at
+        // measure time). The action button (COMPROBAR/SIGUIENTE) stays pinned outside this
+        // scroll, below it, so it is always reachable no matter how long the question,
+        // code, or explanation are.
         Column(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            // Prompt stays at its natural height, never scrolled/squeezed -- only the code
-            // block below (which can be arbitrarily long) absorbs a shrinking viewport when
-            // the keyboard opens, so the question text is always fully visible.
             Text(
                 text = exercise.prompt,
                 style = MaterialTheme.typography.titleMedium,
@@ -124,89 +129,88 @@ fun ExerciseAnswerCard(
                     } else {
                         null
                     }
-                    Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())) {
-                        CodeBlock(code = code, filledAnswer = filledAnswer, modifier = Modifier.fillMaxWidth())
+                    CodeBlock(code = code, filledAnswer = filledAnswer, modifier = Modifier.fillMaxWidth())
+                }
+            }
+
+            if (!state.isAnswered) {
+                when (exercise.type) {
+                    ExerciseType.MCQ -> {
+                        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                            mcqOptions.forEach { option ->
+                                McqOptionButton(
+                                    text = option,
+                                    state = if (option == selectedOption) McqOptionState.SELECTED else McqOptionState.NORMAL,
+                                    onClick = { selectedOption = option }
+                                )
+                            }
+                        }
+                    }
+                    ExerciseType.PARSONS -> {
+                        ParsonsBuilder(
+                            available = parsonsAvailable,
+                            built = parsonsBuilt,
+                            onTapAvailable = { line ->
+                                parsonsBuilt = parsonsBuilt + line
+                                parsonsAvailable = parsonsAvailable - line
+                            },
+                            onTapBuilt = { line ->
+                                parsonsAvailable = parsonsAvailable + line
+                                parsonsBuilt = parsonsBuilt - line
+                            }
+                        )
+                    }
+                    else -> {
+                        val isPredictOutput = exercise.type == ExerciseType.PREDICT_OUTPUT
+                        OutlinedTextField(
+                            value = answer,
+                            onValueChange = { answer = it },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = !isPredictOutput,
+                            minLines = if (isPredictOutput) 3 else 1,
+                            maxLines = if (isPredictOutput) 6 else 1,
+                            textStyle = if (isPredictOutput) {
+                                MaterialTheme.typography.labelMedium.copy(fontFamily = JetBrainsMono)
+                            } else {
+                                MaterialTheme.typography.labelMedium
+                            }
+                        )
                     }
                 }
+            } else {
+                if (exercise.type == ExerciseType.MCQ) {
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        mcqOptions.forEach { option ->
+                            val optionState = when {
+                                option != state.selectedAnswer -> McqOptionState.NORMAL
+                                state.isCorrect -> McqOptionState.CORRECT
+                                else -> McqOptionState.INCORRECT
+                            }
+                            McqOptionButton(text = option, state = optionState, onClick = {}, locked = true)
+                        }
+                    }
+                }
+
+                FeedbackBanner(
+                    isCorrect = state.isCorrect,
+                    exerciseType = exercise.type,
+                    answer = exercise.answer,
+                    explanation = exercise.explanation
+                )
             }
         }
 
         if (!state.isAnswered) {
             when (exercise.type) {
-                ExerciseType.MCQ -> {
-                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                        mcqOptions.forEach { option ->
-                            McqOptionButton(
-                                text = option,
-                                state = if (option == selectedOption) McqOptionState.SELECTED else McqOptionState.NORMAL,
-                                onClick = { selectedOption = option }
-                            )
-                        }
-                    }
-                    Spacer(Modifier.height(8.dp))
-                    ComprobarButton(enabled = selectedOption != null) {
-                        selectedOption?.let { onSubmit(it) }
-                    }
+                ExerciseType.MCQ -> ComprobarButton(enabled = selectedOption != null) {
+                    selectedOption?.let { onSubmit(it) }
                 }
-                ExerciseType.PARSONS -> {
-                    ParsonsBuilder(
-                        available = parsonsAvailable,
-                        built = parsonsBuilt,
-                        onTapAvailable = { line ->
-                            parsonsBuilt = parsonsBuilt + line
-                            parsonsAvailable = parsonsAvailable - line
-                        },
-                        onTapBuilt = { line ->
-                            parsonsAvailable = parsonsAvailable + line
-                            parsonsBuilt = parsonsBuilt - line
-                        }
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    ComprobarButton(enabled = parsonsBuilt.size == exercise.lines.size) {
-                        onSubmit(parsonsBuilt.joinToString("\n"))
-                    }
+                ExerciseType.PARSONS -> ComprobarButton(enabled = parsonsBuilt.size == exercise.lines.size) {
+                    onSubmit(parsonsBuilt.joinToString("\n"))
                 }
-                else -> {
-                    val isPredictOutput = exercise.type == ExerciseType.PREDICT_OUTPUT
-                    OutlinedTextField(
-                        value = answer,
-                        onValueChange = { answer = it },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = !isPredictOutput,
-                        minLines = if (isPredictOutput) 3 else 1,
-                        maxLines = if (isPredictOutput) 6 else 1,
-                        textStyle = if (isPredictOutput) {
-                            MaterialTheme.typography.labelMedium.copy(fontFamily = JetBrainsMono)
-                        } else {
-                            MaterialTheme.typography.labelMedium
-                        }
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    ComprobarButton { onSubmit(answer) }
-                }
+                else -> ComprobarButton { onSubmit(answer) }
             }
         } else {
-            if (exercise.type == ExerciseType.MCQ) {
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    mcqOptions.forEach { option ->
-                        val optionState = when {
-                            option != state.selectedAnswer -> McqOptionState.NORMAL
-                            state.isCorrect -> McqOptionState.CORRECT
-                            else -> McqOptionState.INCORRECT
-                        }
-                        McqOptionButton(text = option, state = optionState, onClick = {}, locked = true)
-                    }
-                }
-                Spacer(Modifier.height(4.dp))
-            }
-
-            FeedbackBanner(
-                isCorrect = state.isCorrect,
-                exerciseType = exercise.type,
-                answer = exercise.answer,
-                explanation = exercise.explanation
-            )
-            Spacer(Modifier.height(8.dp))
             Button(
                 onClick = onNext,
                 modifier = Modifier.fillMaxWidth().height(52.dp),
@@ -232,11 +236,19 @@ private fun WorkedExampleCard(
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        Text(text = exercise.prompt, style = MaterialTheme.typography.titleMedium)
-        exercise.code?.let { code ->
-            CodeBlock(code = code, filledAnswer = null, modifier = Modifier.fillMaxWidth())
+        // Prompt, code, and explanation scroll together so CONTINUAR stays reachable no
+        // matter how long they are -- same reasoning as the scrollable region in
+        // ExerciseAnswerCard above.
+        Column(
+            modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text(text = exercise.prompt, style = MaterialTheme.typography.titleMedium)
+            exercise.code?.let { code ->
+                CodeBlock(code = code, filledAnswer = null, modifier = Modifier.fillMaxWidth())
+            }
+            Text(text = exercise.explanation, style = MaterialTheme.typography.bodyMedium)
         }
-        Text(text = exercise.explanation, style = MaterialTheme.typography.bodyMedium)
         Button(
             onClick = onNext,
             modifier = Modifier.fillMaxWidth(),
