@@ -337,6 +337,133 @@
           "dependsOn": ["modular-jar-packaging"]
         }
       ]
+    },
+    {
+      "unitId": "mod-servicios",
+      "name": "Servicios en JPMS",
+      "certObjective": "modules-packaging",
+      "orderIndex": 3,
+      "summary": {
+        "text": "ServiceLoader.load(Interfaz.class) descubre en runtime las implementaciones que algun modulo declaro con provides ... with, instanciandolas de forma lazy durante la iteracion. Un provider valido necesita constructor publico sin argumentos o un metodo estatico publico provider(); si no tiene ninguno de los dos, javac lo rechaza en tiempo de compilacion. En cambio, si el modulo consumidor omite uses para el servicio, el codigo compila igual pero ServiceLoader.load() lanza ServiceConfigurationError recien en tiempo de ejecucion.",
+        "code": "module com.example.modg {\n    requires com.example.modf;\n    provides com.example.modf.api.Service with com.example.modg.impl.ServiceImpl;\n}\n\nmodule com.example.modh {\n    requires com.example.modf;\n    uses com.example.modf.api.Service;\n}\n\nServiceLoader<Service> loader = ServiceLoader.load(Service.class);\nfor (Service s : loader) {\n    System.out.println(s.name());\n}"
+      },
+      "exercises": [
+        {
+          "id": "mod-serv-loading-intro",
+          "type": "worked_example",
+          "difficulty": 3,
+          "prompt": "ServiceLoader.load(Interfaz.class) descubre en el module path las implementaciones declaradas con provides ... with, y las devuelve como un ServiceLoader iterable",
+          "code": "module com.example.modh {\n    requires com.example.modf;\n    uses com.example.modf.api.Service;\n}\n\n// codigo Java:\nServiceLoader<Service> loader = ServiceLoader.load(Service.class);\nfor (Service s : loader) {\n    System.out.println(s.name());\n}",
+          "answer": "ok",
+          "explanation": "ServiceLoader.load(Service.class) busca, entre los modulos visibles en el module path, todas las implementaciones que algun modulo declaro con provides Service with .... La iteracion es lazy: cada implementacion se instancia recien cuando el for la alcanza, no todas de una al llamar load(). Verificado con un JDK real: este codigo imprime el nombre de cada provider encontrado.",
+          "conceptId": "serviceloader-basic-loading",
+          "role": "intro",
+          "pathOrder": 0
+        },
+        {
+          "id": "mod-serv-loading-guided",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Un modulo declara uses com.example.api.Service; y llama a ServiceLoader.load(Service.class). De donde saca ServiceLoader las implementaciones que puede devolver?",
+          "answer": "De cualquier modulo visible en el module path que haya declarado provides Service with <Implementacion>",
+          "distractors": ["Solo de clases que esten en el mismo paquete que la interfaz Service", "De un archivo de configuracion META-INF/services que hay que crear manualmente, ademas del provides en module-info.java", "De cualquier clase del module path que implemente Service, sin necesidad de que ningun modulo declare provides"],
+          "explanation": "En JPMS (a diferencia del mecanismo clasico de ServiceLoader sobre el classpath, que si usaba archivos META-INF/services), el registro de providers es declarativo via provides ... with en module-info.java. ServiceLoader.load() recorre los modulos resueltos y arma la lista de providers a partir de esas declaraciones, no de un archivo de configuracion ni de un escaneo generico de clases.",
+          "conceptId": "serviceloader-basic-loading",
+          "role": "guided",
+          "pathOrder": 1
+        },
+        {
+          "id": "mod-serv-loading-solo",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Cual de estas afirmaciones sobre la iteracion de un ServiceLoader<T> es correcta?",
+          "answer": "Cada implementacion se instancia de forma lazy, recien cuando la iteracion la alcanza, no todas al momento de llamar a load()",
+          "distractors": ["Todas las implementaciones se instancian inmediatamente al llamar a ServiceLoader.load(), antes de iterar", "El orden de iteracion sigue el orden alfabetico del nombre de la clase implementadora", "ServiceLoader cachea las instancias entre distintas llamadas a load(), reutilizandolas siempre"],
+          "explanation": "load() devuelve un ServiceLoader que aun no instancio nada; cada paso del for (o iterator().next()) es el que efectivamente crea la siguiente instancia de provider. Esto evita el costo de instanciar providers que nunca se terminan usando.",
+          "conceptId": "serviceloader-basic-loading",
+          "role": "solo",
+          "pathOrder": 2
+        },
+        {
+          "id": "mod-serv-factory-intro",
+          "type": "worked_example",
+          "difficulty": 3,
+          "prompt": "Un provider valido necesita un constructor publico sin argumentos, o un metodo estatico publico provider() que retorne una instancia del servicio",
+          "code": "// opcion 1: constructor publico sin argumentos\npublic class ServiceImpl implements Service {\n    public ServiceImpl() {}\n    public String name() { return \"impl A\"; }\n}\n\n// opcion 2: metodo estatico provider()\npublic class StaticFactoryImpl implements Service {\n    private StaticFactoryImpl() {}\n    public static Service provider() {\n        return new StaticFactoryImpl();\n    }\n    public String name() { return \"impl B\"; }\n}",
+          "answer": "ok",
+          "explanation": "ServiceLoader instancia cada provider llamando a su constructor publico sin argumentos, o, si el provider expone un metodo estatico publico provider() que retorna una instancia del servicio, llamando a ese metodo en su lugar (util cuando el constructor real es privado, por ejemplo para forzar un singleton). Verificado con un JDK real: ambos patrones funcionan igual desde el punto de vista de quien consume el servicio.",
+          "conceptId": "provider-factory-method",
+          "role": "intro",
+          "pathOrder": 3,
+          "dependsOn": ["serviceloader-basic-loading"]
+        },
+        {
+          "id": "mod-serv-factory-guided",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Una clase que implementa un servicio tiene su unico constructor marcado como private, y no define ningun metodo estatico provider(). Que pasa si un module-info.java declara provides Service with EsaClase;?",
+          "answer": "Error de compilacion: javac rechaza la clausula provides ... with porque el constructor sin argumentos de la implementacion no es publico",
+          "distractors": ["Compila sin problema, ServiceLoader usa reflection para saltarse el private en tiempo de ejecucion", "Compila, pero ServiceLoader.load() lanza una excepcion en runtime al intentar instanciarla", "Compila solo si la clase tiene un metodo main(), que ServiceLoader usa como entrada alternativa"],
+          "explanation": "Verificado con javac: el mensaje exacto es 'the no arguments constructor of the service implementation is not public: <Clase>', y aparece como error de COMPILACION sobre la linea del provides ... with en module-info.java -- no es un problema que aparezca recien al ejecutar.",
+          "conceptId": "provider-factory-method",
+          "role": "guided",
+          "pathOrder": 4,
+          "dependsOn": ["serviceloader-basic-loading"]
+        },
+        {
+          "id": "mod-serv-factory-solo",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Por que puede convenir que una implementacion de servicio use un metodo estatico provider() en vez de un constructor publico sin argumentos?",
+          "answer": "Permite controlar la creacion de la instancia (por ejemplo devolver siempre el mismo singleton) sin exponer un constructor publico",
+          "distractors": ["Es obligatorio: ServiceLoader nunca acepta un constructor publico sin argumentos, solo provider()", "Hace que la implementacion no necesite declararse en ningun provides ... with", "Permite que el servicio tenga mas de una implementacion activa al mismo tiempo dentro del mismo modulo"],
+          "explanation": "provider() es un punto de control: la clase puede tener constructor privado y decidir internamente que instancia devolver (por ejemplo, reutilizar siempre la misma), algo que un constructor publico sin argumentos no permite expresar.",
+          "conceptId": "provider-factory-method",
+          "role": "solo",
+          "pathOrder": 5,
+          "dependsOn": ["serviceloader-basic-loading"]
+        },
+        {
+          "id": "mod-serv-usesmissing-intro",
+          "type": "worked_example",
+          "difficulty": 3,
+          "prompt": "Un modulo que llama a ServiceLoader.load(Service.class) sin declarar uses Service; compila sin problema, pero falla en tiempo de ejecucion",
+          "code": "module com.example.modl {\n    requires com.example.modf;\n    // falta: uses com.example.modf.api.Service;\n}\n\n// codigo Java (compila bien):\nServiceLoader<Service> loader = ServiceLoader.load(Service.class);\nfor (Service s : loader) {\n    System.out.println(s.name());\n}",
+          "answer": "ok",
+          "explanation": "javac no cruza las llamadas a ServiceLoader.load() contra las declaraciones uses de module-info.java, asi que este codigo compila sin ningun error. El problema aparece recien en tiempo de ejecucion: verificado con un JDK real, ServiceLoader.load(Service.class) lanza java.util.ServiceConfigurationError con el mensaje 'Service: module com.example.modl does not declare uses' apenas se intenta usar el ServiceLoader.",
+          "conceptId": "missing-uses-runtime-error",
+          "role": "intro",
+          "pathOrder": 6,
+          "dependsOn": ["serviceloader-basic-loading"]
+        },
+        {
+          "id": "mod-serv-usesmissing-guided",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Un modulo omite la declaracion uses Service; mientras que en su codigo Java llama a ServiceLoader.load(Service.class). Que pasa al compilar y ejecutar ese modulo?",
+          "answer": "Compila sin errores; falla en tiempo de ejecucion con ServiceConfigurationError al llamar a ServiceLoader.load()",
+          "distractors": ["No compila: javac exige que toda llamada a ServiceLoader.load() tenga su uses correspondiente en module-info.java", "Compila y ejecuta sin problema, uses es opcional si el modulo no provee ninguna implementacion propia", "Compila, pero el ServiceLoader devuelve una lista vacia sin lanzar ninguna excepcion"],
+          "explanation": "uses es una declaracion de intencion que solo el runtime del sistema de modulos verifica, no el compilador. Por eso el error no aparece hasta ejecutar: ServiceLoader.load() revisa en runtime si el modulo que llama declaro uses para ese servicio, y si no, lanza ServiceConfigurationError inmediatamente (no devuelve una lista vacia).",
+          "conceptId": "missing-uses-runtime-error",
+          "role": "guided",
+          "pathOrder": 7,
+          "dependsOn": ["serviceloader-basic-loading"]
+        },
+        {
+          "id": "mod-serv-usesmissing-solo",
+          "type": "fill_blank",
+          "difficulty": 3,
+          "prompt": "Completa la declaracion que falta para que ServiceLoader.load(Service.class) funcione en runtime sin lanzar ServiceConfigurationError:",
+          "code": "module com.example.modl {\n    requires com.example.modf;\n    _____ com.example.modf.api.Service;\n}",
+          "answer": "uses",
+          "distractors": ["requires", "provides", "exports"],
+          "explanation": "uses com.example.modf.api.Service; declara que este modulo consume ese servicio, habilitando a ServiceLoader.load() a buscarlo en runtime sin lanzar ServiceConfigurationError. requires ya esta declarado (necesario para ver el paquete de la interfaz Service), pero no alcanza: uses es una declaracion aparte, especifica para el mecanismo de servicios.",
+          "conceptId": "missing-uses-runtime-error",
+          "role": "solo",
+          "pathOrder": 8,
+          "dependsOn": ["serviceloader-basic-loading"]
+        }
+      ]
     }
   ]
 }
