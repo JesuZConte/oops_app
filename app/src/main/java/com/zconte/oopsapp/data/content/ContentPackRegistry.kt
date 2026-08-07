@@ -6,6 +6,7 @@ object ContentPackRegistry {
         "content/generics-collections.json",
         "content/streams.json",
         "content/exception-handling.json",
-        "content/concurrency.json"
+        "content/concurrency.json",
+        "content/modules-packaging.json"
     )
 }
