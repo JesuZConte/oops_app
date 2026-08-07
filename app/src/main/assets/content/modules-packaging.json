@@ -209,6 +209,134 @@
           "dependsOn": ["requires-basic"]
         }
       ]
+    },
+    {
+      "unitId": "mod-compilacion",
+      "name": "Compilacion y ejecucion",
+      "certObjective": "modules-packaging",
+      "orderIndex": 2,
+      "summary": {
+        "text": "javac --module-source-path <dir> -d <salida> compila un arbol de codigo fuente organizado en modulos (una carpeta por modulo, cada una con su module-info.java). jar --create --main-class <Clase> --module-version <version> empaqueta un modulo compilado en un JAR modular, embebiendo su clase principal y version. java --module-path <dir> --module <modulo>/<Clase> (o -p/-m) ejecuta un modulo desde el module path; si el JAR ya tiene --main-class embebido, alcanza con --module <modulo> sin repetir la clase.",
+        "code": "javac --module-source-path src -d out $(find src -name \"*.java\")\njar --create --file mods/app.jar --main-class com.example.app.Main --module-version 1.0 -C out/com.example.app .\njava -p mods -m com.example.app"
+      },
+      "exercises": [
+        {
+          "id": "mod-comp-sourcepath-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "--module-source-path le indica a javac donde esta el arbol de codigo fuente organizado en modulos (una carpeta por modulo); -d indica donde escribir las clases compiladas",
+          "code": "// estructura de carpetas:\n// src/com.example.moda/module-info.java\n// src/com.example.moda/com/example/moda/api/Greeter.java\n// src/com.example.modb/module-info.java\n// src/com.example.modb/com/example/modb/Main.java\n\njavac --module-source-path src -d out src/com.example.moda/module-info.java src/com.example.moda/com/example/moda/api/Greeter.java src/com.example.modb/module-info.java src/com.example.modb/com/example/modb/Main.java",
+          "answer": "ok",
+          "explanation": "--module-source-path apunta a la carpeta que contiene una subcarpeta por cada modulo (el nombre de la subcarpeta debe coincidir con el nombre del modulo declarado en su module-info.java). -d out le dice a javac donde generar la salida compilada, tambien organizada en una subcarpeta por modulo dentro de out. Verificado compilando este ejemplo exacto con un JDK real: compila sin errores y produce out/com.example.moda/ y out/com.example.modb/.",
+          "conceptId": "module-source-path-compile",
+          "role": "intro",
+          "pathOrder": 0
+        },
+        {
+          "id": "mod-comp-sourcepath-guided",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Al compilar varios modulos con --module-source-path, que debe coincidir con el nombre de cada modulo declarado en su module-info.java?",
+          "answer": "El nombre de la subcarpeta de ese modulo dentro del directorio pasado a --module-source-path",
+          "distractors": ["El nombre del archivo .jar final", "El nombre del paquete raiz, que puede ser distinto del nombre del modulo", "Nada; javac detecta el nombre del modulo automaticamente del contenido del archivo"],
+          "explanation": "javac usa la estructura de carpetas para saber que codigo fuente pertenece a cada modulo: espera una subcarpeta cuyo nombre sea exactamente el nombre del modulo (el mismo que aparece despues de la palabra module en su module-info.java), conteniendo ese module-info.java y los paquetes del modulo.",
+          "conceptId": "module-source-path-compile",
+          "role": "guided",
+          "pathOrder": 1
+        },
+        {
+          "id": "mod-comp-sourcepath-solo",
+          "type": "fill_blank",
+          "difficulty": 2,
+          "prompt": "Completa el comando para compilar el arbol de modulos en src/ hacia la carpeta out/:",
+          "code": "javac _____ src -d out $(find src -name \"*.java\")",
+          "answer": "--module-source-path",
+          "distractors": ["--source-path", "--module-path", "--classpath"],
+          "explanation": "--module-source-path es el flag que le dice a javac que el codigo fuente esta organizado en multiples modulos bajo ese directorio. --module-path (usado en compilacion y ejecucion) apunta a modulos ya compilados/empaquetados, no a codigo fuente.",
+          "conceptId": "module-source-path-compile",
+          "role": "solo",
+          "pathOrder": 2
+        },
+        {
+          "id": "mod-comp-jar-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "jar --create empaqueta las clases compiladas de un modulo en un JAR modular; --main-class y --module-version embeben metadatos en su module-info.class",
+          "code": "jar --create --file mods/app.jar \\\n    --main-class com.example.app.Main \\\n    --module-version 1.0 \\\n    -C out/com.example.app .",
+          "answer": "ok",
+          "explanation": "-C out/com.example.app . le dice a jar que entre a esa carpeta y empaquete todo su contenido (las .class compiladas, incluyendo module-info.class) como si fuera la raiz del jar. --main-class embebe la clase con main() para no tener que especificarla al ejecutar; --module-version embebe un numero de version consultable con jar --describe-module. Verificado con un JDK real: jar --describe-module sobre el jar resultante muestra 'main-class com.example.app.Main' y el modulo con su version.",
+          "conceptId": "modular-jar-packaging",
+          "role": "intro",
+          "pathOrder": 3,
+          "dependsOn": ["module-source-path-compile"]
+        },
+        {
+          "id": "mod-comp-jar-guided",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Que logra pasar --main-class al crear un JAR modular con jar --create?",
+          "answer": "Embebe la clase con el metodo main() en los metadatos del modulo, para poder ejecutar el jar sin repetir el nombre de la clase",
+          "distractors": ["Hace que ese sea el unico main() permitido en todo el JAR, eliminando otras clases con main()", "Reemplaza la necesidad de declarar exports en el module-info.java", "Convierte automaticamente el JAR en ejecutable con doble clic, sin necesitar java -m"],
+          "explanation": "--main-class solo embebe metadata (que clase tiene el main() a usar por defecto). Con esa metadata presente, java -p <dir> -m <modulo> alcanza para ejecutar sin especificar <modulo>/<Clase>; sin ella, hay que nombrar la clase explicitamente.",
+          "conceptId": "modular-jar-packaging",
+          "role": "guided",
+          "pathOrder": 4,
+          "dependsOn": ["module-source-path-compile"]
+        },
+        {
+          "id": "mod-comp-jar-solo",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Para que sirve --module-version al crear un JAR modular?",
+          "answer": "Embebe un numero de version en los metadatos del modulo, consultable luego (por ejemplo con jar --describe-module)",
+          "distractors": ["Fija que version minima de Java puede ejecutar el jar", "Determina el orden en que se cargan los modulos en el module path", "Reemplaza la necesidad de --main-class si el jar tiene una sola clase"],
+          "explanation": "--module-version es puramente informativo/metadata: no afecta la resolucion de modulos en tiempo de ejecucion (a diferencia de otros sistemas de gestion de dependencias). Verificado con jar --describe-module: el modulo aparece listado como 'nombre@version'.",
+          "conceptId": "modular-jar-packaging",
+          "role": "solo",
+          "pathOrder": 5,
+          "dependsOn": ["module-source-path-compile"]
+        },
+        {
+          "id": "mod-comp-run-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "java -p (--module-path) indica donde buscar los modulos compilados o empaquetados; -m (--module) indica cual ejecutar. Si el jar tiene --main-class embebido, no hace falta repetir la clase",
+          "code": "// con clase explicita:\njava -p mods -m com.example.app/com.example.app.Main\n\n// si el jar fue creado con --main-class, alcanza con:\njava -p mods -m com.example.app",
+          "answer": "ok",
+          "explanation": "-p (o --module-path) apunta a una carpeta con jars modulares o modulos compilados sueltos; -m (o --module) especifica que modulo ejecutar, opcionalmente seguido de /NombreClase si el modulo no tiene --main-class embebido. Verificado con un JDK real: ambas formas del comando ejecutan exactamente el mismo programa cuando el jar fue creado con --main-class.",
+          "conceptId": "running-modules",
+          "role": "intro",
+          "pathOrder": 6,
+          "dependsOn": ["modular-jar-packaging"]
+        },
+        {
+          "id": "mod-comp-run-guided",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Ejecutas java -p mods -m com.example.app, sin especificar la clase, y el jar de com.example.app NO fue creado con --main-class. Que pasa?",
+          "answer": "Falla al iniciar: java no sabe que clase ejecutar sin --main-class embebido ni la clase especificada explicitamente",
+          "distractors": ["Ejecuta la primera clase con main() que encuentre en el jar, en orden alfabetico", "Ejecuta module-info.class como si fuera el punto de entrada", "Funciona igual, java busca automaticamente en todos los jars del module path"],
+          "explanation": "java necesita saber explicitamente que clase tiene el main() a ejecutar: eso viene de --main-class embebido al crear el jar, o especificando modulo/Clase en la linea de comandos (java -p mods -m com.example.app/com.example.app.Main). Sin ninguna de las dos, no hay forma de que java adivine cual es el punto de entrada.",
+          "conceptId": "running-modules",
+          "role": "guided",
+          "pathOrder": 7,
+          "dependsOn": ["modular-jar-packaging"]
+        },
+        {
+          "id": "mod-comp-run-solo",
+          "type": "fill_blank",
+          "difficulty": 2,
+          "prompt": "Completa el comando para ejecutar el modulo com.example.app desde la carpeta mods/, especificando su clase principal:",
+          "code": "java -p mods _____ com.example.app/com.example.app.Main",
+          "answer": "-m",
+          "distractors": ["-cp", "--module-source-path", "-jar"],
+          "explanation": "-m (equivalente a --module) indica que modulo ejecutar y, opcionalmente, con que clase (modulo/Clase). -cp es para el classpath clasico (sin modulos); --module-source-path es solo para compilacion, no para ejecucion; -jar ejecuta un jar por classpath tradicional, ignorando el sistema de modulos.",
+          "conceptId": "running-modules",
+          "role": "solo",
+          "pathOrder": 8,
+          "dependsOn": ["modular-jar-packaging"]
+        }
+      ]
     }
   ]
 }
