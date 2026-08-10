@@ -362,6 +362,18 @@
           "dependsOn": ["collectors-groupingby", "collectors-partitioningby"]
         },
         {
+          "id": "collectors-joining-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "Collectors.joining() une los elementos de un stream de Strings en uno solo, con un separador opcional",
+          "code": "List<String> nombres = List.of(\"Ana\", \"Beto\", \"Cami\");\nString unidos = nombres.stream().collect(Collectors.joining(\", \"));\nSystem.out.println(unidos); // Ana, Beto, Cami",
+          "answer": "ok",
+          "explanation": "joining(separador) concatena todos los elementos del stream en un solo String, insertando el separador entre cada par de elementos consecutivos.",
+          "conceptId": "collectors-joining",
+          "role": "intro",
+          "pathOrder": 8
+        },
+        {
           "id": "streams-14",
           "type": "fill_blank",
           "difficulty": 2,
@@ -372,7 +384,7 @@
           "explanation": "Collectors.joining() concatena Strings con el separador dado.",
           "conceptId": "collectors-joining",
           "role": "solo",
-          "pathOrder": 8
+          "pathOrder": 9
         },
         {
           "id": "streams-parsons-02",
@@ -385,7 +397,7 @@
           "explanation": "map() transforma cada elemento y collect(Collectors.toList()) los acumula en una lista nueva.",
           "conceptId": "collectors-tolist",
           "role": "solo",
-          "pathOrder": 9
+          "pathOrder": 10
         }
       ]
     },

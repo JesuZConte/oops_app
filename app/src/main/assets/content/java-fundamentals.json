@@ -632,10 +632,10 @@
           "id": "fund-sb-intro",
           "type": "worked_example",
           "difficulty": 2,
-          "prompt": "StringBuilder es mutable: sus metodos modifican el mismo objeto",
-          "code": "StringBuilder sb = new StringBuilder(\"hola\");\nsb.append(\" mundo\");\nSystem.out.println(sb); // hola mundo",
+          "prompt": "StringBuilder es mutable: sus metodos modifican el mismo objeto (por ejemplo append() y reverse())",
+          "code": "StringBuilder sb = new StringBuilder(\"hola\");\nsb.append(\" mundo\");\nSystem.out.println(sb); // hola mundo\nsb.reverse();\nSystem.out.println(sb); // odnum aloh",
           "answer": "ok",
-          "explanation": "A diferencia de String, append() modifica el mismo objeto StringBuilder en lugar de crear uno nuevo - mas eficiente para concatenar en un loop.",
+          "explanation": "A diferencia de String, los metodos de StringBuilder modifican el mismo objeto en lugar de crear uno nuevo: append() agrega texto al final y reverse() invierte el orden de los caracteres, ambos sobre el buffer existente - mas eficiente que crear Strings nuevos en cada paso.",
           "conceptId": "stringbuilder",
           "role": "intro",
           "pathOrder": 3
