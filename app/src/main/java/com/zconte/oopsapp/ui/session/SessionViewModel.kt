@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.zconte.oopsapp.domain.model.Exercise
 import com.zconte.oopsapp.domain.model.ExerciseContent
 import com.zconte.oopsapp.domain.usecase.GetTodaySessionUseCase
+import com.zconte.oopsapp.domain.usecase.GetUnitReviewSessionUseCase
 import com.zconte.oopsapp.domain.usecase.GetUnitSessionUseCase
 import com.zconte.oopsapp.domain.usecase.MarkUnitProgressUseCase
 import com.zconte.oopsapp.domain.usecase.SubmitAnswerUseCase
@@ -38,6 +39,7 @@ class SessionViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val getTodaySessionUseCase: GetTodaySessionUseCase,
     private val getUnitSessionUseCase: GetUnitSessionUseCase,
+    private val getUnitReviewSessionUseCase: GetUnitReviewSessionUseCase,
     private val submitAnswerUseCase: SubmitAnswerUseCase,
     private val updateStreakUseCase: UpdateStreakUseCase,
     private val markUnitProgressUseCase: MarkUnitProgressUseCase,
@@ -46,6 +48,10 @@ class SessionViewModel @Inject constructor(
 
     private val unitId: String? = savedStateHandle["unitId"]
 
+    // Free-form replay of an already-played unit: answers get immediate feedback
+    // but are never persisted to review_state, streak, or unit progress.
+    private val isReview: Boolean = savedStateHandle["isReview"] ?: false
+
     private val _uiState = MutableStateFlow(SessionUiState())
     val uiState: StateFlow<SessionUiState> = _uiState.asStateFlow()
 
@@ -53,7 +59,11 @@ class SessionViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val queue = unitId?.let { getUnitSessionUseCase(it) } ?: getTodaySessionUseCase(LocalDate.now())
+            val queue = when {
+                unitId != null && isReview -> getUnitReviewSessionUseCase(unitId)
+                unitId != null -> getUnitSessionUseCase(unitId)
+                else -> getTodaySessionUseCase(LocalDate.now())
+            }
             if (queue.isEmpty()) {
                 // Nothing due and nothing new: nothing to show, so the session is trivially complete.
                 _uiState.update { it.copy(isSessionComplete = true) }
@@ -74,6 +84,8 @@ class SessionViewModel @Inject constructor(
 
         _uiState.update { it.copy(isAnswered = true, isCorrect = correct, selectedAnswer = userAnswer) }
 
+        if (isReview) return
+
         pendingAnswerJob = viewModelScope.launch {
             submitAnswerUseCase(queuedExercise.id, quality = if (correct) 5 else 2, today = LocalDate.now())
             markUnitProgressUseCase(queuedExercise.unitId, LocalDate.now())
@@ -89,7 +101,7 @@ class SessionViewModel @Inject constructor(
                 // Wait for the last exercise's answer write before completing, so navigating
                 // away (and clearing this ViewModel's scope) can't cancel it mid-flight.
                 pendingAnswerJob?.join()
-                updateStreakUseCase(LocalDate.now())
+                if (!isReview) updateStreakUseCase(LocalDate.now())
                 _uiState.update { it.copy(isSessionComplete = true) }
             }
         } else {

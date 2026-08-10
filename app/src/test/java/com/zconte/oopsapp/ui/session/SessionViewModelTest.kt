@@ -3,6 +3,7 @@ package com.zconte.oopsapp.ui.session
 import androidx.lifecycle.SavedStateHandle
 import com.zconte.oopsapp.domain.model.Exercise
 import com.zconte.oopsapp.domain.model.LearningUnit
+import com.zconte.oopsapp.domain.model.ReviewState
 import com.zconte.oopsapp.domain.model.Section
 import com.zconte.oopsapp.domain.repository.ContentRepository
 import com.zconte.oopsapp.domain.repository.ExerciseRepository
@@ -10,6 +11,7 @@ import com.zconte.oopsapp.domain.repository.ProgressRepository
 import com.zconte.oopsapp.domain.usecase.GetCurrentUnitUseCase
 import com.zconte.oopsapp.domain.usecase.GetLearningPathUseCase
 import com.zconte.oopsapp.domain.usecase.GetTodaySessionUseCase
+import com.zconte.oopsapp.domain.usecase.GetUnitReviewSessionUseCase
 import com.zconte.oopsapp.domain.usecase.GetUnitSessionUseCase
 import com.zconte.oopsapp.domain.usecase.IsCheckpointRetryUnlockedUseCase
 import com.zconte.oopsapp.domain.usecase.MarkUnitProgressUseCase
@@ -28,6 +30,7 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
+import java.time.LocalDate
 
 class SessionViewModelTest {
 
@@ -49,9 +52,15 @@ class SessionViewModelTest {
         unitId: String?,
         contentRepository: ContentRepository,
         exerciseRepository: ExerciseRepository,
-        progressRepository: ProgressRepository
+        progressRepository: ProgressRepository,
+        isReview: Boolean = false
     ): SessionViewModel = SessionViewModel(
-        savedStateHandle = SavedStateHandle(unitId?.let { mapOf("unitId" to it) } ?: emptyMap()),
+        savedStateHandle = SavedStateHandle(
+            buildMap {
+                unitId?.let { put("unitId", it) }
+                if (isReview) put("isReview", true)
+            }
+        ),
         getTodaySessionUseCase = GetTodaySessionUseCase(
             exerciseRepository,
             GetCurrentUnitUseCase(
@@ -59,6 +68,7 @@ class SessionViewModelTest {
             )
         ),
         getUnitSessionUseCase = GetUnitSessionUseCase(exerciseRepository),
+        getUnitReviewSessionUseCase = GetUnitReviewSessionUseCase(exerciseRepository),
         submitAnswerUseCase = SubmitAnswerUseCase(exerciseRepository),
         updateStreakUseCase = UpdateStreakUseCase(progressRepository),
         markUnitProgressUseCase = MarkUnitProgressUseCase(exerciseRepository, contentRepository),
@@ -217,5 +227,74 @@ class SessionViewModelTest {
 
         assertTrue(viewModel.uiState.value.isSessionComplete)
         assertEquals(1, progressRepository.stats.streak)
+    }
+
+    @Test
+    fun `a review session loads every exercise in the unit, regardless of prior progress`() = runTest {
+        val exerciseRepository = FakeExerciseRepository(
+            exercisesByUnit = mapOf("s1-u1" to listOf(exercise("ex-1", "s1-u1"), exercise("ex-2", "s1-u1")))
+        )
+        exerciseRepository.saveReviewState(
+            ReviewState(
+                exerciseId = "ex-1",
+                easeFactor = 2.5,
+                intervalDays = 1,
+                repetitions = 1,
+                dueDate = LocalDate.now()
+            )
+        )
+
+        val viewModel = buildViewModel(
+            unitId = "s1-u1",
+            contentRepository = FakeContentRepository(),
+            exerciseRepository = exerciseRepository,
+            progressRepository = FakeProgressRepository(),
+            isReview = true
+        )
+
+        assertEquals(listOf("ex-1", "ex-2"), viewModel.uiState.value.queue.map { it.id })
+    }
+
+    @Test
+    fun `submitAnswer in a review session grades locally but never persists review_state or unit progress`() = runTest {
+        val contentRepository = FakeContentRepository()
+        val exerciseRepository = FakeExerciseRepository(
+            exercisesByUnit = mapOf("s1-u1" to listOf(exercise("ex-1", "s1-u1", answer = "42")))
+        )
+        val viewModel = buildViewModel(
+            unitId = "s1-u1",
+            contentRepository = contentRepository,
+            exerciseRepository = exerciseRepository,
+            progressRepository = FakeProgressRepository(),
+            isReview = true
+        )
+
+        viewModel.submitAnswer("42")
+
+        assertTrue(viewModel.uiState.value.isAnswered)
+        assertTrue(viewModel.uiState.value.isCorrect)
+        assertTrue(exerciseRepository.savedReviewStates.isEmpty())
+        assertTrue(contentRepository.completedUnits.isEmpty())
+    }
+
+    @Test
+    fun `completing a review session does not update the streak`() = runTest {
+        val progressRepository = FakeProgressRepository()
+        val exerciseRepository = FakeExerciseRepository(
+            exercisesByUnit = mapOf("s1-u1" to listOf(exercise("ex-1", "s1-u1", answer = "42")))
+        )
+        val viewModel = buildViewModel(
+            unitId = "s1-u1",
+            contentRepository = FakeContentRepository(),
+            exerciseRepository = exerciseRepository,
+            progressRepository = progressRepository,
+            isReview = true
+        )
+
+        viewModel.submitAnswer("42")
+        viewModel.nextExercise()
+
+        assertTrue(viewModel.uiState.value.isSessionComplete)
+        assertEquals(0, progressRepository.stats.streak)
     }
 }

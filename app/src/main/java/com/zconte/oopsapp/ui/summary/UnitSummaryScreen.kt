@@ -10,9 +10,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -25,6 +27,7 @@ import com.zconte.oopsapp.ui.components.CodeBlock
 @Composable
 fun UnitSummaryScreen(
     onStartUnit: (String) -> Unit,
+    onReviewUnit: (String) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: UnitSummaryViewModel = hiltViewModel()
@@ -86,6 +89,13 @@ fun UnitSummaryScreen(
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
         ) {
             Text("COMENZAR UNIDAD", style = MaterialTheme.typography.titleMedium)
+        }
+        Spacer(modifier = Modifier.height(12.dp))
+        OutlinedButton(
+            onClick = { onReviewUnit(uiState.unitId) },
+            modifier = Modifier.fillMaxWidth().height(52.dp)
+        ) {
+            Text("REPASAR UNIDAD", style = MaterialTheme.typography.titleMedium)
         }
     }
 }

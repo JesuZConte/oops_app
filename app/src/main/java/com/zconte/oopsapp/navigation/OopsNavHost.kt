@@ -43,7 +43,10 @@ fun OopsNavHost(
         }
         composable(
             route = OopsDestinations.UNIT_SESSION,
-            arguments = listOf(navArgument("unitId") { type = NavType.StringType })
+            arguments = listOf(
+                navArgument("unitId") { type = NavType.StringType },
+                navArgument("isReview") { type = NavType.BoolType; defaultValue = false }
+            )
         ) {
             SessionScreen(
                 onSessionComplete = { navController.popBackStack() }
@@ -56,6 +59,11 @@ fun OopsNavHost(
             UnitSummaryScreen(
                 onStartUnit = { unitId ->
                     navController.navigate("unit_session/$unitId") {
+                        popUpTo(OopsDestinations.PROGRESS)
+                    }
+                },
+                onReviewUnit = { unitId ->
+                    navController.navigate("unit_session/$unitId?isReview=true") {
                         popUpTo(OopsDestinations.PROGRESS)
                     }
                 },
