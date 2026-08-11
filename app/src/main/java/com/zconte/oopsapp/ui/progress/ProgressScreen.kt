@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -88,9 +88,10 @@ fun ProgressScreen(
                 .padding(18.dp),
             verticalArrangement = Arrangement.spacedBy(22.dp)
         ) {
-            items(uiState.sections) { sectionPath ->
+            itemsIndexed(uiState.sections) { index, sectionPath ->
                 SectionPathBlock(
                     sectionPath = sectionPath,
+                    previousSectionId = uiState.sections.getOrNull(index - 1)?.section?.id,
                     onPlayUnit = onPlayUnit,
                     onOpenCheckpoint = onOpenCheckpoint,
                     onOpenPlacementCheckpoint = onOpenPlacementCheckpoint,
@@ -104,12 +105,21 @@ fun ProgressScreen(
 @Composable
 private fun SectionPathBlock(
     sectionPath: SectionPath,
+    previousSectionId: String?,
     onPlayUnit: (String) -> Unit,
     onOpenCheckpoint: (String) -> Unit,
     onOpenPlacementCheckpoint: (String) -> Unit,
     onOpenSummary: (String) -> Unit
 ) {
     val extended = OopsTheme.extendedColors
+    // A unit can be locked for two different reasons: its own section is gated by a
+    // pending mandatory checkpoint on the PREVIOUS section (nothing in this section is
+    // playable yet), or the section is unlocked but an earlier unit in it isn't done
+    // (this unit specifically can be skip-attempted via a placement checkpoint). Tapping
+    // a locked unit must route to whichever gate actually blocks it -- previously every
+    // locked tap opened the placement flow, which is meaningless (and doesn't even mark
+    // the tapped unit complete) when the real blocker is the previous section's checkpoint.
+    val gatedBySectionLock = !sectionPath.unlocked
 
     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
         Text(
@@ -121,11 +131,12 @@ private fun SectionPathBlock(
         sectionPath.units.forEach { unitProgress ->
             UnitRow(
                 unitProgress = unitProgress,
+                gatedBySectionLock = gatedBySectionLock,
                 onClick = {
-                    if (unitProgress.unlocked || unitProgress.completed) {
-                        onPlayUnit(unitProgress.unit.id)
-                    } else {
-                        onOpenPlacementCheckpoint(unitProgress.unit.id)
+                    when {
+                        unitProgress.unlocked || unitProgress.completed -> onPlayUnit(unitProgress.unit.id)
+                        gatedBySectionLock && previousSectionId != null -> onOpenCheckpoint(previousSectionId)
+                        else -> onOpenPlacementCheckpoint(unitProgress.unit.id)
                     }
                 },
                 onOpenSummary = onOpenSummary
@@ -142,7 +153,12 @@ private fun SectionPathBlock(
 }
 
 @Composable
-private fun UnitRow(unitProgress: UnitProgress, onClick: () -> Unit, onOpenSummary: (String) -> Unit) {
+private fun UnitRow(
+    unitProgress: UnitProgress,
+    gatedBySectionLock: Boolean,
+    onClick: () -> Unit,
+    onOpenSummary: (String) -> Unit
+) {
     val extended = OopsTheme.extendedColors
     val playable = unitProgress.unlocked || unitProgress.completed
     val dotColor = when {
@@ -175,6 +191,7 @@ private fun UnitRow(unitProgress: UnitProgress, onClick: () -> Unit, onOpenSumma
                     unitProgress.completed && unitProgress.completedVia == UnitCompletionSource.PLACEMENT -> "Completada por checkpoint"
                     unitProgress.completed -> "Completada"
                     unitProgress.unlocked -> "Toca para jugar"
+                    gatedBySectionLock -> "🔒 Aprueba el checkpoint anterior primero"
                     else -> "🔒 Toca para intentar saltarla"
                 },
                 style = MaterialTheme.typography.bodyMedium,
