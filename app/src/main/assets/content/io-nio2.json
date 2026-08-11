@@ -150,6 +150,153 @@
           "dependsOn": ["byte-streams-basicos"]
         }
       ]
+    },
+    {
+      "unitId": "io-serializacion",
+      "name": "Serializacion",
+      "certObjective": "io-nio2",
+      "orderIndex": 2,
+      "summary": {
+        "text": "Serializable es una interfaz marcadora que habilita ObjectOutputStream.writeObject()/ObjectInputStream.readObject() sobre una clase. Si la superclase no es Serializable y no tiene constructor sin argumentos, la escritura funciona pero la lectura falla con InvalidClassException. Escribir la misma referencia varias veces preserva su identidad al leer (no la duplica). Los campos transient vuelven al valor por defecto al deserializar; los campos static nunca viajan, ya que pertenecen a la clase, no al objeto. Un serialVersionUID que no coincide entre escritura y lectura tambien lanza InvalidClassException.",
+        "code": "class Sesion implements Serializable {\n    private static final long serialVersionUID = 1L;\n    String usuario;\n    transient String tokenTemporal; // vuelve a null al leer\n    static int sesionesActivas;    // nunca viaja\n}"
+      },
+      "exercises": [
+        {
+          "id": "io-serial-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "Serializable es una interfaz marcadora (sin metodos) que habilita que ObjectOutputStream pueda escribir un objeto",
+          "code": "class Punto implements Serializable {\n    int x;\n    int y;\n}\n\nPunto p = new Punto();\np.x = 3;\np.y = 4;\n// ObjectOutputStream.writeObject(p) funciona porque Punto implementa Serializable",
+          "answer": "ok",
+          "explanation": "Serializable no declara ningun metodo -- es solo una marca que le dice a la JVM que los objetos de esa clase pueden convertirse a una secuencia de bytes. Si una clase NO implementa Serializable, ObjectOutputStream.writeObject() sobre un objeto suyo lanza NotSerializableException con el nombre de la clase como mensaje.",
+          "conceptId": "serializable-basico",
+          "role": "intro",
+          "pathOrder": 0
+        },
+        {
+          "id": "io-serial-guided",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Que pasa si se intenta escribir con ObjectOutputStream.writeObject() un objeto de una clase que NO implementa Serializable?",
+          "answer": "Se lanza NotSerializableException en tiempo de ejecucion, con el nombre de la clase como mensaje",
+          "distractors": [
+            "El compilador rechaza el codigo, ya que writeObject() exige Serializable como tipo del parametro",
+            "El objeto se escribe igual, pero al leerlo con readObject() se recuperan solo los campos publicos",
+            "Se lanza IllegalArgumentException, ya que el objeto no cumple con el contrato esperado"
+          ],
+          "explanation": "writeObject() recibe un Object generico -- no hay error de compilacion. El chequeo de si la clase es Serializable ocurre en tiempo de ejecucion, dentro del propio writeObject(), y si falla lanza NotSerializableException con el nombre de la clase como mensaje.",
+          "conceptId": "serializable-basico",
+          "role": "guided",
+          "pathOrder": 1
+        },
+        {
+          "id": "io-serial-solo",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Una clase Hijo implementa Serializable, pero su superclase NO implementa Serializable y no tiene constructor publico sin argumentos. Que pasa al escribir y despues leer un objeto Hijo?",
+          "answer": "La escritura (writeObject) funciona sin problema; la lectura (readObject) falla con InvalidClassException porque no encuentra un constructor valido para la superclase",
+          "distractors": [
+            "La escritura falla de entrada con NotSerializableException, ya que la superclase no serializable lo impide",
+            "Tanto la escritura como la lectura funcionan bien, ya que Hijo si implementa Serializable correctamente",
+            "La lectura funciona, pero los campos heredados de la superclase quedan siempre en null sin lanzar ningun error"
+          ],
+          "explanation": "Cuando la superclase no es Serializable, la JVM necesita poder invocar su constructor sin argumentos durante la deserializacion (para inicializarla como si fuera un objeto nuevo). writeObject() no necesita nada de eso, por lo que escribe sin problema; recien readObject() falla con InvalidClassException: no valid constructor.",
+          "conceptId": "serializable-basico",
+          "role": "solo",
+          "pathOrder": 2
+        },
+        {
+          "id": "io-objstreams-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "ObjectOutputStream.writeObject()/ObjectInputStream.readObject() escriben y leen el grafo completo de un objeto; escribir la misma referencia dos veces preserva identidad al leer",
+          "code": "Punto p = new Punto();\np.x = 1;\ntry (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(\"p.ser\"))) {\n    oos.writeObject(p);\n    oos.writeObject(p); // la misma referencia, otra vez\n}\ntry (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(\"p.ser\"))) {\n    Punto a = (Punto) ois.readObject();\n    Punto b = (Punto) ois.readObject();\n    System.out.println(a == b); // true\n}",
+          "answer": "ok",
+          "explanation": "ObjectOutputStream detecta que ya escribio esa referencia exacta y, la segunda vez, guarda solo una marca de 'ya escrito' en vez de duplicar los datos. Al leer, ObjectInputStream reconstruye un unico objeto y devuelve la misma referencia las dos veces: a == b da true.",
+          "conceptId": "object-streams",
+          "role": "intro",
+          "pathOrder": 3,
+          "dependsOn": ["serializable-basico"]
+        },
+        {
+          "id": "io-objstreams-guided",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Si se llama oos.writeObject(p) dos veces seguidas sobre la misma referencia p, y despues se lee dos veces con readObject(), que relacion tienen los dos objetos leidos?",
+          "answer": "Son la misma referencia (==), porque ObjectOutputStream no duplica un objeto que ya escribio antes",
+          "distractors": [
+            "Son dos objetos distintos pero con los mismos valores de campos (equals() daria true, == daria false)",
+            "El segundo readObject() lanza una excepcion, ya que el stream no permite leer el mismo objeto dos veces",
+            "Son dos objetos distintos y con valores diferentes, ya que cada writeObject() genera una copia nueva"
+          ],
+          "explanation": "ObjectOutputStream mantiene una tabla interna de que referencias ya escribio en ese stream. La segunda vez que ve la misma referencia, no vuelve a serializar los datos: guarda una referencia de vuelta. Al leer, ObjectInputStream reconstruye un solo objeto y ambas lecturas devuelven esa misma referencia.",
+          "conceptId": "object-streams",
+          "role": "guided",
+          "pathOrder": 4,
+          "dependsOn": ["serializable-basico"]
+        },
+        {
+          "id": "io-objstreams-solo",
+          "type": "fill_blank",
+          "difficulty": 2,
+          "prompt": "Completa el metodo que hay que llamar para escribir un objeto completo en un ObjectOutputStream:",
+          "code": "Punto p = new Punto();\noos._____(p);",
+          "answer": "writeObject",
+          "distractors": ["write", "writeObj", "save"],
+          "explanation": "writeObject() es el metodo de ObjectOutputStream que serializa el grafo completo de un objeto (a diferencia de write(), que existe pero opera a nivel de bytes crudos, heredado de OutputStream).",
+          "conceptId": "object-streams",
+          "role": "solo",
+          "pathOrder": 5,
+          "dependsOn": ["serializable-basico"]
+        },
+        {
+          "id": "io-uidtransient-intro",
+          "type": "worked_example",
+          "difficulty": 3,
+          "prompt": "transient excluye un campo de la serializacion (vuelve al valor por defecto al leer); un campo static queda afuera siempre, sin marcarlo",
+          "code": "class Sesion implements Serializable {\n    private static final long serialVersionUID = 1L;\n    String usuario;\n    transient String tokenTemporal;\n    static int sesionesActivas = 0;\n}\n// tokenTemporal viaja como null al deserializar, aunque tuviera un valor al serializar\n// sesionesActivas nunca viaja: pertenece a la clase, no al objeto",
+          "answer": "ok",
+          "explanation": "transient le dice a la serializacion 'salta este campo': al deserializar, ese campo vuelve al valor por defecto de su tipo (null para String, 0 para numericos, false para boolean). Los campos static ni siquiera hace falta marcarlos: pertenecen a la clase, no a ningun objeto, asi que la serializacion (que opera sobre instancias) los ignora por completo.",
+          "conceptId": "serialversionuid-transient",
+          "role": "intro",
+          "pathOrder": 6,
+          "dependsOn": ["object-streams"]
+        },
+        {
+          "id": "io-uidtransient-guided",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Una clase tiene un campo 'static int contador'. Se serializa un objeto, despues se cambia el valor de contador, y despues se deserializa ese mismo objeto. Que valor tiene contador en el objeto leido?",
+          "answer": "El valor actual de la clase en el momento de leer, ya que los campos static nunca viajan dentro de los datos serializados",
+          "distractors": [
+            "El valor que tenia contador en el momento exacto de serializar el objeto, guardado junto con el resto de los datos",
+            "El valor por defecto del tipo (0), igual que pasaria con un campo transient de tipo int",
+            "Depende de si el campo static fue marcado como transient o no antes de serializar el objeto"
+          ],
+          "explanation": "Un campo static es una propiedad de la clase, no del objeto -- la serializacion opera sobre el estado de instancias, asi que nunca toca campos static (marcarlos transient no cambia nada, ya de por si estan fuera). Por eso, tras deserializar, el codigo simplemente ve el valor actual de la clase en ese momento, sin relacion con ningun momento de la serializacion.",
+          "conceptId": "serialversionuid-transient",
+          "role": "guided",
+          "pathOrder": 7,
+          "dependsOn": ["object-streams"]
+        },
+        {
+          "id": "io-uidtransient-solo",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Una clase se serializa con 'private static final long serialVersionUID = 1L'. Despues se cambia ese valor a 2L en el codigo y se intenta leer los bytes viejos (serializados con 1L). Que pasa?",
+          "answer": "Se lanza InvalidClassException, con un mensaje que cita ambos valores de serialVersionUID (el del stream y el de la clase actual)",
+          "distractors": [
+            "La lectura funciona igual, ya que serialVersionUID solo se usa para documentacion y no se valida en runtime",
+            "Se lanza ClassNotFoundException, ya que la clase con ese UID especifico ya no existe en el classpath",
+            "La lectura funciona, pero todos los campos del objeto vuelven a sus valores por defecto en vez de los originales"
+          ],
+          "explanation": "serialVersionUID identifica una version compatible de la clase para deserializar. Si el valor guardado en los bytes no coincide con el de la clase actual, ObjectInputStream lanza InvalidClassException con un mensaje del tipo 'local class incompatible: stream classdesc serialVersionUID = 1, local class serialVersionUID = 2', citando ambos valores.",
+          "conceptId": "serialversionuid-transient",
+          "role": "solo",
+          "pathOrder": 8,
+          "dependsOn": ["object-streams"]
+        }
+      ]
     }
   ]
 }
