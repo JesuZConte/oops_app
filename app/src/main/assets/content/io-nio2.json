@@ -72,7 +72,7 @@
           "id": "io-bytestreams-guided",
           "type": "mcq",
           "difficulty": 2,
-          "prompt": "En 'try (FileOutputStream out = ...; FileInputStream in = ...) { ... }', si ambos close() lanzaran una excepcion, cual se cierra primero?",
+          "prompt": "En 'try (FileOutputStream out = ...; FileInputStream in = ...) { ... }', cual se cierra primero?",
           "answer": "El recurso 'in', el ultimo declarado, se cierra primero; 'out' se cierra despues, en orden inverso a como fueron declarados",
           "distractors": [
             "El recurso 'out', el primero declarado, se cierra primero; 'in' se cierra despues, en el mismo orden de declaracion",
@@ -120,7 +120,7 @@
           "type": "mcq",
           "difficulty": 2,
           "prompt": "Cual es la diferencia principal entre usar InputStream/OutputStream y usar Reader/Writer para trabajar con un archivo?",
-          "answer": "InputStream/OutputStream trabajan con bytes crudos sin interpretar; Reader/Writer trabajan con caracteres de texto, aplicando la codificacion correspondiente",
+          "answer": "InputStream/OutputStream trabajan con bytes crudos; Reader/Writer trabajan con caracteres de texto, aplicando una codificacion",
           "distractors": [
             "InputStream/OutputStream son mas lentos que Reader/Writer, sin ninguna diferencia real en que datos manejan",
             "Reader/Writer solo funcionan con archivos, mientras que InputStream/OutputStream tambien sirven para leer de la consola",
@@ -193,7 +193,7 @@
           "id": "io-serial-solo",
           "type": "mcq",
           "difficulty": 2,
-          "prompt": "Una clase Hijo implementa Serializable, pero su superclase NO implementa Serializable y no tiene constructor publico sin argumentos. Que pasa al escribir y despues leer un objeto Hijo?",
+          "prompt": "Una clase Hijo implementa Serializable, pero su superclase NO implementa Serializable y no tiene constructor accesible sin argumentos. Que pasa al escribir y despues leer un objeto Hijo?",
           "answer": "La escritura funciona bien; la lectura falla con InvalidClassException, sin hallar un constructor valido en la superclase",
           "distractors": [
             "La escritura falla de entrada con NotSerializableException, ya que la superclase no serializable lo impide",
@@ -254,7 +254,7 @@
           "type": "worked_example",
           "difficulty": 3,
           "prompt": "transient excluye un campo de la serializacion (vuelve al valor por defecto al leer); un campo static queda afuera siempre, sin marcarlo",
-          "code": "class Sesion implements Serializable {\n    private static final long serialVersionUID = 1L;\n    String usuario;\n    transient String tokenTemporal;\n    static int sesionesActivas = 0;\n}\n// tokenTemporal viaja como null al deserializar, aunque tuviera un valor al serializar\n// sesionesActivas nunca viaja: pertenece a la clase, no al objeto",
+          "code": "class Sesion implements Serializable {\n    private static final long serialVersionUID = 1L;\n    String usuario;\n    transient String tokenTemporal;\n    static int sesionesActivas = 0;\n}\n// tokenTemporal vuelve a null al deserializar (valor por defecto), aunque tuviera un valor al serializar\n// sesionesActivas nunca viaja: pertenece a la clase, no al objeto",
           "answer": "ok",
           "explanation": "transient le dice a la serializacion 'salta este campo': al deserializar, ese campo vuelve al valor por defecto de su tipo (null para String, 0 para numericos, false para boolean). Los campos static ni siquiera hace falta marcarlos: pertenecen a la clase, no a ningun objeto, asi que la serializacion (que opera sobre instancias) los ignora por completo.",
           "conceptId": "serialversionuid-transient",
@@ -266,7 +266,7 @@
           "id": "io-uidtransient-guided",
           "type": "mcq",
           "difficulty": 3,
-          "prompt": "Una clase tiene un campo 'static int contador'. Se serializa un objeto, despues se cambia el valor de contador, y despues se deserializa ese mismo objeto. Que valor tiene contador en el objeto leido?",
+          "prompt": "Una clase tiene un campo 'static int contador'. Se serializa un objeto, despues se cambia el valor de contador, y despues se deserializa ese mismo objeto. Que valor se ve en contador despues de deserializar?",
           "answer": "El valor actual de la clase en el momento de leer, ya que los campos static nunca viajan dentro de los datos serializados",
           "distractors": [
             "El valor que tenia contador en el momento exacto de serializar el objeto, guardado junto con el resto de los datos",
