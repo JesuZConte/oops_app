@@ -194,7 +194,7 @@
           "type": "mcq",
           "difficulty": 2,
           "prompt": "Una clase Hijo implementa Serializable, pero su superclase NO implementa Serializable y no tiene constructor publico sin argumentos. Que pasa al escribir y despues leer un objeto Hijo?",
-          "answer": "La escritura (writeObject) funciona sin problema; la lectura (readObject) falla con InvalidClassException porque no encuentra un constructor valido para la superclase",
+          "answer": "La escritura funciona bien; la lectura falla con InvalidClassException, sin hallar un constructor valido en la superclase",
           "distractors": [
             "La escritura falla de entrada con NotSerializableException, ya que la superclase no serializable lo impide",
             "Tanto la escritura como la lectura funcionan bien, ya que Hijo si implementa Serializable correctamente",
