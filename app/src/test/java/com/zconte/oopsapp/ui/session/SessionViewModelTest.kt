@@ -2,6 +2,7 @@ package com.zconte.oopsapp.ui.session
 
 import androidx.lifecycle.SavedStateHandle
 import com.zconte.oopsapp.domain.model.Exercise
+import com.zconte.oopsapp.domain.model.ExerciseRole
 import com.zconte.oopsapp.domain.model.LearningUnit
 import com.zconte.oopsapp.domain.model.ReviewState
 import com.zconte.oopsapp.domain.model.Section
@@ -227,6 +228,143 @@ class SessionViewModelTest {
 
         assertTrue(viewModel.uiState.value.isSessionComplete)
         assertEquals(1, progressRepository.stats.streak)
+    }
+
+    @Test
+    fun `nextExercise on the last exercise of a unit tap extends the queue as a dependsOn chain unblocks each following concept`() = runTest {
+        val exerciseRepository = FakeExerciseRepository(
+            exercisesByUnit = mapOf(
+                "s1-u1" to listOf(
+                    Exercise(
+                        id = "concept-a-solo",
+                        unitId = "s1-u1",
+                        type = "fill_blank",
+                        payload = payload("concept-a-solo", "42"),
+                        difficulty = 1,
+                        conceptId = "concept-a",
+                        role = ExerciseRole.SOLO,
+                        pathOrder = 1
+                    ),
+                    // concept-b has an intro card ahead of its solo -- mirrors real content,
+                    // where a newly-unlocked concept's batch starts with a worked_example
+                    // (CONTINUAR advances the queue directly, without submitAnswer()).
+                    Exercise(
+                        id = "concept-b-intro",
+                        unitId = "s1-u1",
+                        type = "worked_example",
+                        payload = payload("concept-b-intro", "n/a"),
+                        difficulty = 1,
+                        conceptId = "concept-b",
+                        role = ExerciseRole.INTRO,
+                        pathOrder = 2,
+                        dependsOn = listOf("concept-a")
+                    ),
+                    Exercise(
+                        id = "concept-b-solo",
+                        unitId = "s1-u1",
+                        type = "fill_blank",
+                        payload = payload("concept-b-solo", "42"),
+                        difficulty = 1,
+                        conceptId = "concept-b",
+                        role = ExerciseRole.SOLO,
+                        pathOrder = 3,
+                        dependsOn = listOf("concept-a")
+                    ),
+                    Exercise(
+                        id = "concept-c-solo",
+                        unitId = "s1-u1",
+                        type = "fill_blank",
+                        payload = payload("concept-c-solo", "42"),
+                        difficulty = 1,
+                        conceptId = "concept-c",
+                        role = ExerciseRole.SOLO,
+                        pathOrder = 4,
+                        dependsOn = listOf("concept-b")
+                    )
+                )
+            )
+        )
+        val viewModel = buildViewModel(
+            unitId = "s1-u1",
+            contentRepository = FakeContentRepository(),
+            exerciseRepository = exerciseRepository,
+            progressRepository = FakeProgressRepository()
+        )
+
+        // Only concept-a's exercise is a candidate up front: concept-b and concept-c are
+        // dependsOn-gated.
+        assertEquals(listOf("concept-a-solo"), viewModel.uiState.value.queue.map { it.id })
+        assertEquals(1, viewModel.uiState.value.totalExercises)
+
+        viewModel.submitAnswer("42")
+        viewModel.nextExercise()
+
+        // Answering concept-a's solo exercise borns concept-a, which unblocks concept-b's
+        // whole batch (intro + solo) in one extension -- the session must keep going instead
+        // of ending here.
+        assertFalse(viewModel.uiState.value.isSessionComplete)
+        assertEquals("concept-b-intro", viewModel.uiState.value.currentExercise?.id)
+        assertEquals(3, viewModel.uiState.value.totalExercises)
+
+        // CONTINUAR on the intro: advances within the still-live batch, no submitAnswer(),
+        // no re-query -- concept-b-solo is already queued.
+        viewModel.nextExercise()
+        assertEquals("concept-b-solo", viewModel.uiState.value.currentExercise?.id)
+        assertFalse(viewModel.uiState.value.isSessionComplete)
+
+        viewModel.submitAnswer("42")
+        viewModel.nextExercise()
+
+        // Answering concept-b's solo borns concept-b, unblocking concept-c -- second
+        // extension hop, proving the loop isn't limited to a single re-query.
+        assertFalse(viewModel.uiState.value.isSessionComplete)
+        assertEquals("concept-c-solo", viewModel.uiState.value.currentExercise?.id)
+        assertEquals(4, viewModel.uiState.value.totalExercises)
+
+        viewModel.submitAnswer("42")
+        viewModel.nextExercise()
+
+        assertTrue(viewModel.uiState.value.isSessionComplete)
+    }
+
+    @Test
+    fun `nextExercise on the last exercise of a unit tap completes the session when no new concept unblocks`() = runTest {
+        val exerciseRepository = FakeExerciseRepository(
+            exercisesByUnit = mapOf("s1-u1" to listOf(exercise("ex-1", "s1-u1", answer = "42")))
+        )
+        val viewModel = buildViewModel(
+            unitId = "s1-u1",
+            contentRepository = FakeContentRepository(),
+            exerciseRepository = exerciseRepository,
+            progressRepository = FakeProgressRepository()
+        )
+
+        viewModel.submitAnswer("42")
+        viewModel.nextExercise()
+
+        assertTrue(viewModel.uiState.value.isSessionComplete)
+    }
+
+    @Test
+    fun `nextExercise extension does not apply to the daily session (no unitId)`() = runTest {
+        val contentRepository = FakeContentRepository(
+            sections = listOf(section("s1", 1)),
+            unitsBySection = mapOf("s1" to listOf(unit("s1-u1", "s1", 1)))
+        )
+        val exerciseRepository = FakeExerciseRepository(
+            exercisesByUnit = mapOf("s1-u1" to listOf(exercise("ex-1", "s1-u1", answer = "42")))
+        )
+        val viewModel = buildViewModel(
+            unitId = null,
+            contentRepository = contentRepository,
+            exerciseRepository = exerciseRepository,
+            progressRepository = FakeProgressRepository()
+        )
+
+        viewModel.submitAnswer("42")
+        viewModel.nextExercise()
+
+        assertTrue(viewModel.uiState.value.isSessionComplete)
     }
 
     @Test

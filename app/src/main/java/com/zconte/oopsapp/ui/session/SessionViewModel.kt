@@ -57,6 +57,11 @@ class SessionViewModel @Inject constructor(
 
     private var pendingAnswerJob: Job? = null
 
+    // Every exercise id ever placed in the queue this session, across all batches -- lets a
+    // unit session tell "nothing left" apart from "the DB hasn't caught up yet" when it
+    // re-queries after draining a batch (see nextExercise()).
+    private val servedExerciseIds = mutableSetOf<String>()
+
     init {
         viewModelScope.launch {
             val queue = when {
@@ -68,6 +73,7 @@ class SessionViewModel @Inject constructor(
                 // Nothing due and nothing new: nothing to show, so the session is trivially complete.
                 _uiState.update { it.copy(isSessionComplete = true) }
             } else {
+                servedExerciseIds += queue.map { it.id }
                 _uiState.update {
                     it.copy(queue = queue, totalExercises = queue.size, currentExercise = decode(queue.first()))
                 }
@@ -95,16 +101,7 @@ class SessionViewModel @Inject constructor(
     fun nextExercise() {
         if (_uiState.value.isCompleting) return
         val remaining = _uiState.value.queue.drop(1)
-        if (remaining.isEmpty()) {
-            _uiState.update { it.copy(isCompleting = true) }
-            viewModelScope.launch {
-                // Wait for the last exercise's answer write before completing, so navigating
-                // away (and clearing this ViewModel's scope) can't cancel it mid-flight.
-                pendingAnswerJob?.join()
-                if (!isReview) updateStreakUseCase(LocalDate.now())
-                _uiState.update { it.copy(isSessionComplete = true) }
-            }
-        } else {
+        if (remaining.isNotEmpty()) {
             _uiState.update {
                 it.copy(
                     queue = remaining,
@@ -113,6 +110,46 @@ class SessionViewModel @Inject constructor(
                     isCorrect = false,
                     selectedAnswer = null
                 )
+            }
+            return
+        }
+
+        _uiState.update { it.copy(isCompleting = true) }
+        viewModelScope.launch {
+            // Wait for the last exercise's answer write before continuing or completing, so
+            // the just-answered concept counts as "born" if we re-query, and navigating away
+            // (which clears this ViewModel's scope) can't cancel the write mid-flight.
+            pendingAnswerJob?.join()
+
+            // A direct unit tap can drain a batch (one concept's intro/guided/solo) while the
+            // unit still has more concepts behind a dependsOn gate. Re-querying now picks up
+            // whatever just got unblocked by the answer above, so one tap plays the whole unit
+            // instead of ending the session and making the user tap back in per concept. The
+            // servedExerciseIds filter guards against looping on the same batch: everything
+            // getUnitSessionUseCase can still return here is either newly unblocked or an
+            // unanswered leftover, never a repeat of what this session already served.
+            val continuation = if (unitId != null && !isReview) {
+                getUnitSessionUseCase(unitId).filterNot { it.id in servedExerciseIds }
+            } else {
+                emptyList()
+            }
+
+            if (continuation.isNotEmpty()) {
+                servedExerciseIds += continuation.map { it.id }
+                _uiState.update {
+                    it.copy(
+                        queue = continuation,
+                        currentExercise = decode(continuation.first()),
+                        totalExercises = it.totalExercises + continuation.size,
+                        isAnswered = false,
+                        isCorrect = false,
+                        selectedAnswer = null,
+                        isCompleting = false
+                    )
+                }
+            } else {
+                if (!isReview) updateStreakUseCase(LocalDate.now())
+                _uiState.update { it.copy(isSessionComplete = true) }
             }
         }
     }
