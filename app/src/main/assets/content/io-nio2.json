@@ -304,7 +304,7 @@
       "certObjective": "io-nio2",
       "orderIndex": 3,
       "summary": {
-        "text": "Path.of() y Paths.get() son equivalentes y nunca tocan el filesystem al construir un Path: es solo una representacion sintactica de una ruta. Sobre un Path ya construido se puede navegar su estructura con getFileName(), getParent(), getRoot(), getNameCount() y getName(indice); un Path relativo tiene getRoot() nulo. equals()/compareTo() comparan el string de la ruta sin normalizar implicitamente, y normalize() colapsa elementos '.'/'..' redundantes sin verificar que existan. resolve() combina una ruta base con otra, pero si el argumento es absoluto ese argumento gana por completo, ignorando la base; relativize() calcula la ruta relativa entre dos Path, pero exige que ambos sean del mismo tipo (los dos absolutos o los dos relativos), o lanza IllegalArgumentException.",
+        "text": "Path.of() y Paths.get() son equivalentes y nunca tocan el filesystem al construir un Path: es solo una representacion sintactica de una ruta. Sobre un Path ya construido se puede navegar su estructura con getFileName(), getParent(), getRoot(), getNameCount() y getName(indice). equals()/compareTo() comparan el string de la ruta sin normalizar implicitamente, y normalize() colapsa elementos '.'/'..' redundantes sin verificar que existan. resolve() combina una ruta base con otra, pero si el argumento es absoluto ese argumento gana por completo, ignorando la base; relativize() calcula la ruta relativa entre dos Path, pero exige que ambos sean del mismo tipo (los dos absolutos o los dos relativos), o lanza IllegalArgumentException.",
         "code": "Path p = Path.of(\"/datos/reportes/2026/informe.txt\");\np.getFileName();   // informe.txt\np.getParent();      // /datos/reportes/2026\np.getRoot();        // /\n\nPath base = Path.of(\"/datos/reportes\");\nbase.resolve(Path.of(\"/x/y\"));            // /x/y (ignora la base)\nbase.relativize(Path.of(\"/datos/reportes/2026/informe.txt\")); // 2026/informe.txt"
       },
       "exercises": [
@@ -390,7 +390,7 @@
             "Se lanza IllegalArgumentException, porque las dos rutas tienen formatos distintos y no pueden compararse directamente",
             "El resultado depende del sistema operativo donde corre la JVM, ya que cada uno normaliza las rutas de forma distinta"
           ],
-          "explanation": "equals() nunca normaliza de forma implicita: compara el string de la ruta elemento por elemento tal cual fue construido. /a/./b y /a/b tienen distinta cantidad de elementos literales ('.', 'a', 'b' vs 'a', 'b'), asi que equals() da false hasta que se llama normalize() explicitamente sobre alguno de los dos.",
+          "explanation": "equals() nunca normaliza de forma implicita: compara el string de la ruta elemento por elemento tal cual fue construido. /a/./b y /a/b tienen distinta cantidad de elementos literales ('a', '.', 'b' vs 'a', 'b'), asi que equals() da false hasta que se llama normalize() explicitamente sobre alguno de los dos.",
           "conceptId": "path-comparacion-normalizacion",
           "role": "solo",
           "pathOrder": 5,
@@ -491,7 +491,7 @@
           "answer": "Nada -- exists() solo refleja el estado del archivo en el momento exacto en que se llamo, no en operaciones futuras",
           "distractors": [
             "Garantiza que la operacion posterior sobre esa misma ruta va a funcionar sin lanzar ninguna excepcion",
-            "Garantiza que el archivo queda bloqueado para otros procesos hasta que termine la siguiente operacion",
+            "Garantiza que el archivo queda bloqueado para otros procesos hasta que termine por completo la siguiente operacion sobre esa ruta",
             "Garantiza que Files.size(p) sobre la misma ruta va a devolver un valor mayor a cero bytes"
           ],
           "explanation": "exists() es una foto instantanea: el archivo podria borrarse, moverse o modificarse entre esa llamada y la siguiente operacion, asi que ninguna operacion posterior queda garantizada por un exists() previo -- por eso Files.copy()/move()/delete() siguen pudiendo lanzar sus propias excepciones aunque exists() haya dado true poco antes.",
