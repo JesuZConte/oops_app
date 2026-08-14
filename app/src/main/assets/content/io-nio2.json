@@ -297,6 +297,153 @@
           "dependsOn": ["object-streams"]
         }
       ]
+    },
+    {
+      "unitId": "nio2-path-basico",
+      "name": "Path basico",
+      "certObjective": "io-nio2",
+      "orderIndex": 3,
+      "summary": {
+        "text": "Path.of() y Paths.get() son equivalentes y nunca tocan el filesystem al construir un Path: es solo una representacion sintactica de una ruta. Sobre un Path ya construido se puede navegar su estructura con getFileName(), getParent(), getRoot(), getNameCount() y getName(indice); un Path relativo tiene getRoot() nulo. equals()/compareTo() comparan el string de la ruta sin normalizar implicitamente, y normalize() colapsa elementos '.'/'..' redundantes sin verificar que existan. resolve() combina una ruta base con otra, pero si el argumento es absoluto ese argumento gana por completo, ignorando la base; relativize() calcula la ruta relativa entre dos Path, pero exige que ambos sean del mismo tipo (los dos absolutos o los dos relativos), o lanza IllegalArgumentException.",
+        "code": "Path p = Path.of(\"/datos/reportes/2026/informe.txt\");\np.getFileName();   // informe.txt\np.getParent();      // /datos/reportes/2026\np.getRoot();        // /\n\nPath base = Path.of(\"/datos/reportes\");\nbase.resolve(Path.of(\"/x/y\"));            // /x/y (ignora la base)\nbase.relativize(Path.of(\"/datos/reportes/2026/informe.txt\")); // 2026/informe.txt"
+      },
+      "exercises": [
+        {
+          "id": "nio2-pathbasics-intro",
+          "type": "worked_example",
+          "difficulty": 1,
+          "prompt": "Path.of() nunca toca el filesystem al construir un Path; sobre un Path ya construido se puede navegar su estructura",
+          "code": "Path p = Path.of(\"/datos/reportes/2026/informe.txt\");\nSystem.out.println(p.getFileName());  // informe.txt\nSystem.out.println(p.getParent());     // /datos/reportes/2026\nSystem.out.println(p.getRoot());       // /\nSystem.out.println(p.getNameCount());  // 4\nSystem.out.println(p.getName(0));      // datos",
+          "answer": "ok",
+          "explanation": "Path.of() (equivalente a Paths.get()) construye un Path sin verificar en ningun momento que la ruta exista de verdad en el disco -- es pura representacion sintactica. getFileName()/getParent()/getRoot() navegan la estructura de la ruta ya construida; getNameCount() y getName(indice) cuentan y acceden a los elementos del nombre (el root no cuenta como uno de ellos, por eso getName(0) es 'datos' y no la raiz).",
+          "conceptId": "path-construccion-traversal",
+          "role": "intro",
+          "pathOrder": 0
+        },
+        {
+          "id": "nio2-pathbasics-guided",
+          "type": "mcq",
+          "difficulty": 1,
+          "prompt": "Que pasa al ejecutar Path.of(\"/no/existe/en/verdad.txt\") si esa ruta no existe en el filesystem?",
+          "answer": "No pasa nada especial: Path.of() solo construye una representacion sintactica de la ruta, sin verificar en ningun momento que exista",
+          "distractors": [
+            "Se lanza NoSuchFileException, ya que Path.of() siempre verifica la existencia real del archivo antes de construir el objeto",
+            "Se lanza IOException, porque toda operacion de la API NIO.2 requiere acceso valido y previo al filesystem",
+            "El metodo devuelve null, ya que no es posible construir un Path para algo que todavia no existe"
+          ],
+          "explanation": "Path.of()/Paths.get() son operaciones puramente sintacticas: parsean el string de la ruta y arman el objeto Path, sin ninguna llamada al filesystem. La verificacion real de existencia queda a cargo de otra API (Files.exists()), que se ve en la unidad siguiente.",
+          "conceptId": "path-construccion-traversal",
+          "role": "guided",
+          "pathOrder": 1
+        },
+        {
+          "id": "nio2-pathbasics-solo",
+          "type": "fill_blank",
+          "difficulty": 1,
+          "prompt": "Completa el metodo que devuelve el path padre (todos los elementos de la ruta menos el ultimo):",
+          "code": "Path p = Path.of(\"/datos/reportes/informe.txt\");\nPath padre = p._____();",
+          "answer": "getParent",
+          "distractors": ["getRoot", "getFileName", "subpath"],
+          "explanation": "getParent() devuelve un nuevo Path con todos los elementos de la ruta original excepto el ultimo -- en este ejemplo, /datos/reportes. getRoot() devuelve solo la raiz (/), getFileName() devuelve solo el ultimo elemento (informe.txt).",
+          "conceptId": "path-construccion-traversal",
+          "role": "solo",
+          "pathOrder": 2
+        },
+        {
+          "id": "nio2-pathcompare-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "equals() compara el string de la ruta sin normalizar implicitamente; normalize() colapsa elementos '.'/'..' redundantes sin tocar el filesystem",
+          "code": "Path a = Path.of(\"/a/./b\");\nPath b = Path.of(\"/a/b\");\nSystem.out.println(a.equals(b));              // false\nSystem.out.println(a.normalize().equals(b));  // true\n\nPath messy = Path.of(\"/a/b/../c/./d\");\nSystem.out.println(messy.normalize());        // /a/c/d",
+          "answer": "ok",
+          "explanation": "equals() (y compareTo()) comparan la representacion textual de la ruta elemento por elemento, sin aplicar ninguna normalizacion automatica: /a/./b y /a/b son literalmente distintos hasta que se llama normalize() de forma explicita. normalize() colapsa '.'/'..' redundantes usando solo el string de la ruta, sin verificar que los directorios intermedios existan realmente.",
+          "conceptId": "path-comparacion-normalizacion",
+          "role": "intro",
+          "pathOrder": 3,
+          "dependsOn": ["path-construccion-traversal"]
+        },
+        {
+          "id": "nio2-pathcompare-guided",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Que hace exactamente Path.normalize()?",
+          "answer": "Colapsa elementos redundantes '.'/'..' de la ruta usando solo el string, sin verificar en ningun momento que los directorios intermedios existan",
+          "distractors": [
+            "Resuelve symlinks y verifica contra el filesystem real que cada elemento intermedio de la ruta exista",
+            "Ordena alfabeticamente los elementos de la ruta para dejarla en un formato canonico y comparable",
+            "Lanza una excepcion si la ruta contiene elementos '.' o '..' que no pueden resolverse de forma segura"
+          ],
+          "explanation": "normalize() es una operacion puramente sintactica sobre el string de la ruta: elimina elementos '.' (referencia al directorio actual) y resuelve '..' (sube un nivel) contra los elementos anteriores del mismo Path, sin ninguna consulta al filesystem real ni resolucion de symlinks.",
+          "conceptId": "path-comparacion-normalizacion",
+          "role": "guided",
+          "pathOrder": 4,
+          "dependsOn": ["path-construccion-traversal"]
+        },
+        {
+          "id": "nio2-pathcompare-solo",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Path.of(\"/a/./b\").equals(Path.of(\"/a/b\")), sin llamar normalize() antes de comparar, que resultado da?",
+          "answer": "false, porque equals() compara los elementos literales del string de cada ruta, sin normalizar implicitamente antes de comparar",
+          "distractors": [
+            "true, porque ambos Path representan logicamente el mismo directorio final una vez resuelto el elemento '.'",
+            "Se lanza IllegalArgumentException, porque las dos rutas tienen formatos distintos y no pueden compararse directamente",
+            "El resultado depende del sistema operativo donde corre la JVM, ya que cada uno normaliza las rutas de forma distinta"
+          ],
+          "explanation": "equals() nunca normaliza de forma implicita: compara el string de la ruta elemento por elemento tal cual fue construido. /a/./b y /a/b tienen distinta cantidad de elementos literales ('.', 'a', 'b' vs 'a', 'b'), asi que equals() da false hasta que se llama normalize() explicitamente sobre alguno de los dos.",
+          "conceptId": "path-comparacion-normalizacion",
+          "role": "solo",
+          "pathOrder": 5,
+          "dependsOn": ["path-construccion-traversal"]
+        },
+        {
+          "id": "nio2-pathresolve-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "resolve() con un argumento absoluto ignora la base y devuelve el argumento tal cual; relativize() exige que ambos Path sean del mismo tipo",
+          "code": "Path base = Path.of(\"/datos/reportes\");\nbase.resolve(Path.of(\"2026/informe.txt\"));  // /datos/reportes/2026/informe.txt (relativo: concatena)\nbase.resolve(Path.of(\"/x/y\"));               // /x/y (absoluto: ignora la base por completo)\n\nPath target = Path.of(\"/datos/reportes/2026/informe.txt\");\nbase.relativize(target);  // 2026/informe.txt (ambos absolutos: funciona)",
+          "answer": "ok",
+          "explanation": "resolve() concatena normalmente cuando el argumento es relativo, pero si el argumento ya es absoluto, ese argumento gana por completo y la base se descarta -- resolve() nunca intenta 'anclar' un Path absoluto a otra base. relativize() calcula la ruta relativa entre dos Path, pero solo si ambos son del mismo tipo (los dos absolutos o los dos relativos); mezclar tipos lanza IllegalArgumentException, como se ve en el siguiente ejercicio.",
+          "conceptId": "path-resolve-relativize",
+          "role": "intro",
+          "pathOrder": 6,
+          "dependsOn": ["path-comparacion-normalizacion"]
+        },
+        {
+          "id": "nio2-pathresolve-guided",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Si base = Path.of(\"/datos/reportes\") y other = Path.of(\"/x/y\") (un Path absoluto), que devuelve base.resolve(other)?",
+          "answer": "/x/y -- resolve() devuelve el argumento tal cual cuando es absoluto, ignorando la base por completo",
+          "distractors": [
+            "/datos/reportes/x/y -- resolve() concatena siempre la base con el argumento, sea este absoluto o relativo",
+            "Se lanza IllegalArgumentException, porque no se puede pasar un Path absoluto como argumento de resolve()",
+            "/datos/reportes -- resolve() ignora el argumento por completo cuando este ya es un Path absoluto"
+          ],
+          "explanation": "Cuando el argumento de resolve() es un Path absoluto, ese argumento gana por completo: resolve() lo devuelve tal cual, sin ninguna combinacion con la base. Solo cuando el argumento es relativo, resolve() lo concatena al final de la base.",
+          "conceptId": "path-resolve-relativize",
+          "role": "guided",
+          "pathOrder": 7,
+          "dependsOn": ["path-comparacion-normalizacion"]
+        },
+        {
+          "id": "nio2-pathresolve-solo",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Path abs = Path.of(\"/a/b\"); Path rel = Path.of(\"c/d\"); abs.relativize(rel); que ocurre al ejecutar esta ultima linea?",
+          "answer": "Se lanza IllegalArgumentException, porque relativize() exige que ambos Path sean del mismo tipo (los dos absolutos o los dos relativos)",
+          "distractors": [
+            "Devuelve un Path mixto que combina ambas rutas, dejando que el codigo que lo use decida como interpretarlo",
+            "Convierte 'rel' a absoluto de forma automatica antes de calcular la ruta relativa entre ambos",
+            "Devuelve un Path vacio, ya que no existe ninguna relacion posible entre una ruta absoluta y una relativa"
+          ],
+          "explanation": "relativize() calcula la ruta que hay que recorrer desde un Path hasta otro, pero solo sabe hacerlo si ambos son del mismo 'tipo': los dos absolutos o los dos relativos. Mezclar un Path absoluto con uno relativo lanza IllegalArgumentException (mensaje real del JDK: \"'other' is different type of Path\") en vez de intentar adivinar una conversion.",
+          "conceptId": "path-resolve-relativize",
+          "role": "solo",
+          "pathOrder": 8,
+          "dependsOn": ["path-comparacion-normalizacion"]
+        }
+      ]
     }
   ]
 }
