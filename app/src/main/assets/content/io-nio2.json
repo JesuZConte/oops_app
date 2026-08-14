@@ -444,6 +444,153 @@
           "dependsOn": ["path-comparacion-normalizacion"]
         }
       ]
+    },
+    {
+      "unitId": "nio2-files-operaciones",
+      "name": "Files y operaciones",
+      "certObjective": "io-nio2",
+      "orderIndex": 4,
+      "summary": {
+        "text": "Files.exists()/notExists() nunca lanzan excepcion, solo devuelven boolean; Files.isDirectory()/isRegularFile()/size() consultan atributos basicos del archivo. Files.copy(origen, destino) y Files.move(origen, destino) lanzan FileAlreadyExistsException si el destino ya existe y no se especifica ninguna opcion. StandardCopyOption.REPLACE_EXISTING habilita sobrescribir sin error. Files.delete() lanza NoSuchFileException si el archivo no existe, mientras que Files.deleteIfExists() en el mismo caso devuelve false sin lanzar nada.",
+        "code": "Files.exists(p);      // false si no existe, nunca lanza\nFiles.copy(origen, destino);                                     // FileAlreadyExistsException si destino ya existe\nFiles.copy(origen, destino, StandardCopyOption.REPLACE_EXISTING); // sobrescribe sin error\nFiles.delete(p);           // NoSuchFileException si no existe\nFiles.deleteIfExists(p);  // false si no existe, no lanza nada"
+      },
+      "exercises": [
+        {
+          "id": "nio2-filesattrs-intro",
+          "type": "worked_example",
+          "difficulty": 1,
+          "prompt": "Files.exists()/notExists() nunca lanzan excepcion, solo devuelven boolean; Files.isDirectory()/isRegularFile()/size() consultan atributos basicos",
+          "code": "Path p = Path.of(\"/tmp/reporte.txt\");\nSystem.out.println(Files.exists(p));       // false si no existe\nSystem.out.println(Files.notExists(p));    // true si no existe\nif (Files.exists(p)) {\n    System.out.println(Files.isRegularFile(p));\n    System.out.println(Files.size(p));  // long, en bytes\n}",
+          "answer": "ok",
+          "explanation": "Files.exists()/notExists() son simples consultas: devuelven boolean sin lanzar ninguna excepcion, incluso si la ruta no existe. isDirectory()/isRegularFile() distinguen el tipo de entrada del filesystem, y size() devuelve el tamano en bytes como long -- todas estas consultas asumen que el Path pasado ya fue construido (Path.of() nunca verifico nada).",
+          "conceptId": "files-existencia-atributos",
+          "role": "intro",
+          "pathOrder": 0
+        },
+        {
+          "id": "nio2-filesattrs-guided",
+          "type": "mcq",
+          "difficulty": 1,
+          "prompt": "Que pasa al llamar Files.exists(p) sobre una ruta que no existe en el filesystem?",
+          "answer": "Devuelve false -- Files.exists() nunca lanza ninguna excepcion, solo consulta y devuelve un boolean",
+          "distractors": [
+            "Se lanza NoSuchFileException, ya que exists() verifica la ruta y falla si no la encuentra",
+            "Se lanza una IOException marcada, que obliga a envolver la llamada en un try-catch",
+            "Devuelve null, ya que no es posible determinar con certeza si el archivo existe o no"
+          ],
+          "explanation": "Files.exists() (y su contraparte Files.notExists()) estan pensados como consultas simples: siempre devuelven un boolean, sin excepciones de por medio, incluso si la ruta no existe o no es accesible.",
+          "conceptId": "files-existencia-atributos",
+          "role": "guided",
+          "pathOrder": 1
+        },
+        {
+          "id": "nio2-filesattrs-solo",
+          "type": "mcq",
+          "difficulty": 1,
+          "prompt": "Si Files.exists(p) devuelve true en este instante, que garantiza esto sobre una operacion posterior como Files.copy(p, destino)?",
+          "answer": "Nada -- exists() solo refleja el estado del archivo en el momento exacto en que se llamo, no en operaciones futuras",
+          "distractors": [
+            "Garantiza que la operacion posterior sobre esa misma ruta va a funcionar sin lanzar ninguna excepcion",
+            "Garantiza que el archivo queda bloqueado para otros procesos hasta que termine la siguiente operacion",
+            "Garantiza que Files.size(p) sobre la misma ruta va a devolver un valor mayor a cero bytes"
+          ],
+          "explanation": "exists() es una foto instantanea: el archivo podria borrarse, moverse o modificarse entre esa llamada y la siguiente operacion, asi que ninguna operacion posterior queda garantizada por un exists() previo -- por eso Files.copy()/move()/delete() siguen pudiendo lanzar sus propias excepciones aunque exists() haya dado true poco antes.",
+          "conceptId": "files-existencia-atributos",
+          "role": "solo",
+          "pathOrder": 2
+        },
+        {
+          "id": "nio2-filescopy-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "Files.copy(origen, destino) y Files.move(origen, destino) lanzan FileAlreadyExistsException si el destino ya existe y no se especifica ninguna opcion",
+          "code": "Path origen = Path.of(\"/tmp/reporte.txt\");\nPath destino = Path.of(\"/tmp/reporte_copia.txt\"); // ya existe\ntry {\n    Files.copy(origen, destino);\n} catch (FileAlreadyExistsException e) {\n    System.out.println(\"ya existe: \" + e.getFile());\n}",
+          "answer": "ok",
+          "explanation": "Sin ninguna CopyOption, tanto Files.copy() como Files.move() se niegan a sobrescribir un destino que ya existe: lanzan FileAlreadyExistsException en tiempo de ejecucion. La opcion para permitir la sobrescritura se ve en el siguiente concepto.",
+          "conceptId": "files-copy-move",
+          "role": "intro",
+          "pathOrder": 3,
+          "dependsOn": ["files-existencia-atributos"]
+        },
+        {
+          "id": "nio2-filescopy-guided",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Que pasa al llamar Files.copy(origen, destino) si destino ya existe y no se especifica ninguna CopyOption?",
+          "answer": "Se lanza FileAlreadyExistsException en tiempo de ejecucion, sin copiar nada",
+          "distractors": [
+            "El destino se sobrescribe en silencio, reemplazando por completo su contenido anterior",
+            "Java le agrega un sufijo automatico al nombre, como 'reporte_copia_1.txt', para evitar el conflicto",
+            "El metodo no hace nada y retorna sin error, dejando el destino exactamente como estaba antes"
+          ],
+          "explanation": "Files.copy() sin opciones adicionales es intencionalmente conservador: si el destino ya existe, lanza FileAlreadyExistsException en vez de arriesgarse a sobrescribir datos por accidente. No hay renombrado automatico ni sobrescritura silenciosa -- hace falta pedirlo explicitamente.",
+          "conceptId": "files-copy-move",
+          "role": "guided",
+          "pathOrder": 4,
+          "dependsOn": ["files-existencia-atributos"]
+        },
+        {
+          "id": "nio2-filescopy-solo",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Mismo escenario, pero con Files.move(origen, destino) en vez de copy(), si destino ya existe y no se especifica ninguna opcion. Que pasa?",
+          "answer": "Tambien se lanza FileAlreadyExistsException -- move() sigue exactamente la misma regla que copy() frente a un destino existente",
+          "distractors": [
+            "move() nunca falla por esto, ya que desplaza el archivo en vez de duplicarlo y no necesita espacio extra",
+            "move() sobrescribe el destino en silencio por defecto, a diferencia de copy() que si es conservador",
+            "Se lanza una excepcion distinta y especifica de move(), sin relacion con la de copy()"
+          ],
+          "explanation": "Files.move() comparte el mismo comportamiento por defecto que Files.copy(): sin una CopyOption como REPLACE_EXISTING, ambos se niegan a sobrescribir un destino existente y lanzan la misma FileAlreadyExistsException. No existe una excepcion separada especifica para move().",
+          "conceptId": "files-copy-move",
+          "role": "solo",
+          "pathOrder": 5,
+          "dependsOn": ["files-existencia-atributos"]
+        },
+        {
+          "id": "nio2-filesoption-intro",
+          "type": "worked_example",
+          "difficulty": 3,
+          "prompt": "StandardCopyOption.REPLACE_EXISTING habilita sobrescribir sin error; Files.delete() lanza NoSuchFileException si no existe, deleteIfExists() en el mismo caso devuelve false",
+          "code": "Files.copy(origen, destino, StandardCopyOption.REPLACE_EXISTING); // sobrescribe sin lanzar nada\n\ntry {\n    Files.delete(Path.of(\"/tmp/no_existe.txt\"));\n} catch (NoSuchFileException e) {\n    System.out.println(\"no existia: \" + e.getFile());\n}\n\nboolean borrado = Files.deleteIfExists(Path.of(\"/tmp/no_existe.txt\"));\nSystem.out.println(borrado);  // false, sin excepcion",
+          "answer": "ok",
+          "explanation": "StandardCopyOption.REPLACE_EXISTING resuelve directamente el caso visto en el concepto anterior: con esa opcion, Files.copy()/move() sobrescriben el destino sin lanzar FileAlreadyExistsException. Para borrar, Files.delete() es estricto (lanza NoSuchFileException si no existe), mientras que Files.deleteIfExists() es su version tolerante: devuelve false en el mismo caso, sin lanzar nada -- se elige uno u otro segun si la ausencia del archivo es un error real o un caso esperado.",
+          "conceptId": "files-standardcopyoption-delete",
+          "role": "intro",
+          "pathOrder": 6,
+          "dependsOn": ["files-copy-move"]
+        },
+        {
+          "id": "nio2-filesoption-guided",
+          "type": "mcq",
+          "difficulty": 3,
+          "prompt": "Cual de estas lineas permite que Files.copy() sobrescriba un destino que ya existe, sin lanzar FileAlreadyExistsException?",
+          "answer": "Files.copy(origen, destino, StandardCopyOption.REPLACE_EXISTING);",
+          "distractors": [
+            "Files.copy(origen, destino, StandardOpenOption.WRITE);",
+            "Files.copy(origen, destino, true);",
+            "Files.copy(destino, origen, StandardCopyOption.REPLACE_EXISTING);"
+          ],
+          "explanation": "StandardCopyOption.REPLACE_EXISTING es la constante correcta para permitir la sobrescritura. StandardOpenOption es para abrir streams, no para copy(); un boolean no es un CopyOption valido en la firma de Files.copy(); e invertir origen/destino sobrescribiria el archivo equivocado.",
+          "conceptId": "files-standardcopyoption-delete",
+          "role": "guided",
+          "pathOrder": 7,
+          "dependsOn": ["files-copy-move"]
+        },
+        {
+          "id": "nio2-filesoption-solo",
+          "type": "fill_blank",
+          "difficulty": 3,
+          "prompt": "Completa el metodo que borra un archivo sin lanzar excepcion si no existe, devolviendo un boolean en su lugar:",
+          "code": "boolean borrado = Files._____(ruta);",
+          "answer": "deleteIfExists",
+          "distractors": ["delete", "remove", "tryDelete"],
+          "explanation": "Files.deleteIfExists() borra el archivo si existe y devuelve true; si no existe, devuelve false sin lanzar nada. Files.delete() en cambio es estricto: lanza NoSuchFileException si la ruta no existe.",
+          "conceptId": "files-standardcopyoption-delete",
+          "role": "solo",
+          "pathOrder": 8,
+          "dependsOn": ["files-copy-move"]
+        }
+      ]
     }
   ]
 }
