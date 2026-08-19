@@ -1,0 +1,155 @@
+{
+  "sectionId": "java-localizacion",
+  "name": "Localizacion",
+  "orderIndex": 8,
+  "examVersion": "core",
+  "units": [
+    {
+      "unitId": "locale-basico",
+      "name": "Locale",
+      "certObjective": "localizacion",
+      "orderIndex": 1,
+      "summary": {
+        "text": "Locale.of(idioma, pais) es la forma recomendada de construir un Locale desde Java 19+; el constructor new Locale(idioma, pais) sigue compilando pero esta deprecado. Locale.Builder permite construir Locale con mas control, y lanza IllformedLocaleException en tiempo de ejecucion (al llamar build()) si algun componente esta mal formado. toString() usa guion bajo (es_CL) mientras que toLanguageTag() usa guion (es-CL, formato BCP 47). getLanguage()/getCountry()/getVariant() leen los componentes de un Locale ya construido (getVariant() devuelve un String vacio, no null, si no se especifico variante). Locale.setDefault() cambia el locale por defecto de toda la JVM, no solo del hilo o metodo donde se llama.",
+        "code": "Locale es = Locale.of(\"es\", \"CL\");\nSystem.out.println(es.toString());       // es_CL\nSystem.out.println(es.toLanguageTag());  // es-CL\n\nLocale.setDefault(Locale.of(\"fr\", \"FR\"));\n// Locale.getDefault() ahora devuelve fr_FR en toda la JVM"
+      },
+      "exercises": [
+        {
+          "id": "loc-localeconstruccion-intro",
+          "type": "worked_example",
+          "difficulty": 1,
+          "prompt": "Locale.of() es la forma recomendada de construir un Locale desde Java 19+; new Locale(...) sigue compilando pero esta deprecado",
+          "code": "Locale a = Locale.of(\"es\", \"CL\");\nLocale b = new Locale(\"es\", \"CL\"); // deprecado, sigue compilando\nSystem.out.println(a.equals(b));         // true, mismo Locale\nSystem.out.println(a.toString());        // es_CL\nSystem.out.println(a.toLanguageTag());   // es-CL",
+          "answer": "ok",
+          "explanation": "Locale.of(idioma, pais) es la forma recomendada desde Java 19+; new Locale(idioma, pais) sigue compilando (con un warning de API deprecada) y produce un Locale equivalente. toString() usa guion bajo (formato interno de Java, es_CL); toLanguageTag() usa guion (formato estandar BCP 47, es-CL) -- son representaciones de texto distintas del mismo Locale.",
+          "conceptId": "locale-construccion",
+          "role": "intro",
+          "pathOrder": 0
+        },
+        {
+          "id": "loc-localeconstruccion-guided",
+          "type": "mcq",
+          "difficulty": 1,
+          "prompt": "Por que se prefiere Locale.of(idioma, pais) sobre new Locale(idioma, pais) desde Java 19?",
+          "answer": "Porque new Locale(idioma, pais) esta deprecado desde Java 19, aunque sigue compilando y produce un Locale equivalente",
+          "distractors": [
+            "Porque new Locale(idioma, pais) ya no existe en el JDK, asi que ese codigo directamente no compilaria",
+            "Porque Locale.of() es mas rapido en tiempo de ejecucion que el constructor tradicional equivalente",
+            "Porque new Locale(idioma, pais) exige indicar siempre una variante ademas del idioma y el pais"
+          ],
+          "explanation": "El constructor new Locale(idioma, pais) fue marcado deprecado a partir de Java 19, cuando se agrego Locale.of() como reemplazo recomendado. El constructor sigue compilando (solo genera un warning) y ambas formas producen un Locale equivalente segun equals().",
+          "conceptId": "locale-construccion",
+          "role": "guided",
+          "pathOrder": 1
+        },
+        {
+          "id": "loc-localeconstruccion-solo",
+          "type": "mcq",
+          "difficulty": 1,
+          "prompt": "Sobre Locale.of(\"es\", \"CL\"), cual es la diferencia entre toString() y toLanguageTag()?",
+          "answer": "toString() usa guion bajo (es_CL, formato interno de Java); toLanguageTag() usa guion (es-CL, formato estandar BCP 47)",
+          "distractors": [
+            "toString() y toLanguageTag() devuelven exactamente el mismo texto, son solo dos nombres para el mismo metodo",
+            "toString() incluye idioma y pais; toLanguageTag() incluye unicamente el idioma, sin el pais",
+            "toLanguageTag() lanza una excepcion si el Locale no tiene una region asignada de forma explicita"
+          ],
+          "explanation": "Ambos metodos representan el mismo Locale como texto, pero con formatos distintos: toString() usa el formato interno de Java (guion bajo entre componentes, es_CL), mientras que toLanguageTag() usa el formato estandar BCP 47 (guion, es-CL), pensado para interoperar con otras plataformas.",
+          "conceptId": "locale-construccion",
+          "role": "solo",
+          "pathOrder": 2
+        },
+        {
+          "id": "loc-localecodigos-intro",
+          "type": "worked_example",
+          "difficulty": 1,
+          "prompt": "getLanguage()/getCountry() leen los componentes de un Locale ya construido; Locale.Builder lanza IllformedLocaleException en tiempo de ejecucion ante un valor mal formado",
+          "code": "Locale es = Locale.of(\"es\", \"CL\");\nSystem.out.println(es.getLanguage());  // es\nSystem.out.println(es.getCountry());   // CL\nSystem.out.println(es.getVariant());   // \"\" (vacio, no null)\n\ntry {\n    new Locale.Builder().setRegion(\"XX1\").build();\n} catch (IllformedLocaleException e) {\n    System.out.println(\"invalido: \" + e.getMessage());\n}",
+          "answer": "ok",
+          "explanation": "getLanguage()/getCountry()/getVariant() simplemente leen los componentes ya guardados en el Locale (getVariant() devuelve un String vacio, no null, cuando no se especifico variante). Locale.Builder valida cada componente recien al llamar build(): un valor mal formado como \"XX1\" (una region de 3 caracteres invalida) lanza IllformedLocaleException en tiempo de ejecucion, no un error de compilacion.",
+          "conceptId": "locale-codigos",
+          "role": "intro",
+          "pathOrder": 3,
+          "dependsOn": ["locale-construccion"]
+        },
+        {
+          "id": "loc-localecodigos-guided",
+          "type": "mcq",
+          "difficulty": 1,
+          "prompt": "Que pasa al ejecutar new Locale.Builder().setRegion(\"XX1\").build(), sabiendo que \"XX1\" no es un codigo de region valido?",
+          "answer": "Se lanza IllformedLocaleException en tiempo de ejecucion, al llamar build(), no en tiempo de compilacion",
+          "distractors": [
+            "El codigo no compila, ya que el compilador valida el formato de la region contra una lista fija de valores",
+            "build() devuelve un Locale con region vacia, sin lanzar ninguna excepcion en ningun momento",
+            "Se lanza IllegalArgumentException, ya que Builder valida sus parametros como cualquier setter comun"
+          ],
+          "explanation": "Locale.Builder no valida nada hasta que se llama build(): recien ahi revisa que cada componente tenga un formato valido. \"XX1\" no es un codigo de region ISO valido (3 caracteres en vez de 2, o un codigo numerico de 3 digitos), asi que build() lanza IllformedLocaleException -- un error en tiempo de ejecucion, no de compilacion.",
+          "conceptId": "locale-codigos",
+          "role": "guided",
+          "pathOrder": 4,
+          "dependsOn": ["locale-construccion"]
+        },
+        {
+          "id": "loc-localecodigos-solo",
+          "type": "mcq",
+          "difficulty": 1,
+          "prompt": "Que devuelve getVariant() sobre un Locale construido solo con idioma y pais (sin variante)?",
+          "answer": "Un String vacio (\"\"), ya que variant es opcional y no fue especificado al construir el Locale",
+          "distractors": [
+            "null, porque variant nunca se inicializa si no se especifico explicitamente al construir el Locale",
+            "Lanza NoSuchElementException, ya que no hay ningun valor de variant disponible para devolver",
+            "El mismo valor que getLanguage(), ya que Locale usa el idioma como variant por defecto"
+          ],
+          "explanation": "getVariant() nunca devuelve null: si no se especifico una variante al construir el Locale, devuelve un String vacio (\"\"). Es un detalle importante para evitar un NullPointerException innecesario al trabajar con el valor devuelto.",
+          "conceptId": "locale-codigos",
+          "role": "solo",
+          "pathOrder": 5,
+          "dependsOn": ["locale-construccion"]
+        },
+        {
+          "id": "loc-localedefault-intro",
+          "type": "worked_example",
+          "difficulty": 1,
+          "prompt": "Locale.setDefault() cambia el locale por defecto de toda la JVM, no solo del hilo o metodo donde se llama",
+          "code": "Locale original = Locale.getDefault();\nLocale.setDefault(Locale.of(\"fr\", \"FR\"));\n// en cualquier parte del programa, desde ahora:\nSystem.out.println(Locale.getDefault()); // fr_FR",
+          "answer": "ok",
+          "explanation": "Locale.setDefault() no afecta solo al metodo o hilo donde se llama: cambia el locale por defecto de toda la JVM. Cualquier codigo que llame Locale.getDefault() despues de ese punto, sin importar en que parte del programa se ejecute, ve el nuevo valor.",
+          "conceptId": "locale-default",
+          "role": "intro",
+          "pathOrder": 6,
+          "dependsOn": ["locale-codigos"]
+        },
+        {
+          "id": "loc-localedefault-guided",
+          "type": "mcq",
+          "difficulty": 1,
+          "prompt": "Si un metodo A llama Locale.setDefault(Locale.of(\"fr\", \"FR\")) y luego un metodo B, en otra parte del programa, llama Locale.getDefault(), que locale ve B?",
+          "answer": "fr_FR -- setDefault() cambia el locale por defecto de toda la JVM, sin importar que metodo o hilo lo consulte despues",
+          "distractors": [
+            "El locale original, ya que el cambio hecho por A solo aplica dentro del propio metodo A",
+            "El locale original, ya que el cambio hecho por A solo aplica al hilo donde se llamo setDefault()",
+            "Depende de si A y B se ejecutan en el mismo hilo; si no, B sigue viendo el locale original"
+          ],
+          "explanation": "Locale.setDefault() cambia un valor global de la JVM, no un valor local al metodo ni al hilo que lo invoca. Por eso B, sin importar donde este ni en que hilo corra, ve fr_FR al llamar Locale.getDefault() despues de que A hizo el cambio.",
+          "conceptId": "locale-default",
+          "role": "guided",
+          "pathOrder": 7,
+          "dependsOn": ["locale-codigos"]
+        },
+        {
+          "id": "loc-localedefault-solo",
+          "type": "fill_blank",
+          "difficulty": 1,
+          "prompt": "Completa el metodo que cambia el locale por defecto de toda la JVM:",
+          "code": "Locale.____(Locale.of(\"fr\", \"FR\"));",
+          "answer": "setDefault",
+          "distractors": ["setLocale", "changeDefault", "updateDefault"],
+          "explanation": "Locale.setDefault(Locale) es el metodo que cambia el locale por defecto de toda la JVM; Locale.getDefault() lo lee.",
+          "conceptId": "locale-default",
+          "role": "solo",
+          "pathOrder": 8,
+          "dependsOn": ["locale-codigos"]
+        }
+      ]
+    }
+  ]
+}
