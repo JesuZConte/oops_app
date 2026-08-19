@@ -8,6 +8,7 @@ object ContentPackRegistry {
         "content/exception-handling.json",
         "content/concurrency.json",
         "content/modules-packaging.json",
-        "content/io-nio2.json"
+        "content/io-nio2.json",
+        "content/localizacion.json"
     )
 }
