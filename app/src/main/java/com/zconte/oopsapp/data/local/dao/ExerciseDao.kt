@@ -19,9 +19,20 @@ interface ExerciseDao {
         SELECT exercises.* FROM exercises
         INNER JOIN review_state ON exercises.id = review_state.exerciseId
         WHERE review_state.dueDate <= :today
+        ORDER BY review_state.repetitions ASC, review_state.lastReviewedAt DESC,
+            review_state.easeFactor ASC, exercises.id ASC
         """
     )
     suspend fun getDue(today: Long): List<ExerciseEntity>
+
+    @Query(
+        """
+        SELECT exercises.* FROM exercises
+        INNER JOIN review_state ON exercises.id = review_state.exerciseId
+        WHERE review_state.dueDate <= :cutoff
+        """
+    )
+    suspend fun getStale(cutoff: Long): List<ExerciseEntity>
 
     @Query("SELECT * FROM exercises WHERE unitId = :unitId")
     suspend fun getByUnit(unitId: String): List<ExerciseEntity>
