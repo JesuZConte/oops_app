@@ -11,8 +11,11 @@ import com.zconte.oopsapp.domain.repository.ExerciseRepository
 import com.zconte.oopsapp.testutil.FakeCheckpointRepository
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.time.LocalDate
+import kotlin.random.Random
 
 private class FakeContentRepositoryForTodaySession(
     private val sections: List<Section>,
@@ -86,7 +89,11 @@ class GetTodaySessionUseCaseTest {
 
         val result = useCase(today)
 
-        assertEquals(listOf("due-1", "due-2", "new-1"), result.map { it.id })
+        // Fase B's internal presentation order is now randomized (see the seeded
+        // presentation-order test in this file) -- this test only guards the invariant that
+        // Fase B (review) precedes Fase A (new), not the relative order of due-1 vs due-2.
+        assertEquals(setOf("due-1", "due-2"), result.take(2).map { it.id }.toSet())
+        assertEquals("new-1", result[2].id)
     }
 
     @Test
@@ -341,5 +348,136 @@ class GetTodaySessionUseCaseTest {
         val result = useCase(today)
 
         assertEquals(emptyList<String>(), result.map { it.id })
+    }
+
+    @Test
+    fun `Fase B is capped and, with no stale candidates, keeps only the weakest N due items`() = runTest {
+        val contentRepository = FakeContentRepositoryForTodaySession(
+            sections = listOf(section("s1", 1)),
+            unitsBySection = mapOf("s1" to listOf(unit("s1-u1", "s1", 1))),
+            completedUnits = emptyList()
+        )
+        // The fake stands in for the DAO, which Task 1 already verified orders weakest-first --
+        // this list is pre-ordered exactly as getDue would return it.
+        val dueOrderedByWeakness = (1..12).map { exercise("due-$it") }
+        val exerciseRepository = FakeExerciseRepositoryForSession(due = dueOrderedByWeakness)
+        val useCase = GetTodaySessionUseCase(exerciseRepository, currentUnitUseCase(contentRepository, exerciseRepository))
+
+        val result = useCase(today, dueExercisesLimit = 10)
+
+        assertEquals(10, result.size)
+        assertEquals((1..10).map { "due-$it" }.toSet(), result.map { it.id }.toSet())
+    }
+
+    @Test
+    fun `an aged candidate that is also due wins its slot without appearing twice`() = runTest {
+        val contentRepository = FakeContentRepositoryForTodaySession(
+            sections = listOf(section("s1", 1)),
+            unitsBySection = mapOf("s1" to listOf(unit("s1-u1", "s1", 1))),
+            completedUnits = emptyList()
+        )
+        val due = (1..9).map { exercise("due-$it") }
+        val exerciseRepository = FakeExerciseRepositoryForSession(
+            due = due,
+            stale = listOf(exercise("due-5"))
+        )
+        val useCase = GetTodaySessionUseCase(exerciseRepository, currentUnitUseCase(contentRepository, exerciseRepository))
+
+        val result = useCase(today, dueExercisesLimit = 10, random = Random(0L))
+
+        assertEquals(9, result.size)
+        assertEquals((1..9).map { "due-$it" }.toSet(), result.map { it.id }.toSet())
+        assertEquals(1, result.count { it.id == "due-5" })
+    }
+
+    @Test
+    fun `different Random seeds can pick different stale candidates for the aged slot`() = runTest {
+        val contentRepository = FakeContentRepositoryForTodaySession(
+            sections = listOf(section("s1", 1)),
+            unitsBySection = mapOf("s1" to listOf(unit("s1-u1", "s1", 1))),
+            completedUnits = emptyList()
+        )
+        val due = (1..9).map { exercise("due-$it") }
+        val stale = listOf(exercise("stale-a"), exercise("stale-b"))
+
+        val repoA = FakeExerciseRepositoryForSession(due = due, stale = stale)
+        val resultA = GetTodaySessionUseCase(repoA, currentUnitUseCase(contentRepository, repoA))(
+            today, dueExercisesLimit = 10, random = Random(0L)
+        )
+        assertTrue("seed 0 must pick stale-a", resultA.any { it.id == "stale-a" })
+        assertTrue("seed 0 must not also include stale-b", resultA.none { it.id == "stale-b" })
+
+        val repoB = FakeExerciseRepositoryForSession(due = due, stale = stale)
+        val resultB = GetTodaySessionUseCase(repoB, currentUnitUseCase(contentRepository, repoB))(
+            today, dueExercisesLimit = 10, random = Random(1L)
+        )
+        assertTrue("seed 1 must pick stale-b", resultB.any { it.id == "stale-b" })
+        assertTrue("seed 1 must not also include stale-a", resultB.none { it.id == "stale-a" })
+    }
+
+    @Test
+    fun `presentation order of the combined Fase B set is shuffled, not left in weakness order`() = runTest {
+        val contentRepository = FakeContentRepositoryForTodaySession(
+            sections = listOf(section("s1", 1)),
+            unitsBySection = mapOf("s1" to listOf(unit("s1-u1", "s1", 1))),
+            completedUnits = emptyList()
+        )
+        val due = (1..9).map { exercise("due-$it") }
+        val stale = listOf(exercise("stale-a"), exercise("stale-b"))
+        val exerciseRepository = FakeExerciseRepositoryForSession(due = due, stale = stale)
+        val useCase = GetTodaySessionUseCase(exerciseRepository, currentUnitUseCase(contentRepository, exerciseRepository))
+
+        // Deliberately not pinned to the exact permutation Random(0L) produces -- that would
+        // couple this test to Kotlin's shuffle algorithm and to the implementation's precise
+        // sequence of random consumption (e.g. it would break if agedPick selection changed from
+        // .shuffled(random).firstOrNull() to random.nextInt(size), with no real regression).
+        // What must hold is: the full set is present (weakness selection is untouched), and the
+        // order actually changed from plain weakness order (the shuffle ran at all). The
+        // "different Random seeds pick different aged-slot winners" test above already proves
+        // random is genuinely threaded through the call.
+        val result = useCase(today, dueExercisesLimit = 10, random = Random(0L))
+        val weaknessOrderWithAgedPickAppended = due.map { it.id } + "stale-a"
+
+        assertEquals(10, result.size)
+        assertEquals((due.map { it.id } + "stale-a").toSet(), result.map { it.id }.toSet())
+        assertNotEquals(weaknessOrderWithAgedPickAppended, result.map { it.id })
+    }
+
+    @Test
+    fun `Fase B still precedes Fase A once capping and the aged slot are in play`() = runTest {
+        val contentRepository = FakeContentRepositoryForTodaySession(
+            sections = listOf(section("s1", 1)),
+            unitsBySection = mapOf("s1" to listOf(unit("s1-u1", "s1", 1))),
+            completedUnits = emptyList()
+        )
+        val due = (1..9).map { exercise("due-$it") }
+        val stale = listOf(exercise("stale-a"), exercise("stale-b"))
+        val exerciseRepository = FakeExerciseRepositoryForSession(
+            due = due,
+            stale = stale,
+            exercisesByUnit = mapOf("s1-u1" to listOf(exercise("new-1")))
+        )
+        val useCase = GetTodaySessionUseCase(exerciseRepository, currentUnitUseCase(contentRepository, exerciseRepository))
+
+        val result = useCase(today, dueExercisesLimit = 10, random = Random(0L))
+
+        assertEquals(11, result.size)
+        assertEquals("new-1", result.last().id)
+        assertTrue("no Fase A id may appear before the end", result.dropLast(1).none { it.id == "new-1" })
+    }
+
+    @Test
+    fun `the stale cutoff passed to the repository is today minus staleThresholdDays`() = runTest {
+        val contentRepository = FakeContentRepositoryForTodaySession(
+            sections = listOf(section("s1", 1)),
+            unitsBySection = mapOf("s1" to listOf(unit("s1-u1", "s1", 1))),
+            completedUnits = emptyList()
+        )
+        val exerciseRepository = FakeExerciseRepositoryForSession()
+        val useCase = GetTodaySessionUseCase(exerciseRepository, currentUnitUseCase(contentRepository, exerciseRepository))
+
+        useCase(today, staleThresholdDays = 45)
+
+        assertEquals(today.minusDays(45), exerciseRepository.lastStaleCutoff)
     }
 }
