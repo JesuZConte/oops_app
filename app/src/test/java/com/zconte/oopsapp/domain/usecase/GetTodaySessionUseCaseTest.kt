@@ -436,11 +436,13 @@ class GetTodaySessionUseCaseTest {
         // "different Random seeds pick different aged-slot winners" test above already proves
         // random is genuinely threaded through the call.
         val result = useCase(today, dueExercisesLimit = 10, random = Random(0L))
-        val weaknessOrderWithAgedPickAppended = due.map { it.id } + "stale-a"
+        // Matches the implementation's actual pre-shuffle order: listOfNotNull(agedPick) +
+        // dueByWeakness, i.e. the aged pick comes FIRST, not appended at the end.
+        val unshuffledOrder = listOf("stale-a") + due.map { it.id }
 
         assertEquals(10, result.size)
         assertEquals((due.map { it.id } + "stale-a").toSet(), result.map { it.id }.toSet())
-        assertNotEquals(weaknessOrderWithAgedPickAppended, result.map { it.id })
+        assertNotEquals(unshuffledOrder, result.map { it.id })
     }
 
     @Test
