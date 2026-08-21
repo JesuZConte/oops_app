@@ -370,6 +370,26 @@ class GetTodaySessionUseCaseTest {
     }
 
     @Test
+    fun `with production defaults, the review phase is capped at 10 regardless of backlog size`() = runTest {
+        val contentRepository = FakeContentRepositoryForTodaySession(
+            sections = listOf(section("s1", 1)),
+            unitsBySection = mapOf("s1" to listOf(unit("s1-u1", "s1", 1))),
+            completedUnits = emptyList()
+        )
+        // Regression guard: the real 267/280-item-dump bug this branch fixes. Both production
+        // callers (SessionViewModel, GetNextStudyStepUseCase) invoke useCase(today) using ALL
+        // defaults -- they never pass dueExercisesLimit or staleThresholdDays explicitly. This
+        // test must not pass either, or it stops guarding the shipped default.
+        val dueOrderedByWeakness = (1..12).map { exercise("due-$it") }
+        val exerciseRepository = FakeExerciseRepositoryForSession(due = dueOrderedByWeakness)
+        val useCase = GetTodaySessionUseCase(exerciseRepository, currentUnitUseCase(contentRepository, exerciseRepository))
+
+        val result = useCase(today)
+
+        assertEquals(10, result.size)
+    }
+
+    @Test
     fun `an aged candidate that is also due wins its slot without appearing twice`() = runTest {
         val contentRepository = FakeContentRepositoryForTodaySession(
             sections = listOf(section("s1", 1)),

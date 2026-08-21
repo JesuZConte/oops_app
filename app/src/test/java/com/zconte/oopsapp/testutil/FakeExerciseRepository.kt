@@ -8,14 +8,15 @@ import java.time.LocalDate
 class FakeExerciseRepository(
     private val dueExercises: List<Exercise> = emptyList(),
     private val exercisesByUnit: Map<String, List<Exercise>> = emptyMap(),
-    private val exercisesBySection: Map<String, List<Exercise>> = emptyMap()
+    private val exercisesBySection: Map<String, List<Exercise>> = emptyMap(),
+    private val staleExercises: List<Exercise> = emptyList()
 ) : ExerciseRepository {
 
     val savedReviewStates = mutableListOf<ReviewState>()
 
     override suspend fun getDueExercises(today: LocalDate, limit: Int): List<Exercise> = dueExercises.take(limit)
 
-    override suspend fun getStaleExercises(cutoff: LocalDate): List<Exercise> = emptyList()
+    override suspend fun getStaleExercises(cutoff: LocalDate): List<Exercise> = staleExercises
 
     override suspend fun getExercisesByUnit(unitId: String): List<Exercise> = exercisesByUnit[unitId] ?: emptyList()
 

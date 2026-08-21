@@ -24,8 +24,8 @@ class GetTodaySessionUseCase @Inject constructor(
         val staleCandidates = exerciseRepository.getStaleExercises(staleCutoff)
         val agedPick = staleCandidates.shuffled(random).firstOrNull()
 
-        val weaknessSlots = dueExercisesLimit - if (agedPick != null) 1 else 0
-        val dueByWeakness = exerciseRepository.getDueExercises(today, limit = Int.MAX_VALUE)
+        val weaknessSlots = (dueExercisesLimit - if (agedPick != null) 1 else 0).coerceAtLeast(0)
+        val dueByWeakness = exerciseRepository.getDueExercises(today, limit = dueExercisesLimit + 1)
             .filter { it.id != agedPick?.id }
             .take(weaknessSlots)
 
