@@ -15,6 +15,8 @@ class FakeExerciseRepository(
 
     override suspend fun getDueExercises(today: LocalDate, limit: Int): List<Exercise> = dueExercises.take(limit)
 
+    override suspend fun getStaleExercises(cutoff: LocalDate): List<Exercise> = emptyList()
+
     override suspend fun getExercisesByUnit(unitId: String): List<Exercise> = exercisesByUnit[unitId] ?: emptyList()
 
     override suspend fun getExercisesBySection(sectionId: String): List<Exercise> = exercisesBySection[sectionId] ?: emptyList()

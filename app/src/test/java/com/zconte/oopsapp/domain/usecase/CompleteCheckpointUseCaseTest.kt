@@ -63,6 +63,7 @@ private class FakeExerciseRepositoryForComplete(
 ) : ExerciseRepository {
     val seeded = mutableListOf<ReviewState>()
     override suspend fun getDueExercises(today: LocalDate, limit: Int): List<Exercise> = emptyList()
+    override suspend fun getStaleExercises(cutoff: LocalDate): List<Exercise> = emptyList()
     override suspend fun getExercisesByUnit(unitId: String): List<Exercise> = exercisesByUnit[unitId] ?: emptyList()
     override suspend fun getExercisesBySection(sectionId: String): List<Exercise> = emptyList()
     override suspend fun getReviewState(exerciseId: String): ReviewState? =

@@ -29,11 +29,17 @@ private class FakeContentRepositoryForTodaySession(
 private class FakeExerciseRepositoryForSession(
     private val due: List<Exercise> = emptyList(),
     private val exercisesByUnit: Map<String, List<Exercise>> = emptyMap(),
-    private val answeredIds: Set<String> = emptySet()
+    private val answeredIds: Set<String> = emptySet(),
+    private val stale: List<Exercise> = emptyList()
 ) : ExerciseRepository {
     val savedStates = mutableListOf<ReviewState>()
+    var lastStaleCutoff: LocalDate? = null
 
     override suspend fun getDueExercises(today: LocalDate, limit: Int): List<Exercise> = due.take(limit)
+    override suspend fun getStaleExercises(cutoff: LocalDate): List<Exercise> {
+        lastStaleCutoff = cutoff
+        return stale
+    }
     override suspend fun getExercisesByUnit(unitId: String): List<Exercise> = exercisesByUnit[unitId] ?: emptyList()
     override suspend fun getExercisesBySection(sectionId: String): List<Exercise> = emptyList()
     override suspend fun getReviewState(exerciseId: String): ReviewState? =
