@@ -300,6 +300,156 @@
           "dependsOn": ["resourcebundle-fallback"]
         }
       ]
+    },
+    {
+      "unitId": "formateo-numeros",
+      "name": "Formateo de numeros",
+      "certObjective": "localizacion",
+      "orderIndex": 3,
+      "summary": {
+        "text": "NumberFormat.getInstance()/getCurrencyInstance() dependen completamente del Locale recibido: los caracteres de separador de miles y de decimales pueden estar invertidos entre locales (en_US usa coma para miles y punto para decimales; de_DE usa punto para miles y coma para decimales). getCurrencyInstance() ademas fija el simbolo, su posicion y la cantidad de decimales segun la moneda real del Locale -- por ejemplo, CLP (peso chileno) no tiene centavos, asi que se muestra sin parte decimal, a diferencia de USD y EUR que muestran dos. DecimalFormat con un patron custom como \"#,##0.00\" solo define la forma del numero (cuantos decimales, donde va la agrupacion de miles); los caracteres exactos de cada separador vienen de un DecimalFormatSymbols explicito -- si se omite, DecimalFormat usa los simbolos del locale por defecto de la JVM en ese momento, que puede no ser el que el codigo pretende usar.",
+        "code": "double n = 1234567.891;\nNumberFormat.getInstance(Locale.US).format(n);      // 1,234,567.891\nNumberFormat.getInstance(Locale.GERMANY).format(n); // 1.234.567,891\n\nNumberFormat.getCurrencyInstance(Locale.of(\"es\", \"CL\")).format(1234.5); // $1.234 (CLP, sin decimales)\n\nnew DecimalFormat(\"#,##0.00\"); // usa los simbolos del locale por defecto de la JVM si no se pasa un DecimalFormatSymbols explicito"
+      },
+      "exercises": [
+        {
+          "id": "loc-nflocale-intro",
+          "type": "worked_example",
+          "difficulty": 1,
+          "prompt": "NumberFormat.getInstance() usa separadores de miles y decimales distintos segun el Locale recibido",
+          "code": "double n = 1234567.891;\nNumberFormat us = NumberFormat.getInstance(Locale.US);\nNumberFormat de = NumberFormat.getInstance(Locale.GERMANY);\nSystem.out.println(us.format(n)); // 1,234,567.891\nSystem.out.println(de.format(n)); // 1.234.567,891",
+          "answer": "ok",
+          "explanation": "NumberFormat.getInstance(locale) usa los caracteres de separador que corresponden a ese Locale. Locale.US usa coma para agrupar miles y punto para los decimales; Locale.GERMANY usa exactamente al reves: punto para agrupar miles y coma para los decimales. Es el mismo numero, formateado con dos convenciones opuestas.",
+          "conceptId": "numberformat-locale-dependiente",
+          "role": "intro",
+          "pathOrder": 0
+        },
+        {
+          "id": "loc-nflocale-guided",
+          "type": "mcq",
+          "difficulty": 1,
+          "prompt": "Que caracteriza la diferencia entre NumberFormat.getInstance(Locale.US) y NumberFormat.getInstance(Locale.GERMANY) sobre el mismo numero?",
+          "answer": "Los caracteres de separador de miles y de decimales estan invertidos entre ambos locales, coma y punto intercambiados",
+          "distractors": [
+            "Locale.GERMANY redondea el numero a menos cantidad de decimales que Locale.US, ademas de cambiar el separador",
+            "Locale.US no agrega ningun separador de miles, mientras que Locale.GERMANY si lo agrega siempre",
+            "Ambos locales producen exactamente el mismo texto, ya que getInstance() ignora el Locale recibido"
+          ],
+          "explanation": "El numero y la cantidad de decimales son los mismos en ambos casos; lo unico que cambia es que caracter representa cada separador. Locale.US usa coma para miles y punto para decimales; Locale.GERMANY usa la combinacion opuesta, punto para miles y coma para decimales.",
+          "conceptId": "numberformat-locale-dependiente",
+          "role": "guided",
+          "pathOrder": 1
+        },
+        {
+          "id": "loc-nflocale-solo",
+          "type": "mcq",
+          "difficulty": 1,
+          "prompt": "Segun el patron anterior (Locale.US usa coma para miles y punto para decimales; Locale.GERMANY usa la combinacion opuesta), que separadores esperarias al formatear el mismo numero con NumberFormat.getInstance(Locale.of(\"es\", \"CL\"))?",
+          "answer": "Los mismos que Locale.GERMANY: punto para agrupar miles y coma para los decimales",
+          "distractors": [
+            "Los mismos que Locale.US: coma para agrupar miles y punto para los decimales",
+            "Ninguno de los dos patrones: Locale.of(\"es\", \"CL\") no agrega ningun separador de miles",
+            "Depende del sistema operativo del dispositivo, no del Locale que reciba el metodo"
+          ],
+          "explanation": "Locale.of(\"es\", \"CL\") sigue la misma convencion que Locale.GERMANY: punto para agrupar los miles y coma para los decimales, lo opuesto de Locale.US. No hay que memorizar tres convenciones distintas -- hay que reconocer cual de las dos familias sigue cada Locale.",
+          "conceptId": "numberformat-locale-dependiente",
+          "role": "solo",
+          "pathOrder": 2
+        },
+        {
+          "id": "loc-nfmoneda-intro",
+          "type": "worked_example",
+          "difficulty": 1,
+          "prompt": "getCurrencyInstance() liga el simbolo, su posicion y la cantidad de decimales a la moneda real del Locale",
+          "code": "NumberFormat usd = NumberFormat.getCurrencyInstance(Locale.US);\nNumberFormat eur = NumberFormat.getCurrencyInstance(Locale.GERMANY);\nSystem.out.println(usd.format(1234.5)); // $1,234.50 (USD, dos decimales)\nSystem.out.println(eur.format(1234.5)); // 1.234,50 EUR (dos decimales, simbolo despues del numero)",
+          "answer": "ok",
+          "explanation": "getCurrencyInstance(locale) no solo cambia el separador de miles/decimales (igual que getInstance()): tambien fija el simbolo de moneda y su posicion segun la moneda real asociada a ese Locale. USD pone el simbolo antes del numero; EUR lo pone despues. Ambas monedas usan dos decimales.",
+          "conceptId": "numberformat-moneda",
+          "role": "intro",
+          "pathOrder": 3,
+          "dependsOn": ["numberformat-locale-dependiente"]
+        },
+        {
+          "id": "loc-nfmoneda-guided",
+          "type": "mcq",
+          "difficulty": 1,
+          "prompt": "Ademas de cambiar el simbolo, que otra diferencia hay entre getCurrencyInstance(Locale.US) (USD) y getCurrencyInstance(Locale.GERMANY) (EUR) sobre el mismo monto?",
+          "answer": "La posicion del simbolo respecto al numero cambia: USD lo pone antes del numero, EUR lo pone despues",
+          "distractors": [
+            "El monto se redondea a una cantidad distinta de decimales entre USD y EUR, ademas de cambiar el simbolo",
+            "getCurrencyInstance() ignora el monto recibido y siempre formatea 0.00 sin importar el Locale",
+            "EUR nunca incluye separador de miles, a diferencia de USD que siempre lo incluye"
+          ],
+          "explanation": "USD y EUR usan la misma cantidad de decimales (dos) sobre el mismo monto; lo que cambia entre ambas es la posicion del simbolo respecto al numero -- USD antes, EUR despues -- ademas del separador de miles/decimales ya visto en el concepto anterior.",
+          "conceptId": "numberformat-moneda",
+          "role": "guided",
+          "pathOrder": 4,
+          "dependsOn": ["numberformat-locale-dependiente"]
+        },
+        {
+          "id": "loc-nfmoneda-solo",
+          "type": "mcq",
+          "difficulty": 1,
+          "prompt": "Si formateas el mismo monto con NumberFormat.getCurrencyInstance(Locale.of(\"es\", \"CL\")) (CLP, peso chileno), que hace distinta a esta moneda de USD y EUR en el resultado?",
+          "answer": "CLP no tiene decimales (no usa centavos), asi que el resultado se muestra sin parte decimal, a diferencia de USD y EUR",
+          "distractors": [
+            "CLP usa exactamente los mismos dos decimales que USD y EUR, solo cambia el simbolo mostrado en el resultado",
+            "CLP redondea el monto siempre hacia arriba antes de formatear, algo que USD y EUR nunca hacen",
+            "CLP lanza una excepcion en tiempo de ejecucion si el monto tiene alguna parte decimal distinta de cero"
+          ],
+          "explanation": "CLP (peso chileno) no tiene una unidad menor que el peso -- no existen centavos -- asi que getCurrencyInstance() para Locale.of(\"es\", \"CL\") formatea sin ninguna parte decimal, a diferencia de USD y EUR que siempre muestran dos. La cantidad de decimales depende de la moneda real, no es un valor fijo del metodo.",
+          "conceptId": "numberformat-moneda",
+          "role": "solo",
+          "pathOrder": 5,
+          "dependsOn": ["numberformat-locale-dependiente"]
+        },
+        {
+          "id": "loc-dfpatron-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "El patron de DecimalFormat solo define la forma del numero; los caracteres de separador vienen de un DecimalFormatSymbols explicito",
+          "code": "double n = 1234567.891;\nDecimalFormat us = new DecimalFormat(\"#,##0.00\", DecimalFormatSymbols.getInstance(Locale.US));\nDecimalFormat de = new DecimalFormat(\"#,##0.00\", DecimalFormatSymbols.getInstance(Locale.GERMANY));\nSystem.out.println(us.format(n)); // 1,234,567.89\nSystem.out.println(de.format(n)); // 1.234.567,89",
+          "answer": "ok",
+          "explanation": "El mismo patron \"#,##0.00\" (dos decimales, agrupacion de miles) produce resultados distintos segun el DecimalFormatSymbols que se le pase: el patron fija la forma, el DecimalFormatSymbols fija que caracter representa cada separador. Sin un DecimalFormatSymbols explicito, DecimalFormat usa los simbolos del locale por defecto de la JVM en ese momento.",
+          "conceptId": "decimalformat-patron-custom",
+          "role": "intro",
+          "pathOrder": 6,
+          "dependsOn": ["numberformat-moneda"]
+        },
+        {
+          "id": "loc-dfpatron-guided",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Que define exactamente el patron \"#,##0.00\" en new DecimalFormat(patron, symbols)?",
+          "answer": "La forma del numero (cuantos decimales, donde va la agrupacion de miles), no que caracter representa cada separador",
+          "distractors": [
+            "Tanto la forma del numero como los caracteres exactos de cada separador, sin necesidad de un DecimalFormatSymbols",
+            "Unicamente el Locale completo que se debe usar para formatear el numero de principio a fin",
+            "La cantidad maxima de digitos totales permitidos antes de lanzar una excepcion en tiempo de ejecucion"
+          ],
+          "explanation": "El patron describe la estructura (cuantos decimales, cada cuantos digitos va un separador de agrupacion), pero nunca dice que simbolo usar para cada uno -- eso viene siempre de un DecimalFormatSymbols, ya sea el que se pasa explicitamente o el del locale por defecto de la JVM si no se pasa ninguno.",
+          "conceptId": "decimalformat-patron-custom",
+          "role": "guided",
+          "pathOrder": 7,
+          "dependsOn": ["numberformat-moneda"]
+        },
+        {
+          "id": "loc-dfpatron-solo",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Si construyes new DecimalFormat(\"#,##0.00\") SIN pasar un DecimalFormatSymbols explicito, que determina los caracteres de separador que va a usar?",
+          "answer": "El locale por defecto de la JVM en ese momento, que puede no ser el que el codigo pretende usar",
+          "distractors": [
+            "El patron mismo ya fija los caracteres exactos de cada separador, sin depender de ningun locale",
+            "Siempre usa coma para miles y punto para decimales, sin importar el locale por defecto de la JVM",
+            "El codigo no compila: DecimalFormat exige recibir siempre un DecimalFormatSymbols explicito"
+          ],
+          "explanation": "Sin un DecimalFormatSymbols explicito, DecimalFormat construye uno internamente a partir del locale por defecto de la JVM en ese momento -- un valor ambiental que ningun Locale visible en el codigo controla. Por eso pasar DecimalFormatSymbols explicitamente es la unica forma segura de garantizar un resultado predecible.",
+          "conceptId": "decimalformat-patron-custom",
+          "role": "solo",
+          "pathOrder": 8,
+          "dependsOn": ["numberformat-moneda"]
+        }
+      ]
     }
   ]
 }
