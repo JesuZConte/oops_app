@@ -360,7 +360,7 @@
           "type": "worked_example",
           "difficulty": 1,
           "prompt": "getCurrencyInstance() liga el simbolo, su posicion y la cantidad de decimales a la moneda real del Locale",
-          "code": "NumberFormat usd = NumberFormat.getCurrencyInstance(Locale.US);\nNumberFormat eur = NumberFormat.getCurrencyInstance(Locale.GERMANY);\nSystem.out.println(usd.format(1234.5)); // $1,234.50 (USD, dos decimales)\nSystem.out.println(eur.format(1234.5)); // 1.234,50 EUR (dos decimales, simbolo despues del numero)",
+          "code": "NumberFormat usd = NumberFormat.getCurrencyInstance(Locale.US);\nNumberFormat eur = NumberFormat.getCurrencyInstance(Locale.GERMANY);\nSystem.out.println(usd.format(1234.5)); // $1,234.50 (USD, dos decimales)\nSystem.out.println(eur.format(1234.5)); // 1.234,50 seguido del simbolo del euro (EUR, dos decimales, simbolo despues del numero)",
           "answer": "ok",
           "explanation": "getCurrencyInstance(locale) no solo cambia el separador de miles/decimales (igual que getInstance()): tambien fija el simbolo de moneda y su posicion segun la moneda real asociada a ese Locale. USD pone el simbolo antes del numero; EUR lo pone despues. Ambas monedas usan dos decimales.",
           "conceptId": "numberformat-moneda",
