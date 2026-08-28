@@ -450,6 +450,156 @@
           "dependsOn": ["numberformat-moneda"]
         }
       ]
+    },
+    {
+      "unitId": "formateo-fechas-horas",
+      "name": "Formateo de fechas y horas",
+      "certObjective": "localizacion",
+      "orderIndex": 4,
+      "summary": {
+        "text": "DateTimeFormatter.ofLocalizedDate()/ofLocalizedTime() con un FormatStyle y withLocale() cambian dos cosas independientes segun el Locale: el orden/idioma de la fecha, y si la hora usa 12 o 24 horas (con o sin marcador AM/PM). Locale.US usa mes primero y 12 horas con marcador; Locale.GERMANY usa dia primero y 24 horas sin marcador. ofPattern(patron, locale) separa dos responsabilidades: el patron fija el orden y la puntuacion de los campos, el Locale fija el idioma de nombres como el mes -- el patron nunca cambia entre locales, solo el idioma de lo que se muestra. Para que un texto formateado se pueda volver a parsear exactamente a la fecha original, format() y parse() deben usar el mismo DateTimeFormatter (mismo patron, mismo Locale); parsear con un formatter distinto al que genero el texto lanza DateTimeParseException.",
+        "code": "LocalDate fecha = LocalDate.of(2026, 10, 5);\n\nDateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).withLocale(Locale.US).format(fecha);      // October 5, 2026\nDateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).withLocale(Locale.GERMANY).format(fecha); // 5. Oktober 2026\n\nDateTimeFormatter fmt = DateTimeFormatter.ofPattern(\"d 'de' MMMM 'de' yyyy\", Locale.of(\"es\", \"CL\"));\nString texto = fecha.format(fmt);\nLocalDate.parse(texto, fmt).equals(fecha); // true -- mismo formatter para format() y parse()"
+      },
+      "exercises": [
+        {
+          "id": "loc-dtfestilos-intro",
+          "type": "worked_example",
+          "difficulty": 1,
+          "prompt": "ofLocalizedDate()/ofLocalizedTime() con withLocale() cambian el orden/idioma de la fecha y si la hora usa 12 o 24 horas",
+          "code": "LocalDate fecha = LocalDate.of(2026, 10, 5);\nLocalTime hora = LocalTime.of(14, 30);\n\nDateTimeFormatter fechaUS = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).withLocale(Locale.US);\nDateTimeFormatter fechaDE = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).withLocale(Locale.GERMANY);\nSystem.out.println(fecha.format(fechaUS)); // October 5, 2026 (mes primero, en ingles)\nSystem.out.println(fecha.format(fechaDE)); // 5. Oktober 2026 (dia primero, en aleman)\n\nDateTimeFormatter horaUS = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(Locale.US);\nDateTimeFormatter horaDE = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(Locale.GERMANY);\nSystem.out.println(hora.format(horaUS)); // formato de 12 horas, con marcador AM/PM\nSystem.out.println(hora.format(horaDE)); // 14:30 (formato de 24 horas, sin marcador)",
+          "answer": "ok",
+          "explanation": "El Locale controla dos cosas independientes al formatear fecha y hora: el orden de los campos de la fecha (junto con el idioma de nombres como el mes), y si la hora se muestra en formato de 12 horas con marcador AM/PM o en formato de 24 horas sin marcador. Locale.US usa mes-primero y 12 horas con marcador; Locale.GERMANY usa dia-primero y 24 horas sin marcador.",
+          "conceptId": "datetimeformatter-estilos-predefinidos",
+          "role": "intro",
+          "pathOrder": 0
+        },
+        {
+          "id": "loc-dtfestilos-guided",
+          "type": "mcq",
+          "difficulty": 1,
+          "prompt": "Ademas del idioma del nombre del mes, que par de diferencias adicionales hay entre Locale.US y Locale.GERMANY al usar ofLocalizedDate(LONG) y ofLocalizedTime(SHORT) juntos?",
+          "answer": "El orden de los campos de fecha cambia (mes primero vs dia primero), y el formato de hora cambia (12 horas con marcador vs 24 horas sin marcador)",
+          "distractors": [
+            "Solo cambia el orden de los campos de fecha (mes primero vs dia primero); el formato de la hora es siempre el mismo entre ambos locales, sin diferencia",
+            "Solo cambia el formato de hora (12 horas con marcador vs 24 horas sin marcador); el orden de los campos de fecha es siempre el mismo entre ambos",
+            "No hay ninguna otra diferencia real ademas del idioma: ambos locales terminan mostrando exactamente el mismo orden de fecha y el mismo formato de hora"
+          ],
+          "explanation": "Locale.US y Locale.GERMANY difieren en dos ejes independientes: el orden de la fecha (mes-primero vs dia-primero) y el formato de la hora (12 horas con marcador AM/PM vs 24 horas sin marcador). Ninguno de los dos ejes depende del otro -- cada Locale fija ambos por separado.",
+          "conceptId": "datetimeformatter-estilos-predefinidos",
+          "role": "guided",
+          "pathOrder": 1
+        },
+        {
+          "id": "loc-dtfestilos-solo",
+          "type": "mcq",
+          "difficulty": 1,
+          "prompt": "Si Locale.of(\"es\", \"CL\") sigue el mismo patron que Locale.GERMANY en estos dos aspectos, que esperarias al formatear la misma fecha y hora con ese Locale?",
+          "answer": "Dia primero en la fecha (con el mes en espanol), y hora en formato de 24 horas sin marcador AM/PM",
+          "distractors": [
+            "Mes primero en la fecha (con el mes en espanol), y hora en formato de 12 horas con marcador AM/PM",
+            "Dia primero en la fecha, pero hora en formato de 12 horas con marcador AM/PM, igual que Locale.US",
+            "Mes primero en la fecha, igual que Locale.US, pero hora en formato de 24 horas sin marcador"
+          ],
+          "explanation": "Locale.of(\"es\", \"CL\") sigue la misma convencion que Locale.GERMANY en ambos ejes: dia primero en la fecha (con el nombre del mes en espanol) y hora en formato de 24 horas sin marcador AM/PM. No hay que memorizar un tercer patron -- hay que reconocer que este Locale cae en la misma familia que Locale.GERMANY, no en la de Locale.US.",
+          "conceptId": "datetimeformatter-estilos-predefinidos",
+          "role": "solo",
+          "pathOrder": 2
+        },
+        {
+          "id": "loc-dtfpatron-intro",
+          "type": "worked_example",
+          "difficulty": 1,
+          "prompt": "ofPattern(patron, locale) separa dos responsabilidades: el patron fija orden/puntuacion, el Locale fija el idioma",
+          "code": "LocalDate fecha = LocalDate.of(2026, 10, 5);\nDateTimeFormatter us = DateTimeFormatter.ofPattern(\"MMMM d, yyyy\", Locale.US);\nDateTimeFormatter de = DateTimeFormatter.ofPattern(\"MMMM d, yyyy\", Locale.GERMANY);\nSystem.out.println(fecha.format(us)); // October 5, 2026\nSystem.out.println(fecha.format(de)); // Oktober 5, 2026",
+          "answer": "ok",
+          "explanation": "El patron \"MMMM d, yyyy\" fija el orden de los campos y su puntuacion exacta (mes-dia-anio, con esa coma) igual en ambos casos -- eso nunca cambia. Lo unico que cambia entre Locale.US y Locale.GERMANY es el idioma del nombre del mes, que viene del Locale, no del patron.",
+          "conceptId": "datetimeformatter-patron-personalizado",
+          "role": "intro",
+          "pathOrder": 3,
+          "dependsOn": ["datetimeformatter-estilos-predefinidos"]
+        },
+        {
+          "id": "loc-dtfpatron-guided",
+          "type": "mcq",
+          "difficulty": 1,
+          "prompt": "En DateTimeFormatter.ofPattern(patron, locale), que controla el patron (\"MMMM d, yyyy\") y que controla el Locale?",
+          "answer": "El patron controla el orden y la puntuacion de los campos; el Locale controla el idioma de nombres como el mes",
+          "distractors": [
+            "El patron controla el idioma de los nombres; el Locale controla el orden y la puntuacion de los campos",
+            "Ambos controlan lo mismo: el orden, la puntuacion y el idioma vienen siempre fijados por el patron",
+            "El Locale no tiene ningun efecto sobre ofPattern(), solo afecta a ofLocalizedDate()/ofLocalizedTime()"
+          ],
+          "explanation": "El patron es la parte fija de la plantilla: que campos aparecen, en que orden, con que puntuacion literal. El Locale solo decide el idioma de lo que ese patron produce -- por ejemplo, el nombre del mes -- sin alterar el orden ni la puntuacion que el patron ya definio.",
+          "conceptId": "datetimeformatter-patron-personalizado",
+          "role": "guided",
+          "pathOrder": 4,
+          "dependsOn": ["datetimeformatter-estilos-predefinidos"]
+        },
+        {
+          "id": "loc-dtfpatron-solo",
+          "type": "mcq",
+          "difficulty": 1,
+          "prompt": "Si aplicas el mismo patron \"MMMM d, yyyy\" con Locale.of(\"es\", \"CL\") a la fecha del 5 de octubre de 2026, que resultado esperas?",
+          "answer": "octubre 5, 2026 -- el mismo orden y puntuacion que el patron, con el nombre del mes en espanol",
+          "distractors": [
+            "5 de octubre, 2026 -- ofPattern() cambia el orden de los campos automaticamente segun el idioma del Locale",
+            "October 5, 2026 -- ofPattern() ignora por completo el Locale recibido como segundo argumento",
+            "05/10/2026 -- ofPattern() reemplaza el patron dado por el formato corto propio del Locale recibido"
+          ],
+          "explanation": "El patron \"MMMM d, yyyy\" mantiene exactamente el mismo orden y la misma puntuacion sin importar el Locale -- mes, luego dia, coma, luego anio. Lo unico que cambia con Locale.of(\"es\", \"CL\") es que el nombre del mes se muestra en espanol (\"octubre\"), igual que cambio a aleman con Locale.GERMANY.",
+          "conceptId": "datetimeformatter-patron-personalizado",
+          "role": "solo",
+          "pathOrder": 5,
+          "dependsOn": ["datetimeformatter-estilos-predefinidos"]
+        },
+        {
+          "id": "loc-dtfparseo-intro",
+          "type": "worked_example",
+          "difficulty": 2,
+          "prompt": "format() y parse() deben usar el mismo DateTimeFormatter para que el texto se reconstruya exactamente a la fecha original",
+          "code": "DateTimeFormatter fmt = DateTimeFormatter.ofPattern(\"d 'de' MMMM 'de' yyyy\", Locale.of(\"es\", \"CL\"));\nLocalDate original = LocalDate.of(2026, 10, 5);\nString texto = original.format(fmt); // 5 de octubre de 2026\nLocalDate reconstruida = LocalDate.parse(texto, fmt);\nSystem.out.println(reconstruida.equals(original)); // true",
+          "answer": "ok",
+          "explanation": "El mismo DateTimeFormatter (mismo patron, mismo Locale) que genero el texto tambien lo interpreta correctamente al parsear, sin ninguna ambiguedad -- por eso reconstruida.equals(original) da true. Si el texto se parseara con un formatter distinto (otro patron u otro Locale), esa garantia desaparece.",
+          "conceptId": "datetimeformatter-parseo-simetrico",
+          "role": "intro",
+          "pathOrder": 6,
+          "dependsOn": ["datetimeformatter-patron-personalizado"]
+        },
+        {
+          "id": "loc-dtfparseo-guided",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Por que original.format(fmt) seguido de LocalDate.parse(texto, fmt) con el MISMO fmt reconstruye exactamente la fecha original?",
+          "answer": "Porque el mismo patron y el mismo Locale que generaron el texto tambien lo interpretan al parsear, sin ambiguedad",
+          "distractors": [
+            "Porque LocalDate.parse() siempre reconstruye la fecha original sin importar que formatter se use para parsear",
+            "Porque LocalDate ordena internamente los campos, sin depender de ningun formatter para parsear el texto",
+            "Porque el patron usado incluye el anio completo, y eso alcanza para que cualquier parseo sea correcto"
+          ],
+          "explanation": "La garantia no viene de LocalDate ni del patron por si solos: viene de usar el mismo DateTimeFormatter (mismo patron, mismo Locale) tanto para generar el texto como para interpretarlo de vuelta. Ese formatter sabe exactamente que forma y que idioma esperar, porque es el mismo que los produjo.",
+          "conceptId": "datetimeformatter-parseo-simetrico",
+          "role": "guided",
+          "pathOrder": 7,
+          "dependsOn": ["datetimeformatter-patron-personalizado"]
+        },
+        {
+          "id": "loc-dtfparseo-solo",
+          "type": "mcq",
+          "difficulty": 2,
+          "prompt": "Si formateas una fecha con DateTimeFormatter.ofPattern(\"d 'de' MMMM 'de' yyyy\", Locale.of(\"es\", \"CL\")) y luego intentas parsear ese mismo texto con DateTimeFormatter.ofPattern(\"MMMM d, yyyy\", Locale.US) (patron y Locale distintos), que ocurre?",
+          "answer": "Se lanza DateTimeParseException, porque el texto generado no coincide con la forma que el segundo formatter espera leer",
+          "distractors": [
+            "El parseo funciona igual, ya que LocalDate.parse() reconoce automaticamente cualquier formato de fecha",
+            "Se reconstruye la fecha original correctamente, pero con el nombre del mes traducido al ingles",
+            "Se reconstruye una fecha distinta a la original, sin lanzar ninguna excepcion en tiempo de ejecucion"
+          ],
+          "explanation": "LocalDate.parse() no adivina el formato: exige que el texto coincida con la forma exacta que el formatter recibido espera (mismo orden de campos, misma puntuacion, mismo idioma de nombres). Un patron y Locale distintos a los que generaron el texto no coinciden con esa forma, asi que se lanza DateTimeParseException en vez de reconstruir cualquier fecha.",
+          "conceptId": "datetimeformatter-parseo-simetrico",
+          "role": "solo",
+          "pathOrder": 8,
+          "dependsOn": ["datetimeformatter-patron-personalizado"]
+        }
+      ]
     }
   ]
 }
