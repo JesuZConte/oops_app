@@ -69,9 +69,7 @@
           "conceptId": "locale-codigos",
           "role": "intro",
           "pathOrder": 3,
-          "dependsOn": [
-            "locale-construccion"
-          ]
+          "dependsOn": ["locale-construccion"]
         },
         {
           "id": "loc-localecodigos-guided",
@@ -88,9 +86,7 @@
           "conceptId": "locale-codigos",
           "role": "guided",
           "pathOrder": 4,
-          "dependsOn": [
-            "locale-construccion"
-          ]
+          "dependsOn": ["locale-construccion"]
         },
         {
           "id": "loc-localecodigos-solo",
@@ -107,9 +103,7 @@
           "conceptId": "locale-codigos",
           "role": "solo",
           "pathOrder": 5,
-          "dependsOn": [
-            "locale-construccion"
-          ]
+          "dependsOn": ["locale-construccion"]
         },
         {
           "id": "loc-localedefault-intro",
@@ -122,9 +116,7 @@
           "conceptId": "locale-default",
           "role": "intro",
           "pathOrder": 6,
-          "dependsOn": [
-            "locale-codigos"
-          ]
+          "dependsOn": ["locale-codigos"]
         },
         {
           "id": "loc-localedefault-guided",
@@ -141,9 +133,7 @@
           "conceptId": "locale-default",
           "role": "guided",
           "pathOrder": 7,
-          "dependsOn": [
-            "locale-codigos"
-          ]
+          "dependsOn": ["locale-codigos"]
         },
         {
           "id": "loc-localedefault-solo",
@@ -152,18 +142,12 @@
           "prompt": "Completa el metodo que cambia el locale por defecto de toda la JVM:",
           "code": "Locale.____(Locale.of(\"fr\", \"FR\"));",
           "answer": "setDefault",
-          "distractors": [
-            "setLocale",
-            "changeDefault",
-            "updateDefault"
-          ],
+          "distractors": ["setLocale", "changeDefault", "updateDefault"],
           "explanation": "Locale.setDefault(Locale) es el metodo que cambia el locale por defecto de toda la JVM; Locale.getDefault() lo lee.",
           "conceptId": "locale-default",
           "role": "solo",
           "pathOrder": 8,
-          "dependsOn": [
-            "locale-codigos"
-          ]
+          "dependsOn": ["locale-codigos"]
         }
       ]
     },
@@ -232,9 +216,7 @@
           "conceptId": "resourcebundle-fallback",
           "role": "intro",
           "pathOrder": 3,
-          "dependsOn": [
-            "resourcebundle-properties-basico"
-          ]
+          "dependsOn": ["resourcebundle-properties-basico"]
         },
         {
           "id": "loc-rbfallback-guided",
@@ -251,9 +233,7 @@
           "conceptId": "resourcebundle-fallback",
           "role": "guided",
           "pathOrder": 4,
-          "dependsOn": [
-            "resourcebundle-properties-basico"
-          ]
+          "dependsOn": ["resourcebundle-properties-basico"]
         },
         {
           "id": "loc-rbfallback-solo",
@@ -270,9 +250,7 @@
           "conceptId": "resourcebundle-fallback",
           "role": "solo",
           "pathOrder": 5,
-          "dependsOn": [
-            "resourcebundle-properties-basico"
-          ]
+          "dependsOn": ["resourcebundle-properties-basico"]
         },
         {
           "id": "loc-rbseguro-intro",
@@ -285,9 +263,7 @@
           "conceptId": "resourcebundle-empaquetado-seguro",
           "role": "intro",
           "pathOrder": 6,
-          "dependsOn": [
-            "resourcebundle-fallback"
-          ]
+          "dependsOn": ["resourcebundle-fallback"]
         },
         {
           "id": "loc-rbseguro-guided",
@@ -304,9 +280,7 @@
           "conceptId": "resourcebundle-empaquetado-seguro",
           "role": "guided",
           "pathOrder": 7,
-          "dependsOn": [
-            "resourcebundle-fallback"
-          ]
+          "dependsOn": ["resourcebundle-fallback"]
         },
         {
           "id": "loc-rbseguro-solo",
@@ -323,9 +297,7 @@
           "conceptId": "resourcebundle-empaquetado-seguro",
           "role": "solo",
           "pathOrder": 8,
-          "dependsOn": [
-            "resourcebundle-fallback"
-          ]
+          "dependsOn": ["resourcebundle-fallback"]
         }
       ]
     },
@@ -388,15 +360,13 @@
           "type": "worked_example",
           "difficulty": 1,
           "prompt": "getCurrencyInstance() liga el simbolo, su posicion y la cantidad de decimales a la moneda real del Locale",
-          "code": "NumberFormat usd = NumberFormat.getCurrencyInstance(Locale.US);\nNumberFormat eur = NumberFormat.getCurrencyInstance(Locale.GERMANY);\nSystem.out.println(usd.format(1234.5)); // $1,234.50 (USD, dos decimales)\nSystem.out.println(eur.format(1234.5)); // 1.234,50 seguido del simbolo del euro (EUR, dos decimales, simbolo despues del numero)",
+          "code": "NumberFormat usd = NumberFormat.getCurrencyInstance(Locale.US);\nNumberFormat eur = NumberFormat.getCurrencyInstance(Locale.GERMANY);\nSystem.out.println(usd.format(1234.5)); // $1,234.50 (USD, dos decimales)\nSystem.out.println(eur.format(1234.5)); // 1.234,50 EUR (dos decimales, simbolo despues del numero)",
           "answer": "ok",
           "explanation": "getCurrencyInstance(locale) no solo cambia el separador de miles/decimales (igual que getInstance()): tambien fija el simbolo de moneda y su posicion segun la moneda real asociada a ese Locale. USD pone el simbolo antes del numero; EUR lo pone despues. Ambas monedas usan dos decimales.",
           "conceptId": "numberformat-moneda",
           "role": "intro",
           "pathOrder": 3,
-          "dependsOn": [
-            "numberformat-locale-dependiente"
-          ]
+          "dependsOn": ["numberformat-locale-dependiente"]
         },
         {
           "id": "loc-nfmoneda-guided",
@@ -413,9 +383,7 @@
           "conceptId": "numberformat-moneda",
           "role": "guided",
           "pathOrder": 4,
-          "dependsOn": [
-            "numberformat-locale-dependiente"
-          ]
+          "dependsOn": ["numberformat-locale-dependiente"]
         },
         {
           "id": "loc-nfmoneda-solo",
@@ -432,9 +400,7 @@
           "conceptId": "numberformat-moneda",
           "role": "solo",
           "pathOrder": 5,
-          "dependsOn": [
-            "numberformat-locale-dependiente"
-          ]
+          "dependsOn": ["numberformat-locale-dependiente"]
         },
         {
           "id": "loc-dfpatron-intro",
@@ -447,9 +413,7 @@
           "conceptId": "decimalformat-patron-custom",
           "role": "intro",
           "pathOrder": 6,
-          "dependsOn": [
-            "numberformat-moneda"
-          ]
+          "dependsOn": ["numberformat-moneda"]
         },
         {
           "id": "loc-dfpatron-guided",
@@ -466,9 +430,7 @@
           "conceptId": "decimalformat-patron-custom",
           "role": "guided",
           "pathOrder": 7,
-          "dependsOn": [
-            "numberformat-moneda"
-          ]
+          "dependsOn": ["numberformat-moneda"]
         },
         {
           "id": "loc-dfpatron-solo",
@@ -485,9 +447,7 @@
           "conceptId": "decimalformat-patron-custom",
           "role": "solo",
           "pathOrder": 8,
-          "dependsOn": [
-            "numberformat-moneda"
-          ]
+          "dependsOn": ["numberformat-moneda"]
         }
       ]
     },
@@ -556,9 +516,7 @@
           "conceptId": "datetimeformatter-patron-personalizado",
           "role": "intro",
           "pathOrder": 3,
-          "dependsOn": [
-            "datetimeformatter-estilos-predefinidos"
-          ]
+          "dependsOn": ["datetimeformatter-estilos-predefinidos"]
         },
         {
           "id": "loc-dtfpatron-guided",
@@ -575,9 +533,7 @@
           "conceptId": "datetimeformatter-patron-personalizado",
           "role": "guided",
           "pathOrder": 4,
-          "dependsOn": [
-            "datetimeformatter-estilos-predefinidos"
-          ]
+          "dependsOn": ["datetimeformatter-estilos-predefinidos"]
         },
         {
           "id": "loc-dtfpatron-solo",
@@ -594,9 +550,7 @@
           "conceptId": "datetimeformatter-patron-personalizado",
           "role": "solo",
           "pathOrder": 5,
-          "dependsOn": [
-            "datetimeformatter-estilos-predefinidos"
-          ]
+          "dependsOn": ["datetimeformatter-estilos-predefinidos"]
         },
         {
           "id": "loc-dtfparseo-intro",
@@ -609,9 +563,7 @@
           "conceptId": "datetimeformatter-parseo-simetrico",
           "role": "intro",
           "pathOrder": 6,
-          "dependsOn": [
-            "datetimeformatter-patron-personalizado"
-          ]
+          "dependsOn": ["datetimeformatter-patron-personalizado"]
         },
         {
           "id": "loc-dtfparseo-guided",
@@ -628,9 +580,7 @@
           "conceptId": "datetimeformatter-parseo-simetrico",
           "role": "guided",
           "pathOrder": 7,
-          "dependsOn": [
-            "datetimeformatter-patron-personalizado"
-          ]
+          "dependsOn": ["datetimeformatter-patron-personalizado"]
         },
         {
           "id": "loc-dtfparseo-solo",
@@ -647,9 +597,7 @@
           "conceptId": "datetimeformatter-parseo-simetrico",
           "role": "solo",
           "pathOrder": 8,
-          "dependsOn": [
-            "datetimeformatter-patron-personalizado"
-          ]
+          "dependsOn": ["datetimeformatter-patron-personalizado"]
         }
       ]
     }
