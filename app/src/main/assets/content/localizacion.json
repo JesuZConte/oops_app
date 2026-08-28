@@ -466,9 +466,9 @@
           "type": "worked_example",
           "difficulty": 1,
           "prompt": "ofLocalizedDate()/ofLocalizedTime() con withLocale() cambian el orden/idioma de la fecha y si la hora usa 12 o 24 horas",
-          "code": "LocalDate fecha = LocalDate.of(2026, 10, 5);\nLocalTime hora = LocalTime.of(14, 30);\n\nDateTimeFormatter fechaUS = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).withLocale(Locale.US);\nDateTimeFormatter fechaDE = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).withLocale(Locale.GERMANY);\nSystem.out.println(fecha.format(fechaUS)); // October 5, 2026 (mes primero, en ingles)\nSystem.out.println(fecha.format(fechaDE)); // 5. Oktober 2026 (dia primero, en aleman)\n\nDateTimeFormatter horaUS = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(Locale.US);\nDateTimeFormatter horaDE = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(Locale.GERMANY);\nSystem.out.println(hora.format(horaUS)); // formato de 12 horas, con marcador AM/PM\nSystem.out.println(hora.format(horaDE)); // 14:30 (formato de 24 horas, sin marcador)",
+          "code": "LocalDate fecha = LocalDate.of(2026, 10, 5);\nLocalTime hora = LocalTime.of(14, 30);\n\nDateTimeFormatter fechaUS = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).withLocale(Locale.US);\nDateTimeFormatter fechaDE = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).withLocale(Locale.GERMANY);\nSystem.out.println(fecha.format(fechaUS)); // October 5, 2026 (mes primero, en ingles)\nSystem.out.println(fecha.format(fechaDE)); // 5. Oktober 2026 (dia primero, en aleman)\n\nDateTimeFormatter horaUS = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(Locale.US);\nDateTimeFormatter horaDE = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(Locale.GERMANY);\nSystem.out.println(hora.format(horaUS)); // formato de 12 horas, con marcador AM/PM\nSystem.out.println(hora.format(horaDE)); // 14:30 (formato de 24 horas, sin marcador)\n\nDateTimeFormatter fechaUSCorta = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT).withLocale(Locale.US);\nSystem.out.println(fecha.format(fechaUSCorta)); // 10/5/26 (mismo Locale.US que fechaUS, pero con FormatStyle.SHORT en vez de LONG)",
           "answer": "ok",
-          "explanation": "El Locale controla dos cosas independientes al formatear fecha y hora: el orden de los campos de la fecha (junto con el idioma de nombres como el mes), y si la hora se muestra en formato de 12 horas con marcador AM/PM o en formato de 24 horas sin marcador. Locale.US usa mes-primero y 12 horas con marcador; Locale.GERMANY usa dia-primero y 24 horas sin marcador.",
+          "explanation": "El Locale controla dos cosas independientes al formatear fecha y hora: el orden de los campos de la fecha (junto con el idioma de nombres como el mes), y si la hora se muestra en formato de 12 horas con marcador AM/PM o en formato de 24 horas sin marcador. Locale.US usa mes-primero y 12 horas con marcador; Locale.GERMANY usa dia-primero y 24 horas sin marcador. El FormatStyle (LONG vs SHORT) es un eje totalmente aparte: con el mismo Locale.US, LONG da October 5, 2026 (mes con nombre completo, anio de 4 digitos) y SHORT da 10/5/26 (mes numerico, anio de 2 digitos) -- el Locale no cambia, solo el nivel de detalle.",
           "conceptId": "datetimeformatter-estilos-predefinidos",
           "role": "intro",
           "pathOrder": 0
@@ -477,14 +477,14 @@
           "id": "loc-dtfestilos-guided",
           "type": "mcq",
           "difficulty": 1,
-          "prompt": "Ademas del idioma del nombre del mes, que par de diferencias adicionales hay entre Locale.US y Locale.GERMANY al usar ofLocalizedDate(LONG) y ofLocalizedTime(SHORT) juntos?",
-          "answer": "El orden de los campos de fecha cambia (mes primero vs dia primero), y el formato de hora cambia (12 horas con marcador vs 24 horas sin marcador)",
+          "prompt": "Sobre la misma fecha (5 de octubre de 2026) y el mismo Locale.US, que cambia si usas FormatStyle.SHORT en vez de FormatStyle.LONG en ofLocalizedDate()?",
+          "answer": "Solo el nivel de detalle: SHORT usa el mes como numero y el anio con 2 digitos (10/5/26); LONG usa el nombre completo del mes y el anio con 4 digitos (October 5, 2026). El Locale no cambia",
           "distractors": [
-            "Solo cambia el orden de los campos de fecha (mes primero vs dia primero); el formato de la hora es siempre el mismo entre ambos locales, sin diferencia",
-            "Solo cambia el formato de hora (12 horas con marcador vs 24 horas sin marcador); el orden de los campos de fecha es siempre el mismo entre ambos",
-            "No hay ninguna otra diferencia real ademas del idioma: ambos locales terminan mostrando exactamente el mismo orden de fecha y el mismo formato de hora"
+            "SHORT cambia el Locale usado internamente a un formato regional distinto, ademas de acortar el texto mostrado",
+            "SHORT y LONG producen exactamente el mismo texto; FormatStyle no tiene ningun efecto sobre ofLocalizedDate()",
+            "SHORT omite el anio por completo, mostrando unicamente el dia y el mes en formato numerico"
           ],
-          "explanation": "Locale.US y Locale.GERMANY difieren en dos ejes independientes: el orden de la fecha (mes-primero vs dia-primero) y el formato de la hora (12 horas con marcador AM/PM vs 24 horas sin marcador). Ninguno de los dos ejes depende del otro -- cada Locale fija ambos por separado.",
+          "explanation": "FormatStyle y Locale son dos ejes independientes: cambiar de LONG a SHORT con el mismo Locale.US solo cambia el nivel de detalle (mes numerico en vez de nombre completo, anio de 2 digitos en vez de 4) -- nunca cambia el idioma ni el orden de los campos, que siguen dependiendo unicamente del Locale.",
           "conceptId": "datetimeformatter-estilos-predefinidos",
           "role": "guided",
           "pathOrder": 1
